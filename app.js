@@ -13,8 +13,7 @@ const globalErrorHandler = require('./controllers/errorController');
 
 // Main Routers
 const userRouter = require('./routes/userRoutes');
-// const userRouter = require('./routes/userRoutes');
-//
+
 // Routers
 const categoryRouter = require('./routes/categoryRoutes');
 
