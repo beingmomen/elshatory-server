@@ -1,8 +1,8 @@
-const Model = require('../models/testimonialModel');
+const Model = require('../models/contactModel');
 const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 const createImageHandlerFactory = require('../utils/createImageHandlerFactory');
-const { getMailForTestimonial } = require('./../utils/sendMail');
+const { getMailForService } = require('../utils/sendMail');
 
 exports.createOne = catchAsync(async (req, res, next) => {
   const doc = await Model.create(req.body);
@@ -20,29 +20,20 @@ exports.createOne = catchAsync(async (req, res, next) => {
 
 exports.getAll = factory.getAll(Model);
 
-exports.getAllConfirmed = catchAsync(async (req, res, next) => {
-  const doc = await Model.find({ isConfirmed: true });
-
-  res.status(200).json({
-    status: 'success',
-    results: doc.length,
-    data: doc
-  });
-});
-
 exports.sendMail = catchAsync(async (req, res, next) => {
   console.log('req.body :>> ', req.body);
 
   const obj = {
     name: req.body.name,
     email: req.body.email,
+    phone: req.body.phone,
     description: req.body.description,
     from: req.body.email,
     to: 'abdelmomenelshatory@gmail.com',
     next: next
   };
 
-  await getMailForTestimonial(obj);
+  await getMailForService(obj);
 });
 
 exports.getOne = factory.getOne(Model);
