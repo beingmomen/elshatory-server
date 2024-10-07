@@ -16,6 +16,7 @@ const userRouter = require('./routes/userRoutes');
 
 // Routers
 const categoryRouter = require('./routes/categoryRoutes');
+const testimonialRouter = require('./routes/testimonialRoutes');
 
 const app = express();
 
@@ -79,6 +80,7 @@ app.use((req, res, next) => {
 
 // 3) ROUTES
 app.use('/api/v1/categories', categoryRouter);
+app.use('/api/v1/testimonials', testimonialRouter);
 
 // Main Routes
 app.use('/api/v1/users', userRouter);
