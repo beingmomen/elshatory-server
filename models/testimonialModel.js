@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const { slug } = require('../controllers/globalFactory');
 
 const schema = new mongoose.Schema(
@@ -6,6 +7,12 @@ const schema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Name is required.']
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required.'],
+      lowercase: true,
+      validate: [validator.isEmail, 'Email is not valid.']
     },
     slug: String,
     original_slug: String,
@@ -15,7 +22,7 @@ const schema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [false, 'Image is required.']
+      required: [true, 'Image is required.']
     },
     isConfirmed: {
       type: Boolean,

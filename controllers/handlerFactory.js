@@ -55,6 +55,19 @@ exports.createOne = Model =>
     });
   });
 
+exports.createOneNoProtect = Model =>
+  catchAsync(async (req, res, next) => {
+    const doc = await Model.create({ ...req.body });
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Created successfully',
+      data: {
+        data: doc
+      }
+    });
+  });
+
 exports.getOne = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     let query = Model.findById(req.params.id);

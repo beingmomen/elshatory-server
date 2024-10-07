@@ -1,37 +1,53 @@
-const Model = require('../models/categoryModel');
+const Model = require('../models/testimonialModel');
 const factory = require('./handlerFactory');
+const catchAsync = require('../utils/catchAsync');
 const createImageHandlerFactory = require('../utils/createImageHandlerFactory');
+const { getMailForTestimonial } = require('./../utils/sendMail');
 
-const imageFields = [
-  {
-    name: 'image',
-    maxCount: 1,
-    resize: { width: 500, height: 500, quality: 85 }
-  }
-];
+exports.createOne = catchAsync(async (req, res, next) => {
+  const doc = await Model.create(req.body);
 
-const {
-  uploadImages,
-  processImages,
-  createOneWithImages,
-  updateOneWithImages
-} = createImageHandlerFactory(Model, imageFields, 'testimonials');
+  res.status(201).json({
+    status: 'success',
+    message: 'Created successfully',
+    data: {
+      data: doc
+    }
+  });
 
-exports.uploadImages = uploadImages;
-exports.processImages = processImages;
-exports.createOne = createOneWithImages;
-exports.updateOne = updateOneWithImages;
-
-exports.getAllNoPagination = factory.getAllNoPagination(
-  Model,
-  [],
-  (selectFields = '')
-);
+  next();
+});
 
 exports.getAll = factory.getAll(Model);
+
+exports.getAllConfirmed = catchAsync(async (req, res, next) => {
+  const doc = await Model.find({ isConfirmed: true });
+
+  res.status(200).json({
+    status: 'success',
+    results: doc.length,
+    data: doc
+  });
+});
+
+exports.sendMail = catchAsync(async (req, res, next) => {
+  console.log('req.body :>> ', req.body);
+
+  const obj = {
+    name: req.body.name,
+    email: req.body.email,
+    description: req.body.description,
+    from: req.body.from,
+    to: 'abdelmomenelshatory@gmail.com',
+    next: next
+  };
+
+  await getMailForTestimonial(obj);
+});
+
 exports.getOne = factory.getOne(Model);
 
-exports.deleteOne = factory.deleteOne(
-  Model,
-  imageFields.map(field => field.name)
-);
+// exports.deleteOne = factory.deleteOne(
+//   Model,
+//   imageFields.map(field => field.name)
+// );
