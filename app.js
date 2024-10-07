@@ -80,6 +80,7 @@ app.use((req, res, next) => {
 
 // 3) ROUTES
 app.use('/api/v1/categories', categoryRouter);
+// app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/testimonials', testimonialRouter);
 
 // Main Routes
