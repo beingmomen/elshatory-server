@@ -5,7 +5,7 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router
-  // .route('/')
+  .route('/')
   // .get(controller.getAll)
   .post(controller.createOne, controller.sendMail);
 
