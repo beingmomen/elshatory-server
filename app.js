@@ -13,6 +13,9 @@ const globalErrorHandler = require('./controllers/errorController');
 
 // Main Routers
 const userRouter = require('./routes/userRoutes');
+const serviceRouter = require('./routes/serviceRoutes');
+const skillRouter = require('./routes/skillRoutes');
+const projectRouter = require('./routes/projectRoutes');
 const categoryRouter = require('./routes/categoryRoutes');
 
 const app = express();
@@ -92,6 +95,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/services', serviceRouter);
+app.use('/api/v1/skills', skillRouter);
+app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1/categories', categoryRouter);
 
 app.post('/api/v1/logout', (req, res) => {

@@ -64,16 +64,19 @@ class ImageHandler {
             resize
           );
 
+          const fullPath = `/images/${this.folderName}/${filename}`;
+
           req.processedImages[fieldName].push({
             filename,
+            fullPath,
             buffer: processedBuffer
           });
         }
 
         req.body[fieldName] =
           req.processedImages[fieldName].length === 1
-            ? req.processedImages[fieldName][0].filename
-            : req.processedImages[fieldName].map(img => img.filename);
+            ? req.processedImages[fieldName][0].fullPath
+            : req.processedImages[fieldName].map(img => img.fullPath);
       }
 
       next();
@@ -102,14 +105,16 @@ class ImageHandler {
    * Removes old images when updating
    * @param {Object} oldDoc - Previous document
    * @param {Object} newDoc - Updated document
+   * @param {Object} req - Express request object
    * @returns {Promise<void>}
    * @private
    */
-  async _removeOldImages(oldDoc, newDoc) {
+  async _removeOldImages(oldDoc, newDoc, req) {
     for (const { name: fieldName } of this.imageFields) {
+      // Only remove images if the field is actually being updated in the request
       if (
         oldDoc[fieldName] &&
-        newDoc[fieldName] &&
+        fieldName in req.body &&  // Check if the field is in the request body
         oldDoc[fieldName] !== newDoc[fieldName]
       ) {
         const oldImages = Array.isArray(oldDoc[fieldName])
@@ -117,7 +122,9 @@ class ImageHandler {
           : [oldDoc[fieldName]];
 
         for (const oldImage of oldImages) {
-          await imageService.deleteImage(oldImage, this.folderName);
+          // Extract filename from the full path
+          const filename = oldImage.split('/').pop();
+          await imageService.deleteImage(filename, this.folderName);
         }
       }
     }
@@ -131,7 +138,6 @@ class ImageHandler {
     return catchAsync(async (req, res, next) => {
       const session = await mongoose.startSession();
       session.startTransaction();
-
       try {
         req.body.user = req.user._id;
         const doc = await this.Model.create([req.body], { session });
@@ -185,7 +191,7 @@ class ImageHandler {
 
         if (req.processedImages) {
           await this._saveImages(req.processedImages);
-          await this._removeOldImages(oldDoc, updatedDoc);
+          await this._removeOldImages(oldDoc, updatedDoc, req);
         }
 
         await session.commitTransaction();
@@ -223,7 +229,9 @@ class ImageHandler {
             : [doc[fieldName]];
 
           for (const image of images) {
-            await imageService.deleteImage(image, this.folderName);
+            // Extract filename from the full path
+            const filename = image.split('/').pop();
+            await imageService.deleteImage(filename, this.folderName);
           }
         }
       }
