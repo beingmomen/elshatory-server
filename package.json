@@ -9,7 +9,7 @@
     "start:prod": "NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
     "n:dev": "nodemon netlify/functions/server.js",
-    "build": "mkdir -p public && cp public/index.html public/"
+    "build": "mkdir -p public"
   },
   "author": "Maron X",
   "license": "ISC",
