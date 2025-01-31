@@ -30,6 +30,7 @@ const createSendToken = (user, statusCode, res, status = 'success') => {
   res.status(statusCode).json({
     status,
     token,
+    message: 'User created successfully',
     data: {
       user
     }
@@ -53,6 +54,7 @@ const createSendTokenNo = (user, statusCode, res, status = 'success') => {
 
   res.status(statusCode).json({
     status,
+    message: 'User created successfully',
     data: {
       user
     }
@@ -75,7 +77,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     website: process.env.SITE_NAME,
     manager: process.env.MANAGER,
     template: 'welcome',
-    subject: `مرحبا بك فى عائلة ${process.env.SITE_NAME}`,
+    subject: `Welcome to ${process.env.SITE_NAME} family`,
     from: `${process.env.SITE_NAME} <${process.env.EMAIL_FROM}>`,
     to: req.body.email,
     next: next
@@ -83,7 +85,8 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   await sendMail(obj);
 
-  createSendToken(newUser, 201, res);
+  createSendTokenNo(newUser, 201, res);
+  // createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -179,9 +182,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   // 3) Send it to user's email
   try {
-    const resetURL = `${req.protocol}://${
-      process.env.RESET_PASSWORD_URL_DEV
-    }/${resetToken}`;
+    const resetURL = `${req.body.redirectUrl}/${resetToken}`;
 
     const obj = {
       name: user.name,
@@ -237,7 +238,12 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // 3) Update changedPasswordAt property for the user
   // 4) Log the user in, send JWT
-  createSendToken(user, 200, res, 'Changed successfully you can now login');
+  // createSendToken(user, 200, res, 'Changed successfully you can now login');
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Changed successfully you can now login'
+  });
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -255,6 +261,11 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save();
   // User.findByIdAndUpdate will NOT work as intended!
 
+  res.status(200).json({
+    status: 'success',
+    message: 'Changed successfully you can now login'
+  });
+
   // 4) Log user in, send JWT
-  createSendToken(user, 200, res);
+  // createSendToken(user, 200, res);
 });

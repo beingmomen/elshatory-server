@@ -6,30 +6,28 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
-const history = require('connect-history-api-fallback');
 const compression = require('compression');
+const path = require('path');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 // Main Routers
 const userRouter = require('./routes/userRoutes');
-
-// Routers
 const categoryRouter = require('./routes/categoryRoutes');
-const contactRouter = require('./routes/contactRoutes');
-const testimonialRouter = require('./routes/testimonialRoutes');
 
 const app = express();
 
-// Serving static files
-app.use(express.static(`${__dirname}/public`));
+app.use(cors()); // Enable CORS for all routes
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static('images'));
-
-app.use(cors()); // use this cors in middleware and done
-
-// 1) GLOBAL MIDDLEWARE
 // Set security HTTP headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false
+  })
+);
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -38,16 +36,16 @@ if (process.env.NODE_ENV === 'development') {
 
 // Limit requests from same API
 const limiter = rateLimit({
-  max: 1000,
-  windowMs: 60 * 60 * 1000,
+  max: 100,
+  windowMs: 60 * 1000,
   message: {
-    errors: ['Too many requests from this IP, please try again in an hour!']
+    errors: ['Too many requests from this IP, please try again in a minute!']
   }
 });
 app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
-app.use(express.json({ limit: '100kb' }));
+app.use(express.json({ limit: '10kb' }));
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -56,21 +54,30 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Prevent parameter pollution
+app.use(hpp());
+
+// Compression
 app.use(
-  hpp({
-    whitelist: [
-      'duration',
-      'ratingsQuantity',
-      'ratingsAverage',
-      'maxGroupSize',
-      'difficulty',
-      'price'
-    ]
+  compression({
+    level: 6,
+    threshold: 0,
+    filter: (req, res) => {
+      if (req.headers['x-no-compression']) {
+        return false;
+      }
+      return compression.filter(req, res);
+    }
   })
 );
 
-//
-app.use(compression());
+// Add cache control headers
+app.use((req, res, next) => {
+  // Don't cache API responses
+  if (req.url.match(/^\/api/)) {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+  next();
+});
 
 // Test middleware
 app.use((req, res, next) => {
@@ -79,23 +86,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// 3) ROUTES
-// app.use('/api/v1/categories', categoryRouter);
-app.use('/api/v1/contact', contactRouter);
-app.use('/api/v1/testimonials', testimonialRouter);
+// Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-// Main Routes
 app.use('/api/v1/users', userRouter);
-app.post('/api/v1/api/auth/logout', (req, res) => {
+app.use('/api/v1/categories', categoryRouter);
+
+app.post('/api/v1/logout', (req, res) => {
   res.send('Done');
 });
 
+// Handle 404 for API routes
+app.all('/api/*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+// Handle 404 errors - add this at the end before error handler
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-app.use(history());
-
+// Global error handling middleware
 app.use(globalErrorHandler);
 
 module.exports = app;

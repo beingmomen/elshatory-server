@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const { slug } = require('../controllers/globalFactory');
+const counterPlugin = require('./plugins/counterPlugin');
 
 const schema = new mongoose.Schema(
   {
@@ -30,7 +31,7 @@ const schema = new mongoose.Schema(
     },
     createdAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
       select: true
     }
   },
@@ -62,6 +63,8 @@ schema.pre('findOneAndUpdate', function(next) {
   }
   next();
 });
+
+schema.plugin(counterPlugin);
 
 const Testimonial = mongoose.model('Testimonial', schema);
 

@@ -1,22 +1,9 @@
 const Model = require('../models/testimonialModel');
 const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
-const createImageHandlerFactory = require('../utils/createImageHandlerFactory');
 const { getMailForTestimonial } = require('./../utils/sendMail');
 
-exports.createOne = catchAsync(async (req, res, next) => {
-  const doc = await Model.create(req.body);
-
-  res.status(201).json({
-    status: 'success',
-    message: 'Created successfully',
-    data: {
-      data: doc
-    }
-  });
-
-  next();
-});
+exports.createOne = factory.createOne(Model);
 
 exports.getAll = factory.getAll(Model);
 

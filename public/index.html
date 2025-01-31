@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express API Service</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .endpoint {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        code {
+            background-color: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .endpoint-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+        .endpoint-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        .endpoint-button:hover {
+            background-color: #0056b3;
+        }
+        .endpoint-description {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Express API Service</h1>
+        <p>Welcome to the Express API Service. Below are the available endpoints:</p>
+        
+        <div class="endpoint">
+            <h3>Users API</h3>
+            <p>Base URL: <code>/api/v1/users</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description">GET <code>/api/v1/users</code> - Get all users</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/users', '_blank')">Try it</button>
+                </li>
+                <li>POST <code>/api/v1/users</code> - Create a new user</li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description">GET <code>/api/v1/users/:id</code> - Get user by ID</span>
+                    <button class="endpoint-button" onclick="tryGetById('/api/v1/users')">Try it</button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="endpoint">
+            <h3>Categories API</h3>
+            <p>Base URL: <code>/api/v1/categories</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description">GET <code>/api/v1/categories</code> - Get all categories</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/categories', '_blank')">Try it</button>
+                </li>
+                <li>POST <code>/api/v1/categories</code> - Create a new category</li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description">GET <code>/api/v1/categories/:id</code> - Get category by ID</span>
+                    <button class="endpoint-button" onclick="tryGetById('/api/v1/categories')">Try it</button>
+                </li>
+            </ul>
+        </div>
+
+        <p>For more information about the API, please refer to the documentation.</p>
+    </div>
+
+    <script>
+        function tryGetById(baseUrl) {
+            const id = prompt('Please enter the ID:');
+            if (id) {
+                window.open(`${baseUrl}/${id}`, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>

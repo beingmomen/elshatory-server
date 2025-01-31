@@ -1,6 +1,6 @@
 const Model = require('../models/categoryModel');
 const factory = require('./handlerFactory');
-const createImageHandlerFactory = require('../utils/createImageHandlerFactory');
+const ImageHandler = require('../utils/images/ImageHandler');
 
 const imageFields = [
   {
@@ -20,28 +20,17 @@ const imageFields = [
   }
 ];
 
-const {
-  uploadImages,
-  processImages,
-  createOneWithImages,
-  updateOneWithImages
-} = createImageHandlerFactory(Model, imageFields, 'categories');
+const imageHandler = new ImageHandler(Model, imageFields, 'categories');
 
-exports.uploadImages = uploadImages;
-exports.processImages = processImages;
-exports.createOne = createOneWithImages;
-exports.updateOne = updateOneWithImages;
+exports.uploadImages = imageHandler.uploadImages();
+exports.processImages = imageHandler.processImages();
+exports.createOne = imageHandler.createOne();
+exports.updateOne = imageHandler.updateOne();
+exports.deleteOne = imageHandler.deleteOne();
 
-exports.getAllNoPagination = factory.getAllNoPagination(
-  Model,
-  [],
-  (selectFields = '')
-);
+exports.getAllNoPagination = factory.getAllNoPagination(Model);
 
 exports.getAll = factory.getAll(Model);
 exports.getOne = factory.getOne(Model);
 
-exports.deleteOne = factory.deleteOne(
-  Model,
-  imageFields.map(field => field.name)
-);
+exports.deleteAll = factory.deleteAll(Model);

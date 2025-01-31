@@ -1,11 +1,9 @@
+const mongoose = require('mongoose');
 const Model = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
-const ImageMiddleware = require('../utils/imageMiddleware');
-const imageMiddleware = new ImageMiddleware('users');
-const fs = require('fs').promises;
-const path = require('path');
+const ImageHandler = require('../utils/images/ImageHandler');
 
 const imageFields = [
   {
@@ -15,10 +13,10 @@ const imageFields = [
   }
 ];
 
-exports.uploadImages = imageMiddleware.uploadImages(imageFields);
-exports.resizeImages = imageMiddleware.resizeImages(
-  Object.fromEntries(imageFields.map(field => [field.name, field.resize]))
-);
+const imageHandler = new ImageHandler(Model, imageFields, 'users');
+
+exports.uploadImages = imageHandler.uploadImages();
+exports.processImages = imageHandler.processImages();
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -33,23 +31,8 @@ exports.getMe = (req, res, next) => {
   next();
 };
 
-const removeOldPhoto = async userId => {
-  try {
-    const user = await Model.findById(userId);
-    if (user && user.photo) {
-      const photoPath = path.join('images', 'users', user.photo);
-      await fs.unlink(photoPath);
-      console.log(`Removed old photo: ${user.photo}`);
-    }
-  } catch (err) {
-    console.error('Error while trying to remove old photo:', err);
-    // We don't throw here to allow the update to proceed even if photo removal fails
-  }
-};
-
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
-
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -66,28 +49,55 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     'email',
     'country',
     'phone',
-    'photo',
     'slug'
   );
-  if (req.file) filteredBody.photo = req.file.filename;
 
-  if (filteredBody.photo) {
-    await removeOldPhoto(req.user.id);
+  // 3) Add processed image if any
+  if (req.processedImages && req.processedImages.photo) {
+    filteredBody.photo = req.body.photo;
   }
 
-  // 3) Update user document
-  const updatedUser = await Model.findByIdAndUpdate(req.user.id, filteredBody, {
-    new: true,
-    runValidators: true
-  });
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  res.status(200).json({
-    status: 'success',
-    message: 'Updated successfully!',
-    data: {
-      user: updatedUser
+  try {
+    // 4) Get old user document for image cleanup
+    const oldUser = await Model.findById(req.user.id).session(session);
+
+    // 5) Update user document
+    const updatedUser = await Model.findByIdAndUpdate(
+      req.user.id,
+      filteredBody,
+      {
+        new: true,
+        runValidators: true,
+        session
+      }
+    );
+
+    // 6) Save new images and cleanup old ones if needed
+    if (req.processedImages) {
+      await imageHandler._saveImages(req.processedImages);
+      await imageHandler._removeOldImages(oldUser, updatedUser);
     }
-  });
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Updated successfully!',
+      data: {
+        user: updatedUser
+      }
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    next(error);
+  }
 });
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
@@ -106,27 +116,36 @@ exports.createOne = (req, res) => {
   });
 };
 
-exports.getAllNoPagination = factory.getAllNoPagination(Model, []);
+exports.createAdmin = catchAsync(async (req, res, next) => {
+  const body = req.body;
+  const newAdmin = await Model.create({
+    name: body.name,
+    email: body.email,
+    phone: body.phone,
+    password: body.password,
+    passwordConfirm: body.passwordConfirm,
+    role: 'admin'
+  });
+
+  res.status(201).json({
+    status: 'success',
+    message: 'Created successfully',
+    data: {
+      data: newAdmin
+    }
+  });
+});
+
+exports.getAllUsersNoPagination = factory.getAllNoPagination(Model);
+exports.getAllAdminsNoPagination = factory.getAllNoPagination(Model, {
+  optFilter: { role: 'admin' }
+});
 
 exports.getOne = factory.getOne(Model);
 exports.getAll = factory.getAll(Model);
+exports.getAllUsers = factory.getAll(Model, { optFilter: { role: 'user' } });
+exports.getAllAdmins = factory.getAll(Model, { optFilter: { role: 'admin' } });
 
 // Do NOT update passwords with this!
-exports.updateOne = factory.updateOne(Model);
-
-// exports.deleteOne = factory.deleteOne(Model);
-
-// Custom deleteOne function
-exports.deleteOne = catchAsync(async (req, res, next) => {
-  const doc = await Model.findById(req.params.id);
-
-  if (!doc) {
-    return next(new AppError('No document found with that ID', 404));
-  }
-
-  // Remove the old photo
-  await removeOldPhoto(req.params.id);
-
-  // Use the factory's deleteOne function
-  await factory.deleteOne(Model)(req, res, next);
-});
+exports.updateOne = imageHandler.updateOne();
+exports.deleteOne = imageHandler.deleteOne();

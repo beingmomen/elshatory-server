@@ -1,39 +1,55 @@
 const mongoose = require('mongoose');
 const { slug } = require('../controllers/globalFactory');
+const counterPlugin = require('./plugins/counterPlugin');
 
 const schema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Name is required. #&& الاسم مطلوب.'],
-      unique: true
+      required: [true, 'Name is required'],
+      trim: true,
+      unique: true,
+      index: true
     },
-    slug: String,
+    slug: {
+      type: String,
+      index: true
+    },
     original_slug: String,
     description: {
-      type: String
+      type: String,
+      required: [true, 'Description is required'],
+      trim: true
     },
     image: {
       type: String,
-      required: [false, 'Image is required. #&& الصورة مطلوبة.']
+      required: [true, 'Image is required']
     },
     imageCover: {
       type: String,
-      required: [false, 'Image Cover is required.']
+      required: [true, 'Image Cover is required']
     },
     images: {
       type: [String],
-      required: [false, 'images is required.']
+      required: [true, 'Images are required'],
+      validate: {
+        validator: function(val) {
+          return val.length > 0 && val.length == 3;
+        },
+        message: 'Category must have 3 images'
+      }
     },
     createdAt: {
       type: Date,
-      default: Date.now(),
-      select: true
+      default: Date.now,
+      select: true,
+      index: true
     },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
-      required: [true, 'Category must belong to a user']
+      required: [true, 'Category must belong to a user'],
+      index: true
     }
   },
   {
@@ -42,10 +58,11 @@ const schema = new mongoose.Schema(
   }
 );
 
-schema.index({ slug: 1 });
+// Create compound indexes for common query patterns
+schema.index({ slug: 1, user: 1 });
+schema.index({ createdAt: -1, name: 1 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
-
 schema.pre('save', function(next) {
   this.original_slug = slug(this.name);
   next();
@@ -64,6 +81,8 @@ schema.pre('findOneAndUpdate', function(next) {
   }
   next();
 });
+
+schema.plugin(counterPlugin);
 
 const Category = mongoose.model('Category', schema);
 

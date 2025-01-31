@@ -8,9 +8,20 @@ router
   .route('/')
   .get(controller.getAll)
   .post(
+    authController.protect,
+    authController.restrictTo(['admin', 'dev']),
     controller.uploadImages,
     controller.processImages,
     controller.createOne
+  );
+
+router.route('/all').get(controller.getAllNoPagination);
+router
+  .route('/delete-all')
+  .delete(
+    authController.protect,
+    authController.restrictTo(['dev']),
+    controller.deleteAll
   );
 
 router

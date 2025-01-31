@@ -77,7 +77,7 @@ module.exports = class Email {
   }
 
   async sendWelcome() {
-    await this.send('welcome', `مرحبا بك فى عائلة ${process.env.SITE_NAME}`);
+    await this.send('welcome', `Welcome to ${process.env.SITE_NAME} family`);
   }
 
   async sendPasswordReset() {

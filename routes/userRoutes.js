@@ -19,7 +19,7 @@ router.get('/me', controller.getMe, controller.getOne);
 router.patch(
   '/updateMe',
   controller.uploadImages,
-  controller.resizeImages,
+  controller.processImages,
   controller.updateMe
 );
 router.delete('/deleteMe', controller.deleteMe);
@@ -28,10 +28,14 @@ router.use(authController.restrictTo(['admin', 'dev']));
 
 router
   .route('/')
-  .get(controller.getAll)
+  .get(controller.getAllUsers)
   .post(controller.createOne);
 
-router.route('/all').get(controller.getAllNoPagination);
+router.route('/admins').get(controller.getAllAdmins);
+router.route('/all/admins').get(controller.getAllAdminsNoPagination);
+router.route('/all').get(controller.getAllUsersNoPagination);
+
+router.route('/admin').post(controller.createAdmin);
 
 router
   .route('/:id')

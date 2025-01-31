@@ -44,6 +44,7 @@ exports.sendMail = catchAsync(async data => {
     console.log('error :>> ', error);
   }
 });
+
 exports.getMailForTestimonial = catchAsync(async data => {
   // 1) Render HTML based on a pug template
   const html = await pug.renderFile(

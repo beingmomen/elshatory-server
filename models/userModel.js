@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { slug } = require('./../controllers/globalFactory');
+const counterPlugin = require('./plugins/counterPlugin');
 
 const schema = new mongoose.Schema(
   {
@@ -21,7 +22,7 @@ const schema = new mongoose.Schema(
     },
     photo: {
       type: String,
-      default: '/users/default.jpg'
+      default: '/images/users/default.jpg'
     },
     country: {
       type: String,
@@ -56,6 +57,12 @@ const schema = new mongoose.Schema(
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      select: true,
+      index: true
+    },
     active: {
       type: Boolean,
       default: true,
@@ -69,11 +76,13 @@ const schema = new mongoose.Schema(
   }
 );
 
-schema.index({
-  name: 1,
-  email: 1,
-  phone: 1
-});
+// Create individual indexes for frequently queried fields
+schema.index({ email: 1 }, { unique: true });
+schema.index({ slug: 1 });
+
+// Compound index for name and phone if they're frequently queried together
+schema.index({ createdAt: -1, name: 1 });
+schema.index({ name: 1, phone: 1 });
 
 schema.pre('save', function(next) {
   this.original_slug = slug(this.name);
@@ -152,6 +161,8 @@ schema.methods.createPasswordResetToken = function() {
 
   return resetToken;
 };
+
+schema.plugin(counterPlugin);
 
 const User = mongoose.model('User', schema);
 
