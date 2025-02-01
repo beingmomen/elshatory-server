@@ -24,7 +24,7 @@ class APIFeatures {
       const { search } = this.queryString;
 
       // Specify the fields to search on
-      const fields = ['name', 'number', 'email', 'title'];
+      const fields = ['name', 'number', 'email', 'title', 'documentNumber'];
 
       this.query = this.query.find({
         $or: fields.map(field => ({ [field]: new RegExp(search, 'i') }))
