@@ -25,7 +25,6 @@ exports.sendMail = catchAsync(async (req, res, next) => {
 
 exports.getOne = factory.getOne(Model);
 
-// exports.deleteOne = factory.deleteOne(
-//   Model,
-//   imageFields.map(field => field.name)
-// );
+exports.updateOne = factory.updateOne(Model);
+
+exports.deleteOne = factory.deleteOne(Model);
