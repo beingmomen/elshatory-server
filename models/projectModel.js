@@ -21,6 +21,10 @@ const schema = new mongoose.Schema(
       required: [true, 'Tag is required'],
       trim: true
     },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
     url: {
       type: String,
       required: [true, 'Url is required'],
@@ -47,9 +51,9 @@ const schema = new mongoose.Schema(
       required: [true, 'Tags are required'],
       validate: {
         validator: function(val) {
-          return val.length > 0 && val.length == 3;
+          return val.length > 0 && val.length >= 3;
         },
-        message: 'Project must have exactly 3 skills as tags'
+        message: 'Project must have at least 3 skills as tags'
       }
     },
     image: {
