@@ -19,6 +19,7 @@ const projectRouter = require('./routes/projectRoutes');
 const testimonialRouter = require('./routes/testimonialRoutes');
 const contactRouter = require('./routes/contactRoutes');
 const clientRouter = require('./routes/clientRoutes');
+const infoRouter = require('./routes/infoRoutes');
 const categoryRouter = require('./routes/categoryRoutes');
 
 const app = express();
@@ -104,6 +105,7 @@ app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1/testimonials', testimonialRouter);
 app.use('/api/v1/contacts', contactRouter);
 app.use('/api/v1/clients', clientRouter);
+app.use('/api/v1/infos', infoRouter);
 app.use('/api/v1/categories', categoryRouter);
 
 app.post('/api/v1/logout', (req, res) => {
