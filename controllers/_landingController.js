@@ -45,7 +45,7 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
       })
       .lean(),
 
-    Project.countDocuments(),
+    Project.find({ isActive: true }).countDocuments(),
 
     Client.find()
       .select('image -createdAt')
