@@ -25,6 +25,11 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, 'Image is required']
     },
+    altText: {
+      type: String,
+      required: [true, 'Alt text is required'],
+      trim: true
+    },
     createdAt: {
       type: Date,
       default: Date.now,
