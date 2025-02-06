@@ -29,7 +29,7 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
       .lean(),
 
     Service.find()
-      .select('title description image -createdAt')
+      .select('title description altText image -createdAt')
       .lean(),
 
     Testimonial.find({ isConfirmed: true })
@@ -37,7 +37,7 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
       .lean(),
 
     Project.find({ isActive: true })
-      .select('title tag tags tagIds url image -createdAt')
+      .select('title tag tags tagIds url image altText -createdAt')
       .limit(6)
       .populate({
         path: 'tags',
@@ -48,7 +48,7 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
     Project.find({ isActive: true }).countDocuments(),
 
     Client.find()
-      .select('image -createdAt')
+      .select('image name -createdAt')
       .lean(),
 
     Info.findOne()

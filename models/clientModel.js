@@ -22,7 +22,7 @@ const schema = new mongoose.Schema(
     },
     altText: {
       type: String,
-      required: [true, 'Alt text is required'],
+      required: [false, 'Alt text is required'],
       trim: true
     },
     website: {
