@@ -28,7 +28,13 @@ const schema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, 'Image is required']
+      required: [true, 'Image is required'],
+      validate: {
+        validator: function(value) {
+          return /^(http|https):\/\/.*\.(jpeg|jpg|png|gif|webp)$/.test(value);
+        },
+        message: 'Invalid image URL format'
+      }
     },
     altText: {
       type: String,
@@ -49,9 +55,10 @@ const schema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    isPublished: {
-      type: Boolean,
-      default: false
+    status: {
+      type: String,
+      enum: ['draft', 'published', 'archived'],
+      default: 'draft'
     },
     isArabicArticle: {
       type: Boolean,
