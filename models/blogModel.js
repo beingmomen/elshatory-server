@@ -28,13 +28,15 @@ const schema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, 'Image is required'],
-      validate: {
-        validator: function(value) {
-          return /^(http|https):\/\/.*\.(jpeg|jpg|png|gif|webp)$/.test(value);
-        },
-        message: 'Invalid image URL format'
-      }
+      required: [true, 'Image is required']
+      // validate: {
+      //   validator: function(value) {
+      //     return /^(http|https):\/\/.*\.(jpeg|jpg|png|gif|webp|avif|svg)$/.test(
+      //       value
+      //     );
+      //   },
+      //   message: 'Invalid image URL format'
+      // }
     },
     altText: {
       type: String,
@@ -48,7 +50,7 @@ const schema = new mongoose.Schema(
     },
     keywords: {
       type: String,
-      required: [true, 'Keywords are required'],
+      required: [false, 'Keywords are required'],
       trim: true
     },
     views: {
