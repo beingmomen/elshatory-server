@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { slug } = require('../controllers/globalFactory');
 const counterPlugin = require('./plugins/counterPlugin');
+const { parseHeadings } = require('../utils/headingParser');
 
 const schema = new mongoose.Schema(
   {
@@ -26,17 +27,19 @@ const schema = new mongoose.Schema(
       required: [true, 'Content is required'],
       trim: true
     },
+    tableOfContents: {
+      type: [
+        {
+          id: String,
+          text: String,
+          level: Number
+        }
+      ],
+      default: []
+    },
     image: {
       type: String,
       required: [true, 'Image is required']
-      // validate: {
-      //   validator: function(value) {
-      //     return /^(http|https):\/\/.*\.(jpeg|jpg|png|gif|webp|avif|svg)$/.test(
-      //       value
-      //     );
-      //   },
-      //   message: 'Invalid image URL format'
-      // }
     },
     altText: {
       type: String,
@@ -103,6 +106,16 @@ schema.pre('save', function(next) {
   next();
 });
 
+// Process content to extract headings and generate table of contents
+schema.pre('save', function(next) {
+  if (this.isModified('content')) {
+    const { content, tableOfContents } = parseHeadings(this.content);
+    this.content = content;
+    this.tableOfContents = tableOfContents;
+  }
+  next();
+});
+
 schema.pre('save', function(next) {
   if (this.isModified('title')) {
     this.slug = slug(this.title);
@@ -113,6 +126,13 @@ schema.pre('save', function(next) {
 schema.pre('findOneAndUpdate', function(next) {
   if (this._update.title) {
     this._update.slug = slug(this._update.title);
+  }
+
+  // Process content to extract headings and generate table of contents
+  if (this._update.content) {
+    const { content, tableOfContents } = parseHeadings(this._update.content);
+    this._update.content = content;
+    this._update.tableOfContents = tableOfContents;
   }
   next();
 });

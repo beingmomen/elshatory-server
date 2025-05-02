@@ -3,6 +3,16 @@ const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 
 exports.createOne = factory.createOne(Model);
+// exports.createOne = catchAsync(async (req, res, next) => {
+//   const doc = await Model.create(req.body);
+//   res.status(201).json({
+//     status: 'success',
+//     data: {
+//       data: doc
+//     }
+//   });
+// });
+
 exports.updateOne = factory.updateOne(Model);
 exports.deleteOne = factory.deleteOne(Model);
 
