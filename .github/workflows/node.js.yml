@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy (${{ matrix.environment }})
 
-    runs-on: ${{ format('self-hosted,{0}', matrix.environment) }}
+    runs-on: [self-hosted, ${{ matrix.environment }}]
 
     if: github.ref == 'refs/heads/' + matrix.branch
 
