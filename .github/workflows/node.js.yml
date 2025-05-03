@@ -1,46 +1,70 @@
-name: Node.js CI/CD Pipeline
+name: Node.js CI
 
 on:
   push:
     branches:
-      - "main" # Demo branch
-      - "prod" # Production branch
+      - "main" # demo branch
+      - "prod" # production branch
 
 jobs:
-  deploy:
-    name: Deploy to ${{ matrix.target }}
+  deploy-demo:
+    runs-on: [self-hosted, demo]
+    if: github.ref == 'refs/heads/main'
+
     strategy:
       matrix:
-        include:
-          - target: "Demo"
-            branch_ref: "refs/heads/main"
-            labels: [self-hosted, demo]
-            env_var: "ENV_DEMO"
-            should_run: ${{ github.ref == 'refs/heads/main' }}
-          - target: "Production"
-            branch_ref: "refs/heads/prod"
-            labels: [self-hosted, prod]
-            env_var: "ENV_PROD"
-            should_run: ${{ github.ref == 'refs/heads/prod' }}
-    runs-on: ${{ matrix.labels }}
+        node-version: [20.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Node.js 20.x
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: ${{ matrix.node-version }}
           cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run:
+          npm i
 
-      - name: Create environment configuration
-        run: echo "${{ vars[matrix.env_var] }}" > config.env
+          # 🟡 إنشاء ملف .env حسب الفرع
+      - name: Create .env file for Demo
+        if: github.ref == 'refs/heads/main'
+        run: echo "${{ vars.ENV_DEMO }}" > config.env
 
       - name: Build project
         run: npm run build --if-present
 
-      - name: Deploy application
-        run: pm2 start server.js || pm2 restart server.js
+      - run: pm2 start server.js | pm2 restart server.js
+
+  deploy-prod:
+    runs-on: [self-hosted, prod]
+    if: github.ref == 'refs/heads/prod'
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run:
+          npm i
+
+          # 🟡 إنشاء ملف .env حسب الفرع
+      - name: Create .env file for Production
+        if: github.ref == 'refs/heads/prod'
+        run: echo "${{ vars.ENV_PROD }}" > config.env
+
+      - name: Build project
+        run: npm run build --if-present
+
+      - run: pm2 start server.js | pm2 restart server.js
