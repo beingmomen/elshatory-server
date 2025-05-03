@@ -7,40 +7,40 @@ on:
       - "prod"
 
 jobs:
-  deploy_demo:
-    if: github.ref_name == 'main'
+  deploy-demo:
+    name: Deploy to Demo Server
     runs-on: [self-hosted, demo]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm install
-      - name: Create .env file
-        run: echo "${{ vars.ENV_DEMO }}" > config.env
-      - name: Build project
-        run: npm run build --if-present
-      - name: Restart with PM2
-        run: pm2 start server.js || pm2 restart server.js
+    if: github.ref == 'refs/heads/main'
 
-  deploy_prod:
-    if: github.ref_name == 'prod'
-    runs-on: [self-hosted, prod]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm install
-      - name: Create .env file
-        run: echo "${{ vars.ENV_PROD }}" > config.env
-      - name: Build project
-        run: npm run build --if-present
-      - name: Restart with PM2
-        run: pm2 start server.js || pm2 restart server.js
+          cache: "npm"
+
+      - run: npm install
+      - run: echo "${{ vars.ENV_DEMO }}" > config.env
+      - run: npm run build --if-present
+      - run: pm2 start server.js || pm2 restart server.js
+
+  deploy-prod:
+    name: Deploy to Production Server
+    runs-on: [self-hosted, prod]
+    if: github.ref == 'refs/heads/prod'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "npm"
+
+      - run: npm install
+      - run: echo "${{ vars.ENV_PROD }}" > config.env
+      - run: npm run build --if-present
+      - run: pm2 start server.js || pm2 restart server.js
