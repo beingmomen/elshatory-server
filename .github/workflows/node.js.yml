@@ -3,35 +3,68 @@ name: Node.js CI
 on:
   push:
     branches:
-      - "main"
-      - "prod"
+      - "main" # demo branch
+      - "prod" # production branch
 
 jobs:
-  deploy:
+  deploy-demo:
+    runs-on: [self-hosted, demo]
+    if: github.ref == 'refs/heads/main'
+
     strategy:
       matrix:
-        include:
-          - branch: "main"
-            labels: ["self-hosted", "demo"]
-            env_var: "ENV_DEMO"
-          - branch: "prod"
-            labels: ["self-hosted", "prod"]
-            env_var: "ENV_PROD"
-    # تشغيل الوظيفة فقط إذا تطابق `matrix.branch` مع الفرع الحالي
-    if: contains(fromJSON('["main", "prod"]'), github.ref_name)
-    runs-on: ${{ matrix.labels }}
+        node-version: [20.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
-          cache: 'npm'
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
       - name: Install dependencies
-        run: npm install
-      - name: Create .env file
-        run: echo "${{ vars[matrix.env_var] }}" > config.env
+        run:
+          npm i
+
+          # 🟡 إنشاء ملف .env حسب الفرع
+      - name: Create .env file for Demo
+        if: github.ref == 'refs/heads/main'
+        run: echo "${{ vars.ENV_DEMO }}" > config.env
+
       - name: Build project
         run: npm run build --if-present
-      - name: Restart with PM2
-        run: pm2 start server.js || pm2 restart server.js
+
+      - run: pm2 start server.js | pm2 restart server.js
+
+  deploy-prod:
+    runs-on: [self-hosted, prod]
+    if: github.ref == 'refs/heads/prod'
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run:
+          npm i
+
+          # 🟡 إنشاء ملف .env حسب الفرع
+      - name: Create .env file for Production
+        if: github.ref == 'refs/heads/prod'
+        run: echo "${{ vars.ENV_PROD }}" > config.env
+
+      - name: Build project
+        run: npm run build --if-present
+
+      - run: pm2 start server.js | pm2 restart server.js
