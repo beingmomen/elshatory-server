@@ -11,10 +11,10 @@ jobs:
     strategy:
       matrix:
         config:
-          - { branch: 'main', runner: 'demo', env_var: 'ENV_DEMO' }
-          - { branch: 'prod', runner: 'prod', env_var: 'ENV_PROD' }
-    if: github.ref == format('refs/heads/{0}', matrix.config.branch)
-    runs-on: [self-hosted, ${{ matrix.config.runner }}]
+          - { branch: 'main', labels: ['self-hosted', 'demo'], env_var: 'ENV_DEMO' }
+          - { branch: 'prod', labels: ['self-hosted', 'prod'], env_var: 'ENV_PROD' }
+    if: contains(fromJSON('["main", "prod"]'), github.ref_name)
+    runs-on: ${{ matrix.config.labels }}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
