@@ -7,55 +7,26 @@ on:
       - "prod"
 
 jobs:
-  deploy-demo:
-    name: Deploy to Demo Server
-    runs-on: [self-hosted, demo]
-    if: github.ref == 'refs/heads/main'
-
+  deploy:
+    strategy:
+      matrix:
+        config:
+          - { branch: 'main', labels: ['self-hosted', 'demo'], env_var: 'ENV_DEMO' }
+          - { branch: 'prod', labels: ['self-hosted', 'prod'], env_var: 'ENV_PROD' }
+    if: contains(fromJSON('["main", "prod"]'), github.ref_name)
+    runs-on: ${{ matrix.config.labels }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: "npm"
-
+          cache: 'npm'
       - name: Install dependencies
         run: npm install
-
       - name: Create .env file
-        run: echo "${{ vars.ENV_DEMO }}" > config.env
-
+        run: echo "${{ vars[matrix.config.env_var] }}" > config.env
       - name: Build project
         run: npm run build --if-present
-
-      - name: Restart with PM2
-        run: pm2 start server.js || pm2 restart server.js
-
-
-  deploy-prod:
-    name: Deploy to Production Server
-    runs-on: [self-hosted, prod]
-    if: github.ref == 'refs/heads/prod'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Create .env file
-        run: echo "${{ vars.ENV_PROD }}" > config.env
-
-      - name: Build project
-        run: npm run build --if-present
-
       - name: Restart with PM2
         run: pm2 start server.js || pm2 restart server.js
