@@ -1,70 +1,51 @@
-name: Node.js CI
+name: Node.js CI/CD Pipeline
 
 on:
   push:
     branches:
-      - "main" # demo branch
-      - "prod" # production branch
+      - "main" # Demo branch
+      - "prod" # Production branch
 
 jobs:
-  deploy-demo:
-    runs-on: [self-hosted, demo]
-    if: github.ref == 'refs/heads/main'
-
+  deploy:
+    name: Deploy to ${{ matrix.deploy.target }}
+    runs-on: ${{ matrix.deploy.labels }}
     strategy:
       matrix:
-        node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        deploy:
+          - target: "Demo"
+            branch_ref: "refs/heads/main"
+            labels: [self-hosted, demo]
+            env_var: "ENV_DEMO"
+          - target: "Production"
+            branch_ref: "refs/heads/prod"
+            labels: [self-hosted, prod]
+            env_var: "ENV_PROD"
+      # Only run one matrix combination that matches the current branch
+      fail-fast: false
+        - ${{ fromJSON(format('[{0}]', 
+            contains(github.ref, 'refs/heads/main') && 
+            '{"target":"Demo","branch_ref":"refs/heads/main","labels":["self-hosted","demo"],"env_var":"ENV_DEMO"}' || 
+            '{"target":"Production","branch_ref":"refs/heads/prod","labels":["self-hosted","prod"],"env_var":"ENV_PROD"}'
+          )) }}
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      
+      - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20.x
           cache: "npm"
 
       - name: Install dependencies
-        run:
-          npm i
+        run: npm install
 
-          # 🟡 إنشاء ملف .env حسب الفرع
-      - name: Create .env file for Demo
-        if: github.ref == 'refs/heads/main'
-        run: echo "${{ vars.ENV_DEMO }}" > config.env
+      - name: Create environment configuration
+        run: echo "${{ vars[matrix.deploy.env_var] }}" > config.env
 
       - name: Build project
         run: npm run build --if-present
 
-      - run: pm2 start server.js | pm2 restart server.js
-
-  deploy-prod:
-    runs-on: [self-hosted, prod]
-    if: github.ref == 'refs/heads/prod'
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run:
-          npm i
-
-          # 🟡 إنشاء ملف .env حسب الفرع
-      - name: Create .env file for Production
-        if: github.ref == 'refs/heads/prod'
-        run: echo "${{ vars.ENV_PROD }}" > config.env
-
-      - name: Build project
-        run: npm run build --if-present
-
-      - run: pm2 start server.js | pm2 restart server.js
+      - name: Deploy application
+        run: pm2 start server.js || pm2 restart server.js
