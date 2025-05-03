@@ -8,26 +8,21 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to ${{ matrix.deploy.target }}
-    runs-on: ${{ matrix.deploy.labels }}
+    name: Deploy to ${{ matrix.target }}
     strategy:
       matrix:
-        deploy:
+        include:
           - target: "Demo"
             branch_ref: "refs/heads/main"
             labels: [self-hosted, demo]
             env_var: "ENV_DEMO"
+            should_run: ${{ github.ref == 'refs/heads/main' }}
           - target: "Production"
             branch_ref: "refs/heads/prod"
             labels: [self-hosted, prod]
             env_var: "ENV_PROD"
-      # Only run one matrix combination that matches the current branch
-      fail-fast: false
-        - ${{ fromJSON(format('[{0}]', 
-            contains(github.ref, 'refs/heads/main') && 
-            '{"target":"Demo","branch_ref":"refs/heads/main","labels":["self-hosted","demo"],"env_var":"ENV_DEMO"}' || 
-            '{"target":"Production","branch_ref":"refs/heads/prod","labels":["self-hosted","prod"],"env_var":"ENV_PROD"}'
-          )) }}
+            should_run: ${{ github.ref == 'refs/heads/prod' }}
+    runs-on: ${{ matrix.labels }}
 
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +37,7 @@ jobs:
         run: npm install
 
       - name: Create environment configuration
-        run: echo "${{ vars[matrix.deploy.env_var] }}" > config.env
+        run: echo "${{ vars[matrix.env_var] }}" > config.env
 
       - name: Build project
         run: npm run build --if-present
