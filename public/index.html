@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +9,30 @@
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
         }
+
         .container {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             color: #333;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
         }
+
+        h2 {
+            margin-top: 30px;
+            color: #444;
+        }
+
         .endpoint {
             background-color: #f8f9fa;
             padding: 15px;
@@ -31,17 +40,20 @@
             border-radius: 4px;
             border-left: 4px solid #007bff;
         }
+
         code {
             background-color: #e9ecef;
             padding: 2px 4px;
             border-radius: 4px;
             font-family: monospace;
         }
+
         .endpoint-item {
             display: flex;
             align-items: center;
             margin: 8px 0;
         }
+
         .endpoint-button {
             background-color: #007bff;
             color: white;
@@ -53,52 +65,547 @@
             font-size: 14px;
             transition: background-color 0.2s;
         }
+
         .endpoint-button:hover {
             background-color: #0056b3;
         }
+
         .endpoint-description {
             flex: 1;
         }
+
+        .method {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 5px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .get {
+            background-color: #61affe;
+            color: white;
+        }
+
+        .post {
+            background-color: #49cc90;
+            color: white;
+        }
+
+        .patch {
+            background-color: #fca130;
+            color: white;
+        }
+
+        .delete {
+            background-color: #f93e3e;
+            color: white;
+        }
+
+        .auth-required {
+            background-color: #e8f4f8;
+            border-left: 4px solid #5bc0de;
+            padding: 8px;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 5px;
+        }
+
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>Express API Service</h1>
-        <p>Welcome to the Express API Service. Below are the available endpoints:</p>
-        
+        <h1>Express API Service Documentation</h1>
+        <p>Welcome to the API documentation for the portfolio backend service. This page lists all available endpoints
+            organized by resource.</p>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#authentication">Authentication</a></li>
+                <li><a href="#users">Users</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contacts">Contacts</a></li>
+                <li><a href="#clients">Clients</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#blogs">Blogs</a></li>
+                <li><a href="#build-project">Build Project</a></li>
+                <li><a href="#landing">Landing</a></li>
+            </ul>
+        </div>
+
+        <h2 id="authentication">Authentication</h2>
+        <div class="endpoint">
+            <h3>Authentication Endpoints</h3>
+            <p>Base URL: <code>/api/v1/users</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/users/signup</code> - Register a new user</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/users/signup', '_blank')">Try
+                        it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/users/login</code> - Login with credentials</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/users/login', '_blank')">Try
+                        it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/users/logout</code> - Logout current user</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/users/forgotPassword</code> - Request password reset</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/users/resetPassword/:token</code> - Reset password with token</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/users/updateMyPassword</code> - Update current user password</span>
+                    <div class="auth-required">Authentication required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="users">Users</h2>
         <div class="endpoint">
             <h3>Users API</h3>
             <p>Base URL: <code>/api/v1/users</code></p>
             <ul>
                 <li class="endpoint-item">
-                    <span class="endpoint-description">GET <code>/api/v1/users</code> - Get all users</span>
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/users/me</code>
+                        - Get current user profile</span>
+                    <div class="auth-required">Authentication required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/users/updateMe</code> - Update current user data</span>
+                    <div class="auth-required">Authentication required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/users/deleteMe</code> - Deactivate current user account</span>
+                    <div class="auth-required">Authentication required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/users</code> -
+                        Get all users</span>
+                    <div class="auth-required">Admin access required</div>
                     <button class="endpoint-button" onclick="window.open('/api/v1/users', '_blank')">Try it</button>
                 </li>
-                <li>POST <code>/api/v1/users</code> - Create a new user</li>
                 <li class="endpoint-item">
-                    <span class="endpoint-description">GET <code>/api/v1/users/:id</code> - Get user by ID</span>
-                    <button class="endpoint-button" onclick="tryGetById('/api/v1/users')">Try it</button>
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/users/admins</code> - Get all admin users</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/users/all</code> - Get all users (no pagination)</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/users/all/admins</code> - Get all admin users (no pagination)</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/users/admin</code> - Create a new admin user</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/users/:id</code> - Get user by ID</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/users/:id</code> - Update user</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/users/:id</code> - Delete user</span>
+                    <div class="auth-required">Admin access required</div>
                 </li>
             </ul>
         </div>
 
+        <h2 id="services">Services</h2>
+        <div class="endpoint">
+            <h3>Services API</h3>
+            <p>Base URL: <code>/api/v1/services</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/services</code>
+                        - Get all services</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/services', '_blank')">Try it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/services</code> - Create a new service</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/services/all</code> - Get all services (no pagination)</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/services/delete-all</code> - Delete all services</span>
+                    <div class="auth-required">Developer access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/services/:id</code> - Get service by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/services/:id</code> - Update service</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/services/:id</code> - Delete service</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="skills">Skills</h2>
+        <div class="endpoint">
+            <h3>Skills API</h3>
+            <p>Base URL: <code>/api/v1/skills</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/skills</code> -
+                        Get all skills</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/skills', '_blank')">Try it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span> <code>/api/v1/skills</code>
+                        - Create a new skill</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/skills/all</code> - Get all skills (no pagination)</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/skills/delete-all</code> - Delete all skills</span>
+                    <div class="auth-required">Developer access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/skills/:id</code> - Get skill by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/skills/:id</code> - Update skill</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/skills/:id</code> - Delete skill</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="projects">Projects</h2>
+        <div class="endpoint">
+            <h3>Projects API</h3>
+            <p>Base URL: <code>/api/v1/projects</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/projects</code>
+                        - Get all projects</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/projects', '_blank')">Try it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/projects</code> - Create a new project</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/projects/all</code> - Get all projects (no pagination)</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/projects/delete-all</code> - Delete all projects</span>
+                    <div class="auth-required">Developer access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/projects/:id</code> - Get project by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/projects/:id</code> - Update project</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/projects/:id</code> - Delete project</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="testimonials">Testimonials</h2>
+        <div class="endpoint">
+            <h3>Testimonials API</h3>
+            <p>Base URL: <code>/api/v1/testimonials</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/testimonials</code> - Get all testimonials</span>
+                    <div class="auth-required">Admin access required</div>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/testimonials', '_blank')">Try
+                        it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/testimonials</code> - Create a new testimonial</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/testimonials/confirmed</code> - Get all confirmed testimonials</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/testimonials/:id</code> - Get testimonial by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/testimonials/:id</code> - Update testimonial</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/testimonials/:id</code> - Delete testimonial</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="contacts">Contacts</h2>
+        <div class="endpoint">
+            <h3>Contacts API</h3>
+            <p>Base URL: <code>/api/v1/contacts</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/contacts</code>
+                        - Get all contacts</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/contacts', '_blank')">Try it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/contacts</code> - Create a new contact</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/contacts/:id</code> - Get contact by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/contacts/:id</code> - Update contact</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/contacts/:id</code> - Delete contact</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="clients">Clients</h2>
+        <div class="endpoint">
+            <h3>Clients API</h3>
+            <p>Base URL: <code>/api/v1/clients</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/clients</code>
+                        - Get all clients</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/clients', '_blank')">Try it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/clients</code> - Create a new client</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/clients/all</code> - Get all clients (no pagination)</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/clients/delete-all</code> - Delete all clients</span>
+                    <div class="auth-required">Developer access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/clients/:id</code> - Get client by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/clients/:id</code> - Update client</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/clients/:id</code> - Delete client</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="categories">Categories</h2>
         <div class="endpoint">
             <h3>Categories API</h3>
             <p>Base URL: <code>/api/v1/categories</code></p>
             <ul>
                 <li class="endpoint-item">
-                    <span class="endpoint-description">GET <code>/api/v1/categories</code> - Get all categories</span>
-                    <button class="endpoint-button" onclick="window.open('/api/v1/categories', '_blank')">Try it</button>
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/categories</code> - Get all categories</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/categories', '_blank')">Try
+                        it</button>
                 </li>
-                <li>POST <code>/api/v1/categories</code> - Create a new category</li>
                 <li class="endpoint-item">
-                    <span class="endpoint-description">GET <code>/api/v1/categories/:id</code> - Get category by ID</span>
-                    <button class="endpoint-button" onclick="tryGetById('/api/v1/categories')">Try it</button>
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/categories</code> - Create a new category</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/categories/all</code> - Get all categories (no pagination)</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/categories/delete-all</code> - Delete all categories</span>
+                    <div class="auth-required">Developer access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/categories/:id</code> - Get category by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/categories/:id</code> - Update category</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/categories/:id</code> - Delete category</span>
+                    <div class="auth-required">Admin access required</div>
                 </li>
             </ul>
         </div>
 
-        <p>For more information about the API, please refer to the documentation.</p>
+        <h2 id="blogs">Blogs</h2>
+        <div class="endpoint">
+            <h3>Blogs API</h3>
+            <p>Base URL: <code>/api/v1/blogs</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/blogs</code> -
+                        Get all blogs</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/blogs', '_blank')">Try it</button>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span> <code>/api/v1/blogs</code>
+                        - Create a new blog</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/blogs/all</code> - Get all blogs (no pagination)</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/blogs/delete-all</code> - Delete all blogs</span>
+                    <div class="auth-required">Developer access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span>
+                        <code>/api/v1/blogs/:id</code> - Get blog by ID</span>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method patch">PATCH</span>
+                        <code>/api/v1/blogs/:id</code> - Update blog</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method delete">DELETE</span>
+                        <code>/api/v1/blogs/:id</code> - Delete blog</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="build-project">Build Project</h2>
+        <div class="endpoint">
+            <h3>Build Project API</h3>
+            <p>Base URL: <code>/api/v1/build-project</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method post">POST</span>
+                        <code>/api/v1/build-project</code> - Create a new build project</span>
+                    <div class="auth-required">Admin access required</div>
+                </li>
+            </ul>
+        </div>
+
+        <h2 id="landing">Landing</h2>
+        <div class="endpoint">
+            <h3>Landing API</h3>
+            <p>Base URL: <code>/api/v1/landing</code></p>
+            <ul>
+                <li class="endpoint-item">
+                    <span class="endpoint-description"><span class="method get">GET</span> <code>/api/v1/landing</code>
+                        - Get landing page data</span>
+                    <button class="endpoint-button" onclick="window.open('/api/v1/landing', '_blank')">Try it</button>
+                </li>
+            </ul>
+        </div>
+
+        <p>For more information about the API, please refer to the documentation or contact the administrator.</p>
     </div>
 
     <script>
@@ -110,4 +617,5 @@
         }
     </script>
 </body>
+
 </html>

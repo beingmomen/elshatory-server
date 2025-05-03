@@ -22,7 +22,6 @@ const clientRouter = require('./routes/clientRoutes');
 const infoRouter = require('./routes/infoRoutes');
 const buildProjectRouter = require('./routes/buildProjectRoutes');
 const landingRouter = require('./routes/landingRoute');
-const categoryRouter = require('./routes/categoryRoutes');
 const blogRouter = require('./routes/blogRoutes');
 
 const app = express();
@@ -111,7 +110,6 @@ app.use('/api/v1/clients', clientRouter);
 app.use('/api/v1/infos', infoRouter);
 app.use('/api/v1/build-project', buildProjectRouter);
 app.use('/api/v1/landing', landingRouter);
-app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/blogs', blogRouter);
 
 app.post('/api/v1/logout', (req, res) => {
