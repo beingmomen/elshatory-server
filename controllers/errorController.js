@@ -11,18 +11,31 @@ const sendErrorDev = (err, res) => {
     errorsArr.error = ['Your token has expired, please login again!'];
   } else if (err.name === 'CastError') {
     if (err.path === '_id') {
-      errorsArr.error = [`Invalid ${err.path}: "${err.value}". Please provide a valid ID`];
+      errorsArr.error = [
+        `Invalid ${err.path}: "${err.value}". Please provide a valid ID`
+      ];
     } else {
-      errorsArr.error = [`Invalid ${err.path}: "${err.value}". Please provide a valid value`];
+      errorsArr.error = [
+        `Invalid ${err.path}: "${err.value}". Please provide a valid value`
+      ];
     }
-  } else if (err.message && err.message.includes('Cannot read properties of undefined')) {
+  } else if (
+    err.message &&
+    err.message.includes('Cannot read properties of undefined')
+  ) {
     // Handle undefined property errors
-    const propertyMatch = err.message.match(/Cannot read properties of undefined \(reading '(.+)'\)/);
+    const propertyMatch = err.message.match(
+      /Cannot read properties of undefined \(reading '(.+)'\)/
+    );
     if (propertyMatch && propertyMatch[1] === 'jwt') {
-      errorsArr.error = ['Authentication configuration error. Please contact the administrator.'];
+      errorsArr.error = [
+        'Authentication configuration error. Please contact the administrator.'
+      ];
       err.statusCode = 500;
     } else if (propertyMatch) {
-      errorsArr.error = [`Invalid request: Missing required ${propertyMatch[1]} property`];
+      errorsArr.error = [
+        `Invalid request: Missing required ${propertyMatch[1]} property`
+      ];
       err.statusCode = 400;
     } else {
       errorsArr.error = ['Invalid request: Missing required properties'];
@@ -63,6 +76,8 @@ const sendErrorDev = (err, res) => {
     } catch (e) {
       errorsArr.error = ['Duplicate Entry Error'];
     }
+  } else if (err.statusCode === 413) {
+    errorsArr.error = [err.message];
   } else {
     // Handle unknown errors
     errorsArr.error = ['Something went wrong'];
@@ -89,9 +104,14 @@ const sendErrorProd = (err, res) => {
       status: 'fail',
       message: 'Invalid ID format'
     });
-  } else if (err.message && err.message.includes('Cannot read properties of undefined')) {
+  } else if (
+    err.message &&
+    err.message.includes('Cannot read properties of undefined')
+  ) {
     // Handle undefined property errors in production
-    const propertyMatch = err.message.match(/Cannot read properties of undefined \(reading '(.+)'\)/);
+    const propertyMatch = err.message.match(
+      /Cannot read properties of undefined \(reading '(.+)'\)/
+    );
     if (propertyMatch && propertyMatch[1] === 'jwt') {
       res.status(500).json({
         status: 'error',
@@ -125,19 +145,28 @@ module.exports = (err, req, res, next) => {
   if (err.name === 'CastError') {
     err.isOperational = true;
     err.statusCode = 400;
-    err.message = `Invalid ${err.path}: "${err.value}". Please provide a valid ${err.path === '_id' ? 'ID' : 'value'}`;
+    err.message = `Invalid ${err.path}: "${
+      err.value
+    }". Please provide a valid ${err.path === '_id' ? 'ID' : 'value'}`;
   }
 
   // Mark undefined property errors as operational
-  if (err.message && err.message.includes('Cannot read properties of undefined')) {
+  if (
+    err.message &&
+    err.message.includes('Cannot read properties of undefined')
+  ) {
     err.isOperational = true;
-    const propertyMatch = err.message.match(/Cannot read properties of undefined \(reading '(.+)'\)/);
+    const propertyMatch = err.message.match(
+      /Cannot read properties of undefined \(reading '(.+)'\)/
+    );
     if (propertyMatch && propertyMatch[1] === 'jwt') {
       err.statusCode = 500;
       err.message = 'Authentication configuration error';
     } else {
       err.statusCode = 400;
-      err.message = `Missing required property: ${propertyMatch ? propertyMatch[1] : 'unknown'}`;
+      err.message = `Missing required property: ${
+        propertyMatch ? propertyMatch[1] : 'unknown'
+      }`;
     }
   }
 
