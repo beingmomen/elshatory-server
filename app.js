@@ -23,6 +23,7 @@ const infoRouter = require('./routes/infoRoutes');
 const buildProjectRouter = require('./routes/buildProjectRoutes');
 const landingRouter = require('./routes/landingRoute');
 const blogRouter = require('./routes/blogRoutes');
+const resourceRouter = require('./routes/resourceRoutes');
 
 const app = express();
 
@@ -111,7 +112,7 @@ app.use('/api/v1/infos', infoRouter);
 app.use('/api/v1/build-project', buildProjectRouter);
 app.use('/api/v1/landing', landingRouter);
 app.use('/api/v1/blogs', blogRouter);
-
+app.use('/api/v1/resources', resourceRouter);
 app.post('/api/v1/logout', (req, res) => {
   res.send('Done');
 });
