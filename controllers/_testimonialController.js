@@ -1,9 +1,21 @@
 const Model = require('../models/testimonialModel');
 const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
-const { getMailForTestimonial } = require('./../utils/sendMail');
+const { getMailForTestimonial } = require('../utils/sendMail');
 
-exports.createOne = factory.createOne(Model);
+exports.createOne = catchAsync(async (req, res, next) => {
+  const doc = await Model.create({ ...req.body });
+
+  res.status(201).json({
+    status: 'success',
+    message: 'Created successfully',
+    data: {
+      data: doc
+    }
+  });
+
+  next();
+});
 
 exports.getAll = factory.getAll(Model);
 
@@ -18,8 +30,6 @@ exports.getAllConfirmed = catchAsync(async (req, res, next) => {
 });
 
 exports.sendMail = catchAsync(async (req, res, next) => {
-  console.log('req.body :>> ', req.body);
-
   const obj = {
     name: req.body.name,
     email: req.body.email,

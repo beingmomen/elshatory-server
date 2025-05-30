@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const pug = require('pug');
 const htmlToText = require('html-to-text');
-const catchAsync = require('./../utils/catchAsync');
+const catchAsync = require('./catchAsync');
 // const AppError = require('./../utils/appError');
 
 exports.sendMail = catchAsync(async data => {

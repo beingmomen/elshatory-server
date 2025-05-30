@@ -1,0 +1,27 @@
+extends baseEmail
+
+block content
+  tr
+    td.content-cell
+      .f-fallback
+        h1 تقييم جديد من العميل
+        p مرحباً،
+        p لقد تم استلام تقييم جديد من:
+        table.attributes(width='100%')
+          tr
+            td.attributes_content
+              table
+                tr
+                  td.attributes_item
+                    strong الاسم:
+                  td= name
+                tr
+                  td.attributes_item
+                    strong البريد الإلكتروني:
+                  td= email
+                tr
+                  td.attributes_item
+                    strong التقييم:
+                  td= description
+        p شكراً لك!
+        p فريق العمل
