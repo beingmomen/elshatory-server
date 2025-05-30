@@ -56,6 +56,22 @@ const schema = new mongoose.Schema(
       required: [false, 'Keywords are required'],
       trim: true
     },
+    links: {
+      type: [
+        {
+          url: {
+            type: String,
+            required: true
+          },
+          title: {
+            type: String,
+            required: false
+          }
+        }
+      ],
+      default: [],
+      required: false
+    },
     views: {
       type: Number,
       default: 0
