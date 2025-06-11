@@ -1,8 +1,8 @@
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
-const APIFeatures = require('./../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures');
 
-exports.deleteAll = (Model, images = []) => (req, res, next) => {
+exports.deleteAll = Model => (req, res, next) => {
   catchAsync(async (req, res, next) => {
     await Model.deleteMany({});
 
@@ -14,7 +14,7 @@ exports.deleteAll = (Model, images = []) => (req, res, next) => {
   })(req, res, next);
 };
 
-exports.deleteOne = (Model, images = []) => (req, res, next) => {
+exports.deleteOne = Model => (req, res, next) => {
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
 
