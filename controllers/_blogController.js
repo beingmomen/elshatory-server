@@ -41,7 +41,7 @@ exports.getOneBySlug = catchAsync(async (req, res, next) => {
   if (!doc) {
     return next(new AppError('No document found with that slug', 404));
   }
-  console.log('3');
+  console.log('3', doc);
   // Check if the request is coming from the allowed domain
   const referer = req.get('Referer') || req.get('Origin') || '';
   const allowedDomain = process.env.ALLOWED_DOMAIN || 'https://beingmomen.com';
@@ -55,7 +55,7 @@ exports.getOneBySlug = catchAsync(async (req, res, next) => {
     const recentView = doc.viewHistory.find(
       view => view.ip === clientIP && view.timestamp > thirtyMinutesAgo
     );
-    console.log('6');
+    console.log('6', recentView);
     let shouldIncrementViews = false;
     let shouldIncrementUniqueViews = false;
 
