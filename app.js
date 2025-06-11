@@ -24,6 +24,7 @@ const buildProjectRouter = require('./routes/buildProjectRoutes');
 const landingRouter = require('./routes/landingRoute');
 const blogRouter = require('./routes/blogRoutes');
 const resourceRouter = require('./routes/resourceRoutes');
+const viewsRouter = require('./routes/viewsRoutes');
 
 const app = express();
 
@@ -113,6 +114,7 @@ app.use('/api/v1/build-project', buildProjectRouter);
 app.use('/api/v1/landing', landingRouter);
 app.use('/api/v1/blogs', blogRouter);
 app.use('/api/v1/resources', resourceRouter);
+app.use('/api/v1/views', viewsRouter);
 app.post('/api/v1/logout', (req, res) => {
   res.send('Done');
 });

@@ -46,14 +46,14 @@ const schema = new mongoose.Schema(
       required: [false, 'Alt text is required'],
       trim: true
     },
-    tag: {
+    tags: {
       type: String,
-      required: [true, 'Tag is required'],
+      required: [true, 'Tags is required'],
       trim: true
     },
     keywords: {
       type: String,
-      required: [false, 'Keywords are required'],
+      required: [true, 'Keywords are required'],
       trim: true
     },
     links: {
@@ -72,7 +72,31 @@ const schema = new mongoose.Schema(
       default: [],
       required: false
     },
-    views: {
+    viewHistory: {
+      type: [
+        {
+          ip: {
+            type: String,
+            required: true
+          },
+          userAgent: {
+            type: String,
+            required: false
+          },
+          timestamp: {
+            type: Date,
+            default: Date.now
+          },
+          sessionId: {
+            type: String,
+            required: false
+          }
+        }
+      ],
+      default: [],
+      select: false // Hide from normal queries for performance
+    },
+    uniqueViews: {
       type: Number,
       default: 0
     },
@@ -113,7 +137,7 @@ schema.index({
   title: 'text',
   description: 'text',
   content: 'text',
-  tag: 'text'
+  tags: 'text'
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()

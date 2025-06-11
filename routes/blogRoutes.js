@@ -22,6 +22,9 @@ router
     controller.deleteAll
   );
 
+// Route for getting blog by slug
+router.route('/slug/:slug').get(controller.getOneBySlug);
+
 router
   .route('/:id')
   .get(controller.getOne)
