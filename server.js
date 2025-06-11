@@ -13,13 +13,7 @@ const app = require('./app');
 const DB = process.env.DATABASE_ATLAS;
 // const DB = process.env.DATABASE_LOCAL;
 
-mongoose
-  .connect(DB, {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
-    // useCreateIndex: true // Add this line
-  })
-  .then(() => console.log('DB connection successful!'));
+mongoose.connect(DB, {}).then(() => console.log('DB connection successful!'));
 
 const port = process.env.PORT || 1234;
 const server = app.listen(port, () => {
