@@ -7,7 +7,9 @@
       "Bash(node -c:*)",
       "Bash(timeout 5 node:*)",
       "Bash(timeout 3 node:*)",
-      "Bash(PORT=9999 timeout 3 node:*)"
+      "Bash(PORT=9999 timeout 3 node:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
