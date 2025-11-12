@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm approve-builds:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm rebuild:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
