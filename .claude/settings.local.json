@@ -3,7 +3,11 @@
     "allow": [
       "Bash(pnpm approve-builds:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm rebuild:*)"
+      "Bash(pnpm rebuild:*)",
+      "Bash(node -c:*)",
+      "Bash(timeout 5 node:*)",
+      "Bash(timeout 3 node:*)",
+      "Bash(PORT=9999 timeout 3 node:*)"
     ],
     "deny": [],
     "ask": []

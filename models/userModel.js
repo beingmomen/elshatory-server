@@ -77,7 +77,7 @@ const schema = new mongoose.Schema(
 );
 
 // Create individual indexes for frequently queried fields
-schema.index({ email: 1 }, { unique: true });
+// Note: email index is already created via unique: true in schema definition
 schema.index({ slug: 1 });
 
 // Compound index for name and phone if they're frequently queried together
