@@ -33,9 +33,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: echo "${{ vars.ENV_DEMO }}" > config.env
 
-      - name: Build project
-        run: pnpm run build --if-present
-
       - run: pm2 start server.js | pm2 restart server.js
 
   deploy-prod:
@@ -63,8 +60,5 @@ jobs:
       - name: Create .env file for Production
         if: github.ref == 'refs/heads/prod'
         run: echo "${{ vars.ENV_PROD }}" > config.env
-
-      - name: Build project
-        run: pnpm run build --if-present
 
       - run: pm2 start server.js | pm2 restart server.js
