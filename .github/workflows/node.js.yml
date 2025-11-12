@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -22,11 +22,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
         run:
-          npm i
+          pnpm i
 
           # 🟡 إنشاء ملف .env حسب الفرع
       - name: Create .env file for Demo
@@ -34,7 +34,7 @@ jobs:
         run: echo "${{ vars.ENV_DEMO }}" > config.env
 
       - name: Build project
-        run: npm run build --if-present
+        run: pnpm run build --if-present
 
       - run: pm2 start server.js | pm2 restart server.js
 
@@ -53,11 +53,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
         run:
-          npm i
+          pnpm i
 
           # 🟡 إنشاء ملف .env حسب الفرع
       - name: Create .env file for Production
@@ -65,6 +65,6 @@ jobs:
         run: echo "${{ vars.ENV_PROD }}" > config.env
 
       - name: Build project
-        run: npm run build --if-present
+        run: pnpm run build --if-present
 
       - run: pm2 start server.js | pm2 restart server.js
