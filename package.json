@@ -20,6 +20,7 @@
   "dependencies": {
     "@ngrok/ngrok": "^1.4.1",
     "bcryptjs": "^2.4.3",
+    "cheerio": "^1.2.0",
     "cloudinary": "^2.8.0",
     "compression": "^1.8.0",
     "connect-history-api-fallback": "^2.0.0",

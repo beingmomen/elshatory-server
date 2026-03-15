@@ -2,9 +2,8 @@
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
-const { ROLES } = require('../utils/constants');
 
-exports.deleteAll = Model => (req, res, next) => {
+exports.deleteAll = Model =>
   catchAsync(async (req, res, next) => {
     await Model.deleteMany({});
 
@@ -13,31 +12,27 @@ exports.deleteAll = Model => (req, res, next) => {
       message: 'Deleted successfully',
       data: null
     });
-  })(req, res, next);
-};
+  });
 
-exports.deleteOne =
-  (Model, nextStep = false) =>
-  (req, res, next) => {
-    catchAsync(async (req, res, next) => {
-      const doc = await Model.findByIdAndDelete(req.params.id);
+exports.deleteOne = (Model, nextStep = false) =>
+  catchAsync(async (req, res, next) => {
+    const doc = await Model.findByIdAndDelete(req.params.id);
 
-      if (!doc) {
-        return next(new AppError('No document found with that ID', 404));
-      }
+    if (!doc) {
+      return next(new AppError('No document found with that ID', 404));
+    }
 
-      if (nextStep) {
-        req.deletedRecord = doc;
-        next();
-      } else {
-        res.status(200).json({
-          status: 'success',
-          message: 'Deleted successfully',
-          data: null
-        });
-      }
-    })(req, res, next);
-  };
+    if (nextStep) {
+      req.deletedRecord = doc;
+      return next();
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Deleted successfully',
+      data: null
+    });
+  });
 
 exports.updateOne = (Model, nextStep = false) =>
   catchAsync(async (req, res, next) => {
@@ -64,9 +59,14 @@ exports.updateOne = (Model, nextStep = false) =>
     }
   });
 
-exports.createOne = (Model, nextStep = false) =>
+exports.createOne = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.create({ ...req.body, user: req.user._id });
+    const { nextStep = false, assignUser = true } = options;
+    const body = { ...req.body };
+    if (assignUser && req.user) {
+      body.user = req.user._id;
+    }
+    const doc = await Model.create(body);
 
     res.status(201).json({
       status: 'success',
@@ -113,7 +113,6 @@ exports.getAll = (Model, options = {}) =>
 
     // Build query filter
     const queryFilter = {
-      role: { $ne: ROLES.DEV },
       ...(req.mergeFilter || {}),
       ...optFilter
     };

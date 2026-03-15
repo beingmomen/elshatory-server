@@ -145,7 +145,9 @@ exports.adminGetOne = catchAsync(async (req, res, next) => {
     data: { data: user }
   });
 });
-exports.getAll = factory.getAll(Model);
+exports.getAll = factory.getAll(Model, {
+  optFilter: { role: { $ne: ROLES.DEV } }
+});
 exports.getAllUsers = factory.getAll(Model, {
   optFilter: { role: ROLES.USER }
 });

@@ -117,3 +117,328 @@ exports.createAdminRules = [
   passwordRule,
   passwordConfirmRule
 ];
+
+// ─── Project rules ───────────────────────────────────────────────────────────
+
+exports.createProjectRules = [
+  body('title')
+    .trim()
+    .notEmpty()
+    .withMessage('Title is required.')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Title must be between 2 and 100 characters.')
+    .escape(),
+  body('tag')
+    .trim()
+    .notEmpty()
+    .withMessage('Tag is required.')
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Tag must be between 2 and 50 characters.')
+    .escape(),
+  body('url')
+    .trim()
+    .notEmpty()
+    .withMessage('URL is required.')
+    .isURL()
+    .withMessage('Please provide a valid URL.'),
+  body('altText')
+    .trim()
+    .notEmpty()
+    .withMessage('Alt text is required.')
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Alt text must be between 2 and 200 characters.')
+    .escape()
+];
+
+exports.updateProjectRules = [
+  body('title')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Title must be between 2 and 100 characters.')
+    .escape(),
+  body('tag')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Tag must be between 2 and 50 characters.')
+    .escape(),
+  body('url')
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage('Please provide a valid URL.'),
+  body('altText')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Alt text must be between 2 and 200 characters.')
+    .escape()
+];
+
+// ─── Blog rules ──────────────────────────────────────────────────────────────
+
+exports.createBlogRules = [
+  body('title')
+    .trim()
+    .notEmpty()
+    .withMessage('Title is required.')
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Title must be between 2 and 200 characters.'),
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('Description is required.')
+    .isLength({ min: 10, max: 500 })
+    .withMessage('Description must be between 10 and 500 characters.'),
+  body('content').trim().notEmpty().withMessage('Content is required.'),
+  body('tags')
+    .trim()
+    .notEmpty()
+    .withMessage('Tags are required.')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Tags must be between 2 and 100 characters.'),
+  body('keywords')
+    .trim()
+    .notEmpty()
+    .withMessage('Keywords are required.')
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Keywords must be between 2 and 200 characters.')
+];
+
+exports.updateBlogRules = [
+  body('title')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Title must be between 2 and 200 characters.'),
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ min: 10, max: 500 })
+    .withMessage('Description must be between 10 and 500 characters.'),
+  body('content').optional().trim(),
+  body('tags')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Tags must be between 2 and 100 characters.'),
+  body('keywords')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Keywords must be between 2 and 200 characters.')
+];
+
+// ─── Service rules ───────────────────────────────────────────────────────────
+
+exports.createServiceRules = [
+  body('title')
+    .trim()
+    .notEmpty()
+    .withMessage('Title is required.')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Title must be between 2 and 100 characters.')
+    .escape(),
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('Description is required.')
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.'),
+  body('altText')
+    .trim()
+    .notEmpty()
+    .withMessage('Alt text is required.')
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Alt text must be between 2 and 200 characters.')
+    .escape()
+];
+
+exports.updateServiceRules = [
+  body('title')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Title must be between 2 and 100 characters.')
+    .escape(),
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.'),
+  body('altText')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Alt text must be between 2 and 200 characters.')
+    .escape()
+];
+
+// ─── Skill rules ─────────────────────────────────────────────────────────────
+
+exports.createSkillRules = [
+  body('title')
+    .trim()
+    .notEmpty()
+    .withMessage('Title is required.')
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Title must be between 2 and 50 characters.')
+    .escape(),
+  body('icon').trim().notEmpty().withMessage('Icon is required.')
+];
+
+exports.updateSkillRules = [
+  body('title')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Title must be between 2 and 50 characters.')
+    .escape(),
+  body('icon').optional().trim()
+];
+
+// ─── Client rules ────────────────────────────────────────────────────────────
+
+exports.createClientRules = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Name is required.')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters.')
+    .escape()
+];
+
+exports.updateClientRules = [
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters.')
+    .escape()
+];
+
+// ─── Contact rules ───────────────────────────────────────────────────────────
+
+exports.createContactRules = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Name is required.')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters.'),
+  body('phone')
+    .trim()
+    .notEmpty()
+    .withMessage('Phone number is required.')
+    .matches(/^\+?[\d\s\-().]{7,20}$/)
+    .withMessage('Please provide a valid phone number.'),
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('Description is required.')
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.'),
+  body('email')
+    .optional()
+    .trim()
+    .isEmail()
+    .withMessage('Please provide a valid email.')
+    .normalizeEmail()
+];
+
+exports.updateContactRules = [
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.')
+];
+
+// ─── Testimonial rules ──────────────────────────────────────────────────────
+
+exports.createTestimonialRules = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Name is required.')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters.'),
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required.')
+    .isEmail()
+    .withMessage('Please provide a valid email.')
+    .normalizeEmail(),
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('Description is required.')
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.')
+];
+
+exports.updateTestimonialRules = [
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.'),
+  body('isConfirmed')
+    .optional()
+    .isBoolean()
+    .withMessage('isConfirmed must be a boolean value.')
+];
+
+// ─── Resource rules ──────────────────────────────────────────────────────────
+
+exports.createResourceRules = [
+  body('title')
+    .trim()
+    .notEmpty()
+    .withMessage('Title is required.')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Title must be between 2 and 100 characters.')
+    .escape(),
+  body('url')
+    .trim()
+    .notEmpty()
+    .withMessage('URL is required.')
+    .isURL()
+    .withMessage('Please provide a valid URL.')
+];
+
+exports.updateResourceRules = [
+  body('title')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Title must be between 2 and 100 characters.')
+    .escape(),
+  body('url')
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage('Please provide a valid URL.')
+];
+
+// ─── Info rules ──────────────────────────────────────────────────────────────
+
+exports.createInfoRules = [
+  body('resumeUrl')
+    .trim()
+    .notEmpty()
+    .withMessage('Resume URL is required.')
+    .isURL()
+    .withMessage('Please provide a valid URL.')
+];
+
+exports.updateInfoRules = [
+  body('resumeUrl')
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage('Please provide a valid URL.')
+];

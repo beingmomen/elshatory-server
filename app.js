@@ -17,6 +17,18 @@ const globalErrorHandler = require('./controllers/errorController');
 // Main Routers
 const userRouter = require('./routes/userRoutes');
 const healthRouter = require('./routes/healthRoutes');
+const projectRouter = require('./routes/projectRoutes');
+const blogRouter = require('./routes/blogRoutes');
+const serviceRouter = require('./routes/serviceRoutes');
+const skillRouter = require('./routes/skillRoutes');
+const clientRouter = require('./routes/clientRoutes');
+const contactRouter = require('./routes/contactRoutes');
+const testimonialRouter = require('./routes/testimonialRoutes');
+const resourceRouter = require('./routes/resourceRoutes');
+const infoRouter = require('./routes/infoRoutes');
+const viewRouter = require('./routes/viewRoutes');
+const landingRouter = require('./routes/landingRoutes');
+const buildProjectRouter = require('./routes/buildProjectRoutes');
 
 const app = express();
 
@@ -129,6 +141,18 @@ app.get('/', (req, res) => {
 app.use('/health', healthRouter);
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/projects', projectRouter);
+app.use('/api/v1/blogs', blogRouter);
+app.use('/api/v1/services', serviceRouter);
+app.use('/api/v1/skills', skillRouter);
+app.use('/api/v1/clients', clientRouter);
+app.use('/api/v1/contacts', contactRouter);
+app.use('/api/v1/testimonials', testimonialRouter);
+app.use('/api/v1/resources', resourceRouter);
+app.use('/api/v1/infos', infoRouter);
+app.use('/api/v1/views', viewRouter);
+app.use('/api/v1/landing', landingRouter);
+app.use('/api/v1/build-project', buildProjectRouter);
 
 // Handle 404 for API routes
 app.all('/api/*', (req, res, next) => {

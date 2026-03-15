@@ -5,6 +5,7 @@ A robust Express.js backend API with MongoDB integration, featuring advanced aut
 ## Recent Updates (v3.0.0)
 
 ### Major Refactoring - Image Handling System
+
 - ✅ **Cloudinary Integration**: Migrated from local file storage to Cloudinary cloud storage
 - ✅ **New Image Services Architecture**: Created dedicated `imageServices/` directory with modular design
 - ✅ **Dual Image Handling**: Support for both local storage and Cloudinary via configurable services
@@ -13,17 +14,20 @@ A robust Express.js backend API with MongoDB integration, featuring advanced aut
 - ✅ **Memory-based Upload**: Multer configured with memory storage for seamless Cloudinary uploads
 
 ### Image Services Structure
+
 - ✅ **cloudinary-image.image.js**: Full Cloudinary integration with upload/update/delete operations
 - ✅ **image.image.js**: Local file storage fallback (for development or self-hosted deployments)
 - ✅ **Resource-specific services**: Separate image handlers for users and categories
 - ✅ **Centralized Configuration**: Cloudinary config in `config/cloudinary.config.js`
 
 ### Middleware & Logging Updates
+
 - ✅ **Enhanced Request Logging**: Improved Morgan logging middleware with better formatting
 - ✅ **Package Metadata**: Updated author and version information
 - ✅ **Multer Version Update**: Upgraded to multer 2.0.2 for better stability
 
 ### Netlify Serverless Deployment
+
 - ✅ **Fully configured for Netlify Functions** with optimized build process
 - ✅ **Automatic dependency installation** during deployment
 - ✅ **MongoDB connection pooling** for serverless environments
@@ -31,11 +35,13 @@ A robust Express.js backend API with MongoDB integration, featuring advanced aut
 - ✅ **External module optimization** (mongoose, express, sharp) for faster builds
 
 ### Security Enhancements
+
 - ✅ **Fixed trust proxy vulnerability**: Changed from `trust proxy: true` to `trust proxy: 1`
 - ✅ **Rate limiting compatibility**: Works correctly with Netlify's load balancer
 - ✅ **IP-based rate limiting**: Properly identifies client IPs in serverless environments
 
 ### Bug Fixes & Cleanup
+
 - ✅ Removed unused category image files from old local storage system
 - ✅ Cleaned up debug logs from error controller
 - ✅ Fixed image path handling and deletion logic
@@ -284,11 +290,13 @@ npm run lint:fix       # Fix linting issues automatically
 The project includes a sophisticated cloud-based image handling system:
 
 **Architecture:**
+
 - **Resource-specific handlers**: Separate image services for users, categories, etc.
 - **Modular design**: Located in `imageServices/` directory with configurable backends
 - **Dual storage support**: Switch between Cloudinary (cloud) and local file storage
 
 **Cloudinary Integration** (`imageServices/config/cloudinary-image.image.js`):
+
 - **Cloud storage**: Images stored on Cloudinary CDN
 - **Automatic upload**: Memory-based multer upload to Cloudinary
 - **Image transformations**: Resize, crop, and optimize with Cloudinary's transformation API
@@ -297,11 +305,13 @@ The project includes a sophisticated cloud-based image handling system:
 - **Error handling**: Robust error handling with fallback mechanisms
 
 **Local Storage Fallback** (`imageServices/config/image.image.js`):
+
 - **Development friendly**: Local file storage for development environments
 - **Self-hosted option**: No external dependencies for image storage
 - **Sharp processing**: Image resizing and optimization with Sharp library
 
 **Features:**
+
 - Multiple image field support (single or array)
 - Configurable image dimensions and quality per field
 - Transaction-safe database operations
@@ -310,6 +320,7 @@ The project includes a sophisticated cloud-based image handling system:
 
 **Configuration:**
 Each resource (user, category) has its own image service configuration in files like:
+
 - [imageServices/user.image.js](imageServices/user.image.js)
 - [imageServices/category.image.js](imageServices/category.image.js)
 
@@ -407,6 +418,7 @@ The project is configured with:
 ### Environment Setup
 
 1. Use the specified Node.js version:
+
 ```bash
 nvm use
 # or manually install Node.js 22.14.0
@@ -490,6 +502,7 @@ The project is fully configured for serverless deployment on Netlify with optimi
 
 2. **Environment Variables**:
    Set these in Netlify Dashboard → Site Settings → Environment Variables:
+
    ```env
    NODE_ENV=production
    DATABASE_ATLAS=your_mongodb_atlas_connection_string
@@ -514,6 +527,7 @@ The project is fully configured for serverless deployment on Netlify with optimi
    - Publish directory: `public`
 
 4. **Deploy**:
+
    ```bash
    # Production deployment
    git push origin main
@@ -545,12 +559,14 @@ The project is fully configured for serverless deployment on Netlify with optimi
 For traditional hosting on servers like DigitalOcean, AWS EC2, or VPS:
 
 1. **Set up MongoDB**:
+
    ```bash
    # Install MongoDB or use MongoDB Atlas
    # Configure connection string in .env
    ```
 
 2. **Configure environment variables**:
+
    ```bash
    # Create .env in project root
    cp .env.example .env
@@ -558,6 +574,7 @@ For traditional hosting on servers like DigitalOcean, AWS EC2, or VPS:
    ```
 
 3. **Install PM2 for process management**:
+
    ```bash
    npm install -g pm2
    pm2 start server.js --name "express-api"
@@ -566,6 +583,7 @@ For traditional hosting on servers like DigitalOcean, AWS EC2, or VPS:
    ```
 
 4. **Set up Nginx as reverse proxy** (recommended):
+
    ```nginx
    server {
        listen 80;
@@ -614,12 +632,14 @@ See [.github/workflows/node.js.yml](.github/workflows/node.js.yml) for the compl
 **Problem**: Runtime error when calling API endpoints on Netlify.
 
 **Solution**: This is fixed in the latest version. The [netlify.toml](netlify.toml) includes a build command that installs dependencies:
+
 ```toml
 [build]
   command = "cd netlify/functions && npm install && cd ../.."
 ```
 
 If you still encounter this:
+
 1. Verify `netlify/functions/package.json` exists with all dependencies
 2. Check Netlify build logs to ensure dependencies are installed
 3. Redeploy after clearing build cache
@@ -629,6 +649,7 @@ If you still encounter this:
 **Problem**: `ERR_ERL_PERMISSIVE_TRUST_PROXY` validation error.
 
 **Solution**: Already fixed in [app.js:25](app.js#L25). The app uses `trust proxy: 1` instead of `true`:
+
 ```javascript
 // Configure trust proxy for serverless environments (Netlify)
 // Trust only the first proxy (Netlify's load balancer)
@@ -636,6 +657,7 @@ app.set('trust proxy', 1);
 ```
 
 This configuration:
+
 - Trusts only Netlify's first proxy layer
 - Prevents IP spoofing attacks
 - Allows rate limiting to work correctly with real client IPs
@@ -645,6 +667,7 @@ This configuration:
 **Problem**: API requests timeout after 10 seconds.
 
 **Solutions**:
+
 - Optimize database queries (add indexes)
 - Reduce image processing time
 - Increase timeout in [netlify.toml](netlify.toml#L13):
@@ -660,6 +683,7 @@ This configuration:
 **Expected Behavior**: Serverless functions "sleep" when inactive and "wake up" on first request.
 
 **Mitigation**:
+
 - Use Netlify's "Keep Functions Warm" feature (paid plans)
 - Implement a ping endpoint and use a cron job to keep function warm
 - Accept cold starts as normal serverless behavior
@@ -678,6 +702,7 @@ DATABASE_ATLAS=mongodb+srv://username:<password>@cluster.mongodb.net/database
 ```
 
 **Common Issues**:
+
 - **IP Whitelist**: Add `0.0.0.0/0` to MongoDB Atlas IP whitelist for Netlify
 - **Connection Pooling**: The serverless handler reuses connections (see [netlify/functions/server.js](netlify/functions/server.js#L15))
 - **Timeout**: Increase `serverSelectionTimeoutMS` if deployment is slow
@@ -689,20 +714,22 @@ DATABASE_ATLAS=mongodb+srv://username:<password>@cluster.mongodb.net/database
 **Cause**: Incorrect trust proxy configuration.
 
 **Solution**: Use the current configuration in [app.js](app.js):
+
 ```javascript
-app.set('trust proxy', 1);  // Trust first proxy
+app.set('trust proxy', 1); // Trust first proxy
 
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour',
-  validate: { trustProxy: false }  // Skip strict validation
+  validate: { trustProxy: false } // Skip strict validation
 });
 ```
 
 ### Image Upload Issues
 
 **Using Cloudinary (Default):**
+
 - Verify Cloudinary environment variables are set correctly
 - Check Cloudinary dashboard for upload activity
 - Ensure `CLOUDINARY_UPLOAD_PRESET` folder exists or remove folder restrictions
@@ -710,6 +737,7 @@ const limiter = rateLimit({
 - Review network connectivity to Cloudinary API
 
 **Using Local Storage (Fallback):**
+
 - Switch image service import in `imageServices/user.image.js` or `imageServices/category.image.js`
 - Change from `require('./config/cloudinary-image.image')` to `require('./config/image.image')`
 - Ensure `public/images/` directories exist
@@ -786,6 +814,7 @@ For issues, questions, or contributions, please open an issue on GitHub.
 ---
 
 **Note**: This is a template project. Remember to:
+
 - Update repository URLs
 - Configure your own MongoDB instance
 - Set up proper environment variables

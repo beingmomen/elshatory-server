@@ -55,6 +55,7 @@ Resource controllers (e.g., `_categoryController.js`) compose these with resourc
 ### Image Handling (imageServices/)
 
 Each resource has its own image service module in `imageServices/` (e.g., `user.image.js`, `category.image.js`). These use:
+
 - Multer with **memory storage** (no disk writes during upload)
 - Sharp for resizing/formatting
 - Cloudinary for cloud storage (with fallback to `public/images/`)
@@ -70,6 +71,7 @@ Two middleware functions per resource: `handleImages` (parse multipart, resize) 
 ### Authentication Flow
 
 JWT issued on login/signup, stored in httpOnly cookie and returned in response body. `authController.protect` middleware:
+
 1. Extracts token from `Authorization: Bearer` header or cookie
 2. Verifies JWT signature and expiry
 3. Checks user still exists in DB
@@ -81,6 +83,7 @@ JWT issued on login/signup, stored in httpOnly cookie and returned in response b
 ### Models
 
 Mongoose schemas use:
+
 - **Pre-hooks** for password hashing (bcrypt, 12 rounds), slug generation, `passwordChangedAt` tracking
 - `timestamps: true` for automatic `createdAt`/`updatedAt`
 - **counterPlugin** (`models/plugins/counterPlugin.js`) for auto-incrementing sequential `num` fields with race-condition handling
