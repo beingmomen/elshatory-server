@@ -16,8 +16,6 @@ const globalErrorHandler = require('./controllers/errorController');
 
 // Main Routers
 const userRouter = require('./routes/userRoutes');
-const categoryRouter = require('./routes/categoryRoutes');
-const sectionRouter = require('./routes/sectionRoutes');
 const healthRouter = require('./routes/healthRoutes');
 
 const app = express();
@@ -131,8 +129,6 @@ app.get('/', (req, res) => {
 app.use('/health', healthRouter);
 
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/categories', categoryRouter);
-app.use('/api/v1/sections', sectionRouter);
 
 // Handle 404 for API routes
 app.all('/api/*', (req, res, next) => {
