@@ -1,16 +1,16 @@
 [build]
+  command = "cd netlify/functions && npm install && cd ../.."
   functions = "netlify/functions"
   publish = "public"
 
 [functions]
   directory = "netlify/functions"
   external_node_modules = ["mongoose", "express", "sharp"]
-  included_files = ["config.env"]
   node_bundler = "esbuild"
 
 [functions.server]
   memory = 1024
-  timeout = 10
+  timeout = 26
 
 [[redirects]]
   from = "/"

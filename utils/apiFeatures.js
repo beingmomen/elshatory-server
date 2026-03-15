@@ -24,13 +24,27 @@ class APIFeatures {
       const { search } = this.queryString;
 
       // Specify the fields to search on
-      const fields = ['name', 'number', 'email', 'title'];
+      const stringFields = ['name', 'number', 'email', 'title'];
+      const numberFields = ['documentNumber'];
+
+      // Escape special regex characters to prevent ReDoS attacks
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const searchPattern = new RegExp(escapedSearch, 'i');
+
+      // Combine string and number field conditions
+      const stringConditions = stringFields.map(field => ({
+        [field]: searchPattern
+      }));
+
+      const numberConditions = Number.isFinite(Number(search))
+        ? numberFields.map(field => ({
+            [field]: parseInt(search, 10)
+          }))
+        : [];
 
       this.query = this.query.find({
-        $or: fields.map(field => ({ [field]: new RegExp(search, 'i') }))
+        $or: [...stringConditions, ...numberConditions]
       });
-    } else {
-      this.query = this.query;
     }
 
     return this;
@@ -59,8 +73,12 @@ class APIFeatures {
   }
 
   paginate() {
+    const MAX_LIMIT = 100;
     const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 10;
+    const limit = Math.min(
+      Math.max(this.queryString.limit * 1 || 10, 1),
+      MAX_LIMIT
+    );
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);

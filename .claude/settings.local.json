@@ -1,15 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm approve-builds:*)",
-      "Bash(pnpm install:*)",
-      "Bash(pnpm rebuild:*)",
-      "Bash(node -c:*)",
-      "Bash(timeout 5 node:*)",
-      "Bash(timeout 3 node:*)",
-      "Bash(PORT=9999 timeout 3 node:*)",
-      "Bash(git rm:*)",
-      "Bash(git commit:*)"
+      "Bash(rm e513f492-cb50-4012-8d9b-475bcfa7efa9.jpeg 3164574d-8d83-4e73-99fe-4a77a55b65b5.jpeg 72e5be93-c7b2-49e8-8626-4c172e08f5db.jpeg c509ff69-43b7-4a0e-bdfc-f23dc8502100.jpeg)",
+      "Bash(dir services)",
+      "Bash(pnpm install cloudinary)",
+      "Bash(dir:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

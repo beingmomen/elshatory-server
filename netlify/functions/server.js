@@ -1,11 +1,11 @@
 const serverless = require('serverless-http');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const path = require('path');
 const express = require('express'); // Add express import
+const loadEnv = require('../../utils/loadEnv');
 
 // Load env vars
-dotenv.config({ path: path.join(__dirname, '../../config.env') });
+loadEnv(path.join(__dirname, '../..'));
 const app = require('../../app');
 
 // Serve static files from images directory

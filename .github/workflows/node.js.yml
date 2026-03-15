@@ -3,8 +3,8 @@ name: Node.js CI
 on:
   push:
     branches:
-      - "main" # demo branch
-      - "prod" # production branch
+      - 'main' # demo branch
+      - 'prod' # production branch
 
 jobs:
   deploy-demo:
@@ -13,8 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        node-version: [20.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -22,43 +21,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
+          cache: 'npm'
 
       - name: Install dependencies
-        run:
-          pnpm i
+        run: npm ci
 
-          # 🟡 إنشاء ملف .env حسب الفرع
+      - name: Run lint
+        run: npm run lint
+
       - name: Create .env file for Demo
         if: github.ref == 'refs/heads/main'
-        run: echo "${{ vars.ENV_DEMO }}" > config.env
+        run: echo "${{ vars.ENV_DEMO }}" > .env
 
-      - run: pm2 start server.js | pm2 restart server.js
-
-  deploy-prod:
-    runs-on: [self-hosted, prod]
-    if: github.ref == 'refs/heads/prod'
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run:
-          pnpm i
-
-          # 🟡 إنشاء ملف .env حسب الفرع
-      - name: Create .env file for Production
-        if: github.ref == 'refs/heads/prod'
-        run: echo "${{ vars.ENV_PROD }}" > config.env
-
-      - run: pm2 start server.js | pm2 restart server.js
+      - run: pm2 delete all || true
+      - run: pm2 start server.js -f

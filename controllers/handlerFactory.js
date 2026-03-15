@@ -1,6 +1,8 @@
+/* eslint-disable no-shadow */
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
+const { ROLES } = require('../utils/constants');
 
 exports.deleteAll = Model => (req, res, next) => {
   catchAsync(async (req, res, next) => {
@@ -14,23 +16,30 @@ exports.deleteAll = Model => (req, res, next) => {
   })(req, res, next);
 };
 
-exports.deleteOne = Model => (req, res, next) => {
-  catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndDelete(req.params.id);
+exports.deleteOne =
+  (Model, nextStep = false) =>
+  (req, res, next) => {
+    catchAsync(async (req, res, next) => {
+      const doc = await Model.findByIdAndDelete(req.params.id);
 
-    if (!doc) {
-      return next(new AppError('No document found with that ID', 404));
-    }
+      if (!doc) {
+        return next(new AppError('No document found with that ID', 404));
+      }
 
-    res.status(200).json({
-      status: 'success',
-      message: 'Deleted successfully',
-      data: null
-    });
-  })(req, res, next);
-};
+      if (nextStep) {
+        req.deletedRecord = doc;
+        next();
+      } else {
+        res.status(200).json({
+          status: 'success',
+          message: 'Deleted successfully',
+          data: null
+        });
+      }
+    })(req, res, next);
+  };
 
-exports.updateOne = Model =>
+exports.updateOne = (Model, nextStep = false) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -48,9 +57,14 @@ exports.updateOne = Model =>
         data: doc
       }
     });
+
+    if (nextStep) {
+      req.updatedRecord = doc;
+      next();
+    }
   });
 
-exports.createOne = Model =>
+exports.createOne = (Model, nextStep = false) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.create({ ...req.body, user: req.user._id });
 
@@ -61,6 +75,10 @@ exports.createOne = Model =>
         data: doc
       }
     });
+
+    if (nextStep) {
+      req.createdRecord = doc;
+    }
   });
 
 exports.getOne = (Model, popOptions) =>
@@ -95,7 +113,7 @@ exports.getAll = (Model, options = {}) =>
 
     // Build query filter
     const queryFilter = {
-      role: { $ne: 'dev' },
+      role: { $ne: ROLES.DEV },
       ...(req.mergeFilter || {}),
       ...optFilter
     };

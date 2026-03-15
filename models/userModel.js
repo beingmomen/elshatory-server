@@ -2,8 +2,8 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
-const { slug } = require('./../controllers/globalFactory');
 const counterPlugin = require('./plugins/counterPlugin');
+const { slug } = require('../utils/slug');
 
 const schema = new mongoose.Schema(
   {
@@ -16,17 +16,12 @@ const schema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, 'Email is required.'],
-      unique: true,
       lowercase: true,
       validate: [validator.isEmail, 'Email is not valid.']
     },
     photo: {
       type: String,
       default: '/images/users/default.jpg'
-    },
-    country: {
-      type: String,
-      required: [false, 'Country is required.']
     },
     phone: {
       type: String,
@@ -45,10 +40,9 @@ const schema = new mongoose.Schema(
     },
     passwordConfirm: {
       type: String,
-      required: [true, 'Confirm Password is required.'],
+      required: [true, 'Password confirmation is required.'],
       validate: {
-        // This only works on CREATE and SAVE!!!
-        validator: function(el) {
+        validator: function validatePasswordMatch(el) {
           return el === this.password;
         },
         message: 'Password and Confirm Password do not match.'
@@ -57,12 +51,6 @@ const schema = new mongoose.Schema(
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      select: true,
-      index: true
-    },
     active: {
       type: Boolean,
       default: true,
@@ -71,39 +59,39 @@ const schema = new mongoose.Schema(
   },
 
   {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    timestamps: true
   }
 );
 
 // Create individual indexes for frequently queried fields
-// Note: email index is already created via unique: true in schema definition
+schema.index({ email: 1 }, { unique: true });
 schema.index({ slug: 1 });
 
 // Compound index for name and phone if they're frequently queried together
 schema.index({ createdAt: -1, name: 1 });
 schema.index({ name: 1, phone: 1 });
+schema.index({ name: 'text', email: 'text' });
 
-schema.pre('save', function(next) {
-  this.original_slug = slug(this.name);
-  next();
-});
-
-schema.pre('save', function(next) {
+schema.pre('save', function setSlug(next) {
   if (this.isModified('name')) {
-    this.slug = slug(this.name);
+    const s = slug(this.name);
+    this.slug = s;
+    if (this.isNew) {
+      this.original_slug = s;
+    }
   }
   next();
 });
 
-schema.pre('findOneAndUpdate', function(next) {
-  if (this._update.name) {
-    this._update.slug = slug(this._update.name);
+schema.pre('findOneAndUpdate', function updateSlugOnUpdate(next) {
+  const update = this.getUpdate();
+  if (update.name) {
+    update.slug = slug(update.name);
   }
   next();
 });
 
-schema.pre('save', async function(next) {
+schema.pre('save', async function hashPassword(next) {
   // Only run this function if password was actually modified
   if (!this.isModified('password')) return next();
 
@@ -115,27 +103,28 @@ schema.pre('save', async function(next) {
   next();
 });
 
-schema.pre('save', function(next) {
+schema.pre('save', function updatePasswordChangedAt(next) {
   if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
-// schema.pre(/^find/, function(next) {
-//   // this points to the current query
-//   this.find({ active: { $ne: false } });
-//   next();
-// });
+schema.pre(/^find/, function filterInactive(next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
 
-schema.methods.correctPassword = async function(
+schema.methods.correctPassword = async function validatePassword(
   candidatePassword,
   userPassword
 ) {
-  return await bcrypt.compare(candidatePassword, userPassword);
+  return bcrypt.compare(candidatePassword, userPassword);
 };
 
-schema.methods.changedPasswordAfter = function(JWTTimestamp) {
+schema.methods.changedPasswordAfter = function checkPasswordChange(
+  JWTTimestamp
+) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
@@ -149,7 +138,7 @@ schema.methods.changedPasswordAfter = function(JWTTimestamp) {
   return false;
 };
 
-schema.methods.createPasswordResetToken = function() {
+schema.methods.createPasswordResetToken = function generateResetToken() {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.passwordResetToken = crypto

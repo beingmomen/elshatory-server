@@ -3,20 +3,7 @@ const Model = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
-const ImageHandler = require('../utils/images/ImageHandler');
-
-const imageFields = [
-  {
-    name: 'photo',
-    maxCount: 1,
-    resize: { width: 500, height: 500, quality: 85 }
-  }
-];
-
-const imageHandler = new ImageHandler(Model, imageFields, 'users');
-
-exports.uploadImages = imageHandler.uploadImages();
-exports.processImages = imageHandler.processImages();
+const { ROLES } = require('../utils/constants');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -31,6 +18,16 @@ exports.getMe = (req, res, next) => {
   next();
 };
 
+exports.getMyProfile = catchAsync(async (req, res, next) => {
+  const user = await Model.findById(req.user.id);
+
+  if (!user) {
+    return next(new AppError('No document found with that ID', 404));
+  }
+
+  res.status(200).json(user);
+});
+
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -43,27 +40,18 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
-  const filteredBody = filterObj(
-    req.body,
-    'name',
-    'email',
-    'country',
-    'phone',
-    'slug'
-  );
-
-  // 3) Add processed image if any
-  if (req.processedImages && req.processedImages.photo) {
-    filteredBody.photo = req.body.photo;
+  // Reject email change attempts
+  if (req.body.email) {
+    return next(new AppError('Email cannot be changed.', 400));
   }
+
+  // 2) Filtered out unwanted fields names that are not allowed to be updated
+  const filteredBody = filterObj(req.body, 'name', 'phone', 'slug', 'photo');
 
   // Start a session for transaction
   const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    // 4) Get old user document for image cleanup
-    const oldUser = await Model.findById(req.user.id).session(session);
+    session.startTransaction();
 
     // 5) Update user document
     const updatedUser = await Model.findByIdAndUpdate(
@@ -76,15 +64,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       }
     );
 
-    // 6) Save new images and cleanup old ones if needed
-    if (req.processedImages) {
-      await imageHandler._saveImages(req.processedImages);
-      await imageHandler._removeOldImages(oldUser, updatedUser);
-    }
-
     // Commit the transaction
     await session.commitTransaction();
-    session.endSession();
 
     res.status(200).json({
       status: 'success',
@@ -95,16 +76,18 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     });
   } catch (error) {
     await session.abortTransaction();
-    session.endSession();
     next(error);
+  } finally {
+    session.endSession();
   }
 });
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await Model.findByIdAndUpdate(req.user.id, { active: false });
 
-  res.status(204).json({
+  res.status(200).json({
     status: 'success',
+    message: 'Deleted successfully!',
     data: null
   });
 });
@@ -117,14 +100,14 @@ exports.createOne = (req, res) => {
 };
 
 exports.createAdmin = catchAsync(async (req, res, next) => {
-  const body = req.body;
+  const { body } = req;
   const newAdmin = await Model.create({
     name: body.name,
     email: body.email,
     phone: body.phone,
     password: body.password,
     passwordConfirm: body.passwordConfirm,
-    role: 'admin'
+    role: ROLES.ADMIN
   });
 
   res.status(201).json({
@@ -136,16 +119,89 @@ exports.createAdmin = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllUsersNoPagination = factory.getAllNoPagination(Model);
+exports.getAllUsersNoPagination = factory.getAllNoPagination(Model, {
+  optFilter: { role: { $ne: ROLES.DEV } }
+});
 exports.getAllAdminsNoPagination = factory.getAllNoPagination(Model, {
-  optFilter: { role: 'admin' }
+  optFilter: { role: ROLES.ADMIN }
 });
 
 exports.getOne = factory.getOne(Model);
-exports.getAll = factory.getAll(Model);
-exports.getAllUsers = factory.getAll(Model, { optFilter: { role: 'user' } });
-exports.getAllAdmins = factory.getAll(Model, { optFilter: { role: 'admin' } });
 
-// Do NOT update passwords with this!
-exports.updateOne = imageHandler.updateOne();
-exports.deleteOne = imageHandler.deleteOne();
+// Prevent admin from viewing dev accounts
+exports.adminGetOne = catchAsync(async (req, res, next) => {
+  const user = await Model.findById(req.params.id);
+
+  if (!user) {
+    return next(new AppError('No document found with that ID', 404));
+  }
+
+  if (user.role === ROLES.DEV && req.user.role !== ROLES.DEV) {
+    return next(new AppError('No document found with that ID', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: { data: user }
+  });
+});
+exports.getAll = factory.getAll(Model);
+exports.getAllUsers = factory.getAll(Model, {
+  optFilter: { role: ROLES.USER }
+});
+exports.getAllAdmins = factory.getAll(Model, {
+  optFilter: { role: ROLES.ADMIN }
+});
+
+// Admin update with field whitelist to prevent mass assignment
+exports.adminUpdateOne = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(new AppError('This route is not for password updates.', 400));
+  }
+
+  // Prevent admin from modifying dev accounts
+  const targetUser = await Model.findById(req.params.id);
+  if (!targetUser) {
+    return next(new AppError('No document found with that ID', 404));
+  }
+  if (targetUser.role === ROLES.DEV && req.user.role !== ROLES.DEV) {
+    return next(new AppError('You cannot modify a dev account.', 403));
+  }
+
+  const filteredBody = filterObj(
+    req.body,
+    'name',
+    'email',
+    'phone',
+    'active',
+    'photo'
+  );
+
+  const updatedUser = await Model.findByIdAndUpdate(
+    req.params.id,
+    filteredBody,
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Updated successfully',
+    data: { data: updatedUser }
+  });
+});
+
+// Admin delete with dev account protection
+exports.adminDeleteOne = catchAsync(async (req, res, next) => {
+  const targetUser = await Model.findById(req.params.id);
+  if (!targetUser) {
+    return next(new AppError('No document found with that ID', 404));
+  }
+  if (targetUser.role === ROLES.DEV && req.user.role !== ROLES.DEV) {
+    return next(new AppError('You cannot delete a dev account.', 403));
+  }
+
+  await Model.findByIdAndDelete(req.params.id);
+
+  req.deletedRecord = targetUser;
+  next();
+});

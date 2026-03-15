@@ -1,5 +1,21 @@
+const fs = require('fs').promises;
+const path = require('path');
+const logger = require('../utils/logger');
+
+const IMAGES_BASE = path.resolve(__dirname, '..', 'public', 'images');
+
+const safePath = (baseDir, imageName) => {
+  const resolved = path.resolve(path.join(baseDir, imageName));
+  if (
+    !resolved.startsWith(IMAGES_BASE + path.sep) &&
+    resolved !== IMAGES_BASE
+  ) {
+    return null;
+  }
+  return resolved;
+};
+
 const sendErrorDev = (err, res) => {
-  console.warn('Error:', err.message);
   const errorsArr = {};
 
   // Handle different types of errors
@@ -19,28 +35,11 @@ const sendErrorDev = (err, res) => {
         `Invalid ${err.path}: "${err.value}". Please provide a valid value`
       ];
     }
-  } else if (
-    err.message &&
-    err.message.includes('Cannot read properties of undefined')
-  ) {
-    // Handle undefined property errors
-    const propertyMatch = err.message.match(
-      /Cannot read properties of undefined \(reading '(.+)'\)/
-    );
-    if (propertyMatch && propertyMatch[1] === 'jwt') {
-      errorsArr.error = [
-        'Authentication configuration error. Please contact the administrator.'
-      ];
-      err.statusCode = 500;
-    } else if (propertyMatch) {
-      errorsArr.error = [
-        `Invalid request: Missing required ${propertyMatch[1]} property`
-      ];
-      err.statusCode = 400;
-    } else {
-      errorsArr.error = ['Invalid request: Missing required properties'];
-      err.statusCode = 400;
-    }
+  } else if (err instanceof TypeError && err.message.includes('jwt')) {
+    errorsArr.error = [
+      'Authentication configuration error. Please contact the administrator.'
+    ];
+    err.statusCode = 500;
   } else if (err.message && err.message.includes('role')) {
     errorsArr.error = ['You do not have permission to perform this action'];
   } else if (
@@ -58,9 +57,9 @@ const sendErrorDev = (err, res) => {
   } else if (err.errors) {
     // Handle validation errors
     try {
-      for (const [key, value] of Object.entries(err.errors)) {
+      Object.entries(err.errors).forEach(([key, value]) => {
         errorsArr[key] = [value.message];
-      }
+      });
     } catch (e) {
       errorsArr.error = ['Validation Error'];
     }
@@ -68,16 +67,10 @@ const sendErrorDev = (err, res) => {
     // Handle duplicate key errors
     try {
       const key = err.errmsg.split(' { ')[1].split(':')[0];
-      errorsArr[key] = [
-        `The ${key} ((${
-          err.keyValue[key]
-        })) already exists. Please choose a different ${key}.`
-      ];
+      errorsArr[key] = [`( ${err.keyValue[key]} ) Already exists.`];
     } catch (e) {
       errorsArr.error = ['Duplicate Entry Error'];
     }
-  } else if (err.statusCode === 413) {
-    errorsArr.error = [err.message];
   } else {
     // Handle unknown errors
     errorsArr.error = ['Something went wrong'];
@@ -104,28 +97,14 @@ const sendErrorProd = (err, res) => {
       status: 'fail',
       message: 'Invalid ID format'
     });
-  } else if (
-    err.message &&
-    err.message.includes('Cannot read properties of undefined')
-  ) {
-    // Handle undefined property errors in production
-    const propertyMatch = err.message.match(
-      /Cannot read properties of undefined \(reading '(.+)'\)/
-    );
-    if (propertyMatch && propertyMatch[1] === 'jwt') {
-      res.status(500).json({
-        status: 'error',
-        message: 'Internal server error. Please try again later.'
-      });
-    } else {
-      res.status(400).json({
-        status: 'fail',
-        message: 'Invalid request format'
-      });
-    }
+  } else if (err instanceof TypeError && err.message.includes('jwt')) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error. Please try again later.'
+    });
   } else {
     // Programming or other unknown error: don't leak error details
-    console.error('ERROR ', err);
+    logger.error('Unhandled error', err);
     res.status(500).json({
       status: 'error',
       message: 'Something went wrong!'
@@ -133,7 +112,28 @@ const sendErrorProd = (err, res) => {
   }
 };
 
-module.exports = (err, req, res, next) => {
+module.exports = async (err, req, res, next) => {
+  if (req.filesToDelete && req.filesToDelete.images.length > 0) {
+    const folderPath = path.join(__dirname, '..', 'public', 'images');
+
+    const deletePromises = req.filesToDelete.images.map(async image => {
+      const imagePath = safePath(folderPath, image);
+      if (!imagePath) {
+        logger.error(`Blocked path traversal attempt: ${image}`);
+        return;
+      }
+      try {
+        await fs.unlink(imagePath);
+        logger.info(`Deleted file: ${imagePath}`);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          logger.error(`Failed to delete file ${imagePath}:`, error.message);
+        }
+      }
+    });
+    await Promise.all(deletePromises);
+  }
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
@@ -150,29 +150,16 @@ module.exports = (err, req, res, next) => {
     }". Please provide a valid ${err.path === '_id' ? 'ID' : 'value'}`;
   }
 
-  // Mark undefined property errors as operational
-  if (
-    err.message &&
-    err.message.includes('Cannot read properties of undefined')
-  ) {
+  // Handle JWT-related TypeError specifically
+  if (err instanceof TypeError && err.message.includes('jwt')) {
     err.isOperational = true;
-    const propertyMatch = err.message.match(
-      /Cannot read properties of undefined \(reading '(.+)'\)/
-    );
-    if (propertyMatch && propertyMatch[1] === 'jwt') {
-      err.statusCode = 500;
-      err.message = 'Authentication configuration error';
-    } else {
-      err.statusCode = 400;
-      err.message = `Missing required property: ${
-        propertyMatch ? propertyMatch[1] : 'unknown'
-      }`;
-    }
+    err.statusCode = 500;
+    err.message = 'Authentication configuration error';
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    sendErrorDev(err, res);
-  } else {
+  if (process.env.NODE_ENV === 'production') {
     sendErrorProd(err, res);
+  } else {
+    sendErrorDev(err, res);
   }
 };
