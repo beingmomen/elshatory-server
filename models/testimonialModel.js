@@ -29,13 +29,9 @@ const schema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      select: true
-    }
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
   }

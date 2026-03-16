@@ -13,14 +13,9 @@ const schema = new mongoose.Schema(
         message: 'Please provide a valid URL for the resume'
       }
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      select: true,
-      index: true
-    }
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
   }

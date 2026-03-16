@@ -27,12 +27,6 @@ const schema = new mongoose.Schema(
         message: 'Please provide a valid URL'
       }
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      select: true,
-      index: true
-    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
@@ -41,6 +35,7 @@ const schema = new mongoose.Schema(
     }
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
   }

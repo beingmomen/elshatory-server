@@ -21,12 +21,6 @@ const schema = new mongoose.Schema(
       required: [true, 'Icon is required'],
       trim: true
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      select: true,
-      index: true
-    },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
@@ -35,6 +29,7 @@ const schema = new mongoose.Schema(
     }
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
   }
