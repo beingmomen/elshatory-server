@@ -30,13 +30,8 @@ const schema = new mongoose.Schema(
       required: [true, 'Url is required'],
       trim: true,
       validate: {
-        validator: function (value) {
-          try {
-            new URL(value);
-            return true;
-          } catch (error) {
-            return false;
-          }
+        validator(value) {
+          return URL.canParse(value);
         },
         message: 'Please provide a valid URL'
       }
@@ -50,7 +45,7 @@ const schema = new mongoose.Schema(
       ],
       required: [true, 'Tags are required'],
       validate: {
-        validator: function (val) {
+        validator(val) {
           return val.length >= 3;
         },
         message: 'Project must have at least 3 skills as tags'
