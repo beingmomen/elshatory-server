@@ -1,223 +1,1784 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Express API Service</title>
+    <title>API Documentation — Express API Service</title>
     <style>
+      :root {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --surface-2: #334155;
+        --border: #475569;
+        --text: #e2e8f0;
+        --text-muted: #94a3b8;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --green: #22c55e;
+        --green-bg: #14532d;
+        --blue: #3b82f6;
+        --blue-bg: #1e3a5f;
+        --yellow: #eab308;
+        --yellow-bg: #713f12;
+        --red: #ef4444;
+        --red-bg: #7f1d1d;
+        --purple: #a855f7;
+        --purple-bg: #581c87;
+        --radius: 8px;
+        --mono: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
       body {
-        font-family: Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
         line-height: 1.6;
-        max-width: 800px;
-        margin: 0 auto;
+      }
+
+      /* Layout */
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 280px;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        overflow-y: auto;
+        z-index: 100;
+        transition: transform 0.3s;
+      }
+
+      .sidebar-header {
         padding: 20px;
-        background-color: #f5f5f5;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        background: var(--surface);
+        z-index: 1;
       }
-      .container {
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      .sidebar-header h2 {
+        font-size: 16px;
+        color: var(--accent);
       }
-      h1 {
-        color: #333;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 10px;
+
+      .sidebar-header p {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 4px;
       }
-      .endpoint {
-        background-color: #f8f9fa;
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 4px;
-        border-left: 4px solid #007bff;
+
+      .sidebar nav { padding: 12px 0; }
+
+      .nav-section {
+        padding: 8px 20px 4px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
       }
-      code {
-        background-color: #e9ecef;
-        padding: 2px 4px;
-        border-radius: 4px;
-        font-family: monospace;
-      }
-      .endpoint-item {
+
+      .nav-link {
         display: flex;
         align-items: center;
-        margin: 8px 0;
-      }
-      .endpoint-button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-left: 10px;
+        gap: 8px;
+        padding: 6px 20px;
+        color: var(--text-muted);
+        text-decoration: none;
         font-size: 14px;
-        transition: background-color 0.2s;
+        transition: all 0.15s;
+        cursor: pointer;
       }
-      .endpoint-button:hover {
-        background-color: #0056b3;
+
+      .nav-link:hover, .nav-link.active {
+        color: var(--text);
+        background: var(--surface-2);
       }
-      .endpoint-description {
+
+      .nav-link .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      /* Main */
+      .main {
+        flex: 1;
+        margin-left: 280px;
+        padding: 0;
+      }
+
+      /* Top bar */
+      .topbar {
+        position: sticky;
+        top: 0;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 32px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 50;
+      }
+
+      .topbar .auth-status {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+      }
+
+      .auth-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--red);
+      }
+
+      .auth-indicator.authenticated { background: var(--green); }
+
+      #menuToggle {
+        display: none;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 6px 10px;
+        border-radius: var(--radius);
+        cursor: pointer;
+        font-size: 18px;
+      }
+
+      /* Content */
+      .content { padding: 32px; max-width: 1100px; }
+
+      /* Hero */
+      .hero {
+        margin-bottom: 40px;
+        padding: 32px;
+        background: linear-gradient(135deg, var(--surface), var(--surface-2));
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+
+      .hero h1 { font-size: 28px; margin-bottom: 8px; }
+      .hero p { color: var(--text-muted); font-size: 15px; margin-bottom: 16px; }
+
+      .hero-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .badge-green { background: var(--green-bg); color: var(--green); }
+      .badge-blue { background: var(--blue-bg); color: var(--blue); }
+      .badge-purple { background: var(--purple-bg); color: var(--purple); }
+
+      /* Auth panel */
+      .auth-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-bottom: 32px;
+      }
+
+      .auth-panel h3 {
+        font-size: 16px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .auth-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 16px;
+        background: var(--bg);
+        padding: 4px;
+        border-radius: var(--radius);
+      }
+
+      .auth-tab {
+        flex: 1;
+        padding: 8px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+
+      .auth-tab.active {
+        background: var(--accent);
+        color: white;
+      }
+
+      .auth-form { display: none; }
+      .auth-form.active { display: block; }
+
+      .form-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      .form-group {
+        flex: 1;
+        min-width: 180px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+
+      .form-group input, .form-group textarea, .form-group select {
+        width: 100%;
+        padding: 8px 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+
+      .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+        border-color: var(--accent);
+      }
+
+      .form-group textarea { resize: vertical; min-height: 60px; }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+      }
+
+      .btn-primary { background: var(--accent); color: white; }
+      .btn-primary:hover { background: var(--accent-hover); }
+      .btn-danger { background: var(--red); color: white; }
+      .btn-danger:hover { background: #dc2626; }
+      .btn-outline {
+        background: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+      }
+      .btn-outline:hover { color: var(--text); border-color: var(--text-muted); }
+      .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+      /* API Section */
+      .api-section {
+        margin-bottom: 32px;
+        scroll-margin-top: 60px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section-header h2 { font-size: 20px; }
+
+      .section-header .base-url {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--text-muted);
+        background: var(--surface-2);
+        padding: 4px 10px;
+        border-radius: 4px;
+      }
+
+      /* Endpoint Card */
+      .endpoint-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 8px;
+        overflow: hidden;
+        transition: border-color 0.15s;
+      }
+
+      .endpoint-card:hover { border-color: var(--text-muted); }
+
+      .endpoint-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .method-badge {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 4px;
+        min-width: 60px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .method-GET { background: var(--green-bg); color: var(--green); }
+      .method-POST { background: var(--blue-bg); color: var(--blue); }
+      .method-PATCH { background: var(--yellow-bg); color: var(--yellow); }
+      .method-DELETE { background: var(--red-bg); color: var(--red); }
+
+      .endpoint-path {
+        font-family: var(--mono);
+        font-size: 14px;
+        color: var(--text);
         flex: 1;
       }
-      .method {
-        display: inline-block;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-weight: bold;
-        margin-right: 5px;
+
+      .endpoint-desc {
+        font-size: 13px;
+        color: var(--text-muted);
+        flex: 2;
       }
-      .get { background-color: #28a745; color: white; }
-      .post { background-color: #007bff; color: white; }
-      .patch { background-color: #ffc107; color: black; }
-      .delete { background-color: #dc3545; color: white; }
-      .auth-required {
+
+      .auth-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .auth-badge.public { background: var(--green-bg); color: var(--green); }
+      .auth-badge.auth { background: var(--yellow-bg); color: var(--yellow); }
+      .auth-badge.admin { background: var(--red-bg); color: var(--red); }
+      .auth-badge.dev { background: var(--purple-bg); color: var(--purple); }
+
+      .expand-icon {
+        color: var(--text-muted);
+        transition: transform 0.2s;
         font-size: 12px;
-        color: #dc3545;
-        margin-left: 8px;
+      }
+
+      .endpoint-card.open .expand-icon { transform: rotate(90deg); }
+
+      .endpoint-body {
+        display: none;
+        padding: 0 16px 16px;
+        border-top: 1px solid var(--border);
+      }
+
+      .endpoint-card.open .endpoint-body { display: block; }
+
+      .try-section { margin-top: 12px; }
+
+      .try-section h4 {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .param-input {
+        display: flex;
+        gap: 8px;
+        align-items: end;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+      }
+
+      .response-area {
+        margin-top: 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .response-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--surface-2);
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .status-code {
+        font-weight: 700;
+        font-family: var(--mono);
+      }
+
+      .status-code.success { color: var(--green); }
+      .status-code.error { color: var(--red); }
+
+      .response-body {
+        padding: 12px;
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.5;
+        max-height: 400px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      .field-info {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      .required { color: var(--red); }
+
+      .loading {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .query-params {
+        margin-top: 12px;
+        padding: 12px;
+        background: var(--bg);
+        border-radius: 6px;
+      }
+
+      .query-params h4 {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+
+      .query-param-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+
+      .query-param-row label {
+        min-width: 80px;
+        font-size: 12px;
+        font-family: var(--mono);
+        color: var(--text-muted);
+      }
+
+      .query-param-row input {
+        flex: 1;
+        padding: 4px 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        font-size: 13px;
+        font-family: var(--mono);
+        outline: none;
+      }
+
+      .query-param-row input:focus { border-color: var(--accent); }
+
+      .note {
+        background: var(--blue-bg);
+        color: var(--blue);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        margin-top: 8px;
+      }
+
+      /* Mobile */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-overlay.open { display: block; }
+        .main { margin-left: 0; }
+        #menuToggle { display: block; }
+        .endpoint-header { flex-wrap: wrap; }
+        .endpoint-desc { flex-basis: 100%; order: 10; margin-top: 4px; }
+        .form-row { flex-direction: column; }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>Express API Service</h1>
-      <p>
-        Welcome to the Express API Service. Below are the available endpoints:
-      </p>
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>Express API</h2>
+          <p>v1 Documentation</p>
+        </div>
+        <nav>
+          <div class="nav-section">General</div>
+          <a class="nav-link" href="#auth">
+            <span class="dot" style="background:var(--yellow)"></span> Authentication
+          </a>
+          <a class="nav-link" href="#health">
+            <span class="dot" style="background:var(--green)"></span> Health Check
+          </a>
+          <a class="nav-link" href="#landing">
+            <span class="dot" style="background:var(--purple)"></span> Landing
+          </a>
 
-      <div class="endpoint">
-        <h3>Categories API</h3>
-        <p>Base URL: <code>/api/v1/categories</code></p>
-        <ul>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method get">GET</span>
-              <code>/api/v1/categories</code> - Get all categories with pagination
-            </span>
-            <button class="endpoint-button" onclick="window.open('/api/v1/categories', '_blank')">
-              Try it
-            </button>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method get">GET</span>
-              <code>/api/v1/categories/all</code> - Get all categories without pagination
-            </span>
-            <button class="endpoint-button" onclick="window.open('/api/v1/categories/all', '_blank')">
-              Try it
-            </button>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method post">POST</span>
-              <code>/api/v1/categories</code> - Create a new category
-              <span class="auth-required">[Admin/Dev Auth Required]</span>
-            </span>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method get">GET</span>
-              <code>/api/v1/categories/:id</code> - Get category by ID
-            </span>
-            <button class="endpoint-button" onclick="tryGetById('/api/v1/categories')">
-              Try it
-            </button>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method patch">PATCH</span>
-              <code>/api/v1/categories/:id</code> - Update category
-              <span class="auth-required">[Admin/Dev Auth Required]</span>
-            </span>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method delete">DELETE</span>
-              <code>/api/v1/categories/:id</code> - Delete category
-              <span class="auth-required">[Admin/Dev Auth Required]</span>
-            </span>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method delete">DELETE</span>
-              <code>/api/v1/categories/delete-all</code> - Delete all categories
-              <span class="auth-required">[Dev Auth Required]</span>
-            </span>
-          </li>
-        </ul>
+          <div class="nav-section">Resources</div>
+          <a class="nav-link" href="#users">
+            <span class="dot" style="background:var(--blue)"></span> Users
+          </a>
+          <a class="nav-link" href="#projects">
+            <span class="dot" style="background:var(--green)"></span> Projects
+          </a>
+          <a class="nav-link" href="#blogs">
+            <span class="dot" style="background:var(--yellow)"></span> Blogs
+          </a>
+          <a class="nav-link" href="#services">
+            <span class="dot" style="background:var(--red)"></span> Services
+          </a>
+          <a class="nav-link" href="#skills">
+            <span class="dot" style="background:var(--purple)"></span> Skills
+          </a>
+          <a class="nav-link" href="#clients">
+            <span class="dot" style="background:var(--blue)"></span> Clients
+          </a>
+          <a class="nav-link" href="#contacts">
+            <span class="dot" style="background:var(--green)"></span> Contacts
+          </a>
+          <a class="nav-link" href="#testimonials">
+            <span class="dot" style="background:var(--yellow)"></span> Testimonials
+          </a>
+          <a class="nav-link" href="#resources">
+            <span class="dot" style="background:var(--red)"></span> Resources
+          </a>
+          <a class="nav-link" href="#infos">
+            <span class="dot" style="background:var(--purple)"></span> Info
+          </a>
+          <a class="nav-link" href="#views">
+            <span class="dot" style="background:var(--blue)"></span> Views
+          </a>
+        </nav>
+      </aside>
+
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <!-- Main -->
+      <div class="main">
+        <div class="topbar">
+          <button id="menuToggle" onclick="toggleSidebar()">&#9776;</button>
+          <span style="font-weight:600;font-size:15px">API Explorer</span>
+          <div class="auth-status">
+            <span class="auth-indicator" id="authIndicator"></span>
+            <span id="authStatusText">Not Authenticated</span>
+            <button class="btn btn-sm btn-outline" id="logoutBtn" style="display:none" onclick="doLogout()">Logout</button>
+          </div>
+        </div>
+
+        <div class="content">
+          <!-- Hero -->
+          <div class="hero">
+            <h1>Express API Service</h1>
+            <p>Interactive API documentation with live testing. Explore endpoints, send requests, and view responses in real time.</p>
+            <div class="hero-badges">
+              <span class="badge badge-green">REST API</span>
+              <span class="badge badge-blue">JWT Auth</span>
+              <span class="badge badge-purple">Cloudinary Images</span>
+            </div>
+          </div>
+
+          <!-- Auth Panel -->
+          <div class="api-section" id="auth">
+            <div class="section-header">
+              <h2>Authentication</h2>
+            </div>
+            <div class="auth-panel">
+              <h3>Login / Signup to get a JWT token for protected endpoints</h3>
+              <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+                <button class="auth-tab" onclick="switchAuthTab('token')">Manual Token</button>
+              </div>
+
+              <!-- Login -->
+              <div class="auth-form active" id="authFormLogin">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="loginEmail" placeholder="user@example.com" />
+                  </div>
+                  <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="loginPassword" placeholder="min 8 characters" />
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="doLogin()">Login</button>
+                <div id="loginResponse" style="margin-top:12px"></div>
+              </div>
+
+              <!-- Signup -->
+              <div class="auth-form" id="authFormSignup">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Name * <span class="field-info">(3-50 chars)</span></label>
+                    <input type="text" id="signupName" placeholder="John Doe" />
+                  </div>
+                  <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="signupEmail" placeholder="user@example.com" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Phone * <span class="field-info">(7-20 chars)</span></label>
+                    <input type="text" id="signupPhone" placeholder="+1234567890" />
+                  </div>
+                  <div class="form-group">
+                    <label>Password * <span class="field-info">(min 8 chars)</span></label>
+                    <input type="password" id="signupPassword" placeholder="password" />
+                  </div>
+                  <div class="form-group">
+                    <label>Confirm Password *</label>
+                    <input type="password" id="signupPasswordConfirm" placeholder="confirm password" />
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="doSignup()">Sign Up</button>
+                <div id="signupResponse" style="margin-top:12px"></div>
+              </div>
+
+              <!-- Manual Token -->
+              <div class="auth-form" id="authFormToken">
+                <div class="form-row">
+                  <div class="form-group" style="flex:3">
+                    <label>JWT Token</label>
+                    <input type="text" id="manualToken" placeholder="Paste your JWT token here..." />
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="setManualToken()">Set Token</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Health -->
+          <div class="api-section" id="health">
+            <div class="section-header">
+              <h2>Health Check</h2>
+              <span class="base-url">/health</span>
+            </div>
+
+            <div class="endpoint-card" data-method="GET" data-path="/health">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/health</span>
+                <span class="endpoint-desc">Full health check (DB + Cloudinary)</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '/health', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="endpoint-card" data-method="GET" data-path="/health/ready">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/health/ready</span>
+                <span class="endpoint-desc">Readiness probe (K8s / Docker)</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '/health/ready', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="endpoint-card" data-method="GET" data-path="/health/live">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/health/live</span>
+                <span class="endpoint-desc">Liveness probe</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '/health/live', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Landing -->
+          <div class="api-section" id="landing">
+            <div class="section-header">
+              <h2>Landing</h2>
+              <span class="base-url">/api/v1/landing</span>
+            </div>
+
+            <div class="endpoint-card" data-method="GET" data-path="/api/v1/landing">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/v1/landing</span>
+                <span class="endpoint-desc">Aggregated landing page data (skills, services, testimonials, projects, clients, info)</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '/api/v1/landing', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Users -->
+          <div class="api-section" id="users">
+            <div class="section-header">
+              <h2>Users</h2>
+              <span class="base-url">/api/v1/users</span>
+            </div>
+
+            <!-- Signup -->
+            <div class="endpoint-card" data-method="POST" data-path="/api/v1/users/signup">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/v1/users/signup</span>
+                <span class="endpoint-desc">Create new user account</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="note">Rate limited: 10 requests per 15 minutes</div>
+                <div class="try-section">
+                  <h4>Request Body</h4>
+                  <div class="form-row">
+                    <div class="form-group"><label>name * <span class="field-info">(3-50 chars)</span></label><input data-field="name" placeholder="John Doe" /></div>
+                    <div class="form-group"><label>email *</label><input data-field="email" type="email" placeholder="user@example.com" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group"><label>phone * <span class="field-info">(7-20 chars)</span></label><input data-field="phone" placeholder="+1234567890" /></div>
+                    <div class="form-group"><label>password * <span class="field-info">(min 8 chars)</span></label><input data-field="password" type="password" placeholder="password" /></div>
+                    <div class="form-group"><label>passwordConfirm *</label><input data-field="passwordConfirm" type="password" placeholder="confirm" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendJsonRequest('POST', '/api/v1/users/signup', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Login -->
+            <div class="endpoint-card" data-method="POST" data-path="/api/v1/users/login">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/v1/users/login</span>
+                <span class="endpoint-desc">Authenticate and get JWT</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="note">Rate limited: 10 requests per 15 minutes</div>
+                <div class="try-section">
+                  <h4>Request Body</h4>
+                  <div class="form-row">
+                    <div class="form-group"><label>email *</label><input data-field="email" type="email" placeholder="user@example.com" /></div>
+                    <div class="form-group"><label>password *</label><input data-field="password" type="password" placeholder="password" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendJsonRequest('POST', '/api/v1/users/login', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="endpoint-card" data-method="POST" data-path="/api/v1/users/logout">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/v1/users/logout</span>
+                <span class="endpoint-desc">Clear JWT cookie</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('POST', '/api/v1/users/logout', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forgot Password -->
+            <div class="endpoint-card" data-method="POST" data-path="/api/v1/users/forgotPassword">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/v1/users/forgotPassword</span>
+                <span class="endpoint-desc">Send password reset email</span>
+                <span class="auth-badge public">Public</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="note">Rate limited: 10 requests per 15 minutes</div>
+                <div class="try-section">
+                  <h4>Request Body</h4>
+                  <div class="form-row">
+                    <div class="form-group"><label>email *</label><input data-field="email" type="email" placeholder="user@example.com" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendJsonRequest('POST', '/api/v1/users/forgotPassword', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Get Me -->
+            <div class="endpoint-card" data-method="GET" data-path="/api/v1/users/me">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/v1/users/me</span>
+                <span class="endpoint-desc">Get current user profile</span>
+                <span class="auth-badge auth">Auth</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '/api/v1/users/me', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Update Me -->
+            <div class="endpoint-card" data-method="PATCH" data-path="/api/v1/users/updateMe">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-PATCH">PATCH</span>
+                <span class="endpoint-path">/api/v1/users/updateMe</span>
+                <span class="endpoint-desc">Update own profile (name, phone, photo)</span>
+                <span class="auth-badge auth">Auth</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <h4>Request Body (multipart/form-data)</h4>
+                  <div class="form-row">
+                    <div class="form-group"><label>name <span class="field-info">(3-50 chars)</span></label><input data-field="name" placeholder="John Doe" /></div>
+                    <div class="form-group"><label>phone <span class="field-info">(7-20 chars)</span></label><input data-field="phone" placeholder="+1234567890" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group"><label>photo</label><input data-field="photo" type="file" accept="image/*" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendFormDataRequest('PATCH', '/api/v1/users/updateMe', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Update Password -->
+            <div class="endpoint-card" data-method="PATCH" data-path="/api/v1/users/updateMyPassword">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-PATCH">PATCH</span>
+                <span class="endpoint-path">/api/v1/users/updateMyPassword</span>
+                <span class="endpoint-desc">Update own password</span>
+                <span class="auth-badge auth">Auth</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <h4>Request Body</h4>
+                  <div class="form-row">
+                    <div class="form-group"><label>passwordCurrent *</label><input data-field="passwordCurrent" type="password" placeholder="current password" /></div>
+                    <div class="form-group"><label>password * <span class="field-info">(min 8 chars)</span></label><input data-field="password" type="password" placeholder="new password" /></div>
+                    <div class="form-group"><label>passwordConfirm *</label><input data-field="passwordConfirm" type="password" placeholder="confirm" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendJsonRequest('PATCH', '/api/v1/users/updateMyPassword', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delete Me -->
+            <div class="endpoint-card" data-method="DELETE" data-path="/api/v1/users/deleteMe">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-DELETE">DELETE</span>
+                <span class="endpoint-path">/api/v1/users/deleteMe</span>
+                <span class="endpoint-desc">Soft-delete own account</span>
+                <span class="auth-badge auth">Auth</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-danger btn-sm" onclick="if(confirm('Are you sure?')) sendRequest('DELETE', '/api/v1/users/deleteMe', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin: Get All Users -->
+            <div class="endpoint-card" data-method="GET" data-path="/api/v1/users">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/v1/users</span>
+                <span class="endpoint-desc">Get all users (paginated)</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="query-params">
+                  <h4>Query Parameters</h4>
+                  <div class="query-param-row"><label>page</label><input data-query="page" placeholder="1" /></div>
+                  <div class="query-param-row"><label>limit</label><input data-query="limit" placeholder="10" /></div>
+                  <div class="query-param-row"><label>sort</label><input data-query="sort" placeholder="-createdAt" /></div>
+                  <div class="query-param-row"><label>fields</label><input data-query="fields" placeholder="name,email,role" /></div>
+                  <div class="query-param-row"><label>search</label><input data-query="search" placeholder="keyword" /></div>
+                </div>
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequestWithQuery('GET', '/api/v1/users', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin: Get All Users No Pagination -->
+            <div class="endpoint-card" data-method="GET" data-path="/api/v1/users/all">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/v1/users/all</span>
+                <span class="endpoint-desc">Get all users without pagination</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '/api/v1/users/all', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin: Get All Admins -->
+            <div class="endpoint-card" data-method="GET" data-path="/api/v1/users/admins">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/v1/users/admins</span>
+                <span class="endpoint-desc">Get all admin users (paginated)</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '/api/v1/users/admins', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin: Get User by ID -->
+            <div class="endpoint-card" data-method="GET" data-path="/api/v1/users/:id">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/v1/users/:id</span>
+                <span class="endpoint-desc">Get specific user by ID</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <h4>Path Parameters</h4>
+                  <div class="param-input">
+                    <div class="form-group"><label>id *</label><input data-param="id" placeholder="MongoDB ObjectId" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendWithParams('GET', '/api/v1/users/:id', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin: Delete User -->
+            <div class="endpoint-card" data-method="DELETE" data-path="/api/v1/users/:id">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-DELETE">DELETE</span>
+                <span class="endpoint-path">/api/v1/users/:id</span>
+                <span class="endpoint-desc">Delete user by ID</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <h4>Path Parameters</h4>
+                  <div class="param-input">
+                    <div class="form-group"><label>id *</label><input data-param="id" placeholder="MongoDB ObjectId" /></div>
+                  </div>
+                  <button class="btn btn-danger btn-sm" onclick="if(confirm('Delete this user?')) sendWithParams('DELETE', '/api/v1/users/:id', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dev: Create Admin -->
+            <div class="endpoint-card" data-method="POST" data-path="/api/v1/users/admin">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/v1/users/admin</span>
+                <span class="endpoint-desc">Create admin user (Dev only)</span>
+                <span class="auth-badge dev">Dev</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <h4>Request Body</h4>
+                  <div class="form-row">
+                    <div class="form-group"><label>name *</label><input data-field="name" placeholder="Admin Name" /></div>
+                    <div class="form-group"><label>email *</label><input data-field="email" type="email" placeholder="admin@example.com" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group"><label>phone *</label><input data-field="phone" placeholder="+1234567890" /></div>
+                    <div class="form-group"><label>password *</label><input data-field="password" type="password" placeholder="password" /></div>
+                    <div class="form-group"><label>passwordConfirm *</label><input data-field="passwordConfirm" type="password" placeholder="confirm" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendJsonRequest('POST', '/api/v1/users/admin', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CRUD Resource Sections generated by template -->
+          <div id="resourceSections"></div>
+
+          <!-- Views -->
+          <div class="api-section" id="views">
+            <div class="section-header">
+              <h2>Views</h2>
+              <span class="base-url">/api/v1/views</span>
+            </div>
+
+            <div class="endpoint-card" data-method="GET" data-path="/api/v1/views/stats/:blogId">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/v1/views/stats/:blogId</span>
+                <span class="endpoint-desc">Get view statistics for a blog</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <h4>Path Parameters</h4>
+                  <div class="param-input">
+                    <div class="form-group"><label>blogId *</label><input data-param="blogId" placeholder="Blog ObjectId" /></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="sendWithParams('GET', '/api/v1/views/stats/:blogId', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="endpoint-card" data-method="POST" data-path="/api/v1/views/cleanup">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/v1/views/cleanup</span>
+                <span class="endpoint-desc">Delete old view records</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-primary btn-sm" onclick="sendRequest('POST', '/api/v1/views/cleanup', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="endpoint-card" data-method="POST" data-path="/api/v1/views/reset">
+              <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/v1/views/reset</span>
+                <span class="endpoint-desc">Reset all view counts</span>
+                <span class="auth-badge admin">Admin</span>
+                <span class="expand-icon">&#9654;</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="try-section">
+                  <button class="btn btn-danger btn-sm" onclick="if(confirm('Reset ALL view data?')) sendRequest('POST', '/api/v1/views/reset', this)">Send Request</button>
+                  <div class="response-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
-
-      <div class="endpoint">
-        <h3>Sections API</h3>
-        <p>Base URL: <code>/api/v1/sections</code></p>
-        <ul>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method get">GET</span>
-              <code>/api/v1/sections</code> - Get all sections with pagination
-            </span>
-            <button class="endpoint-button" onclick="window.open('/api/v1/sections', '_blank')">
-              Try it
-            </button>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method get">GET</span>
-              <code>/api/v1/sections/all</code> - Get all sections without pagination
-            </span>
-            <button class="endpoint-button" onclick="window.open('/api/v1/sections/all', '_blank')">
-              Try it
-            </button>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method post">POST</span>
-              <code>/api/v1/sections</code> - Create a new section
-              <span class="auth-required">[Admin/Dev Auth Required]</span>
-            </span>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method get">GET</span>
-              <code>/api/v1/sections/:id</code> - Get section by ID
-            </span>
-            <button class="endpoint-button" onclick="tryGetById('/api/v1/sections')">
-              Try it
-            </button>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method patch">PATCH</span>
-              <code>/api/v1/sections/:id</code> - Update section
-              <span class="auth-required">[Admin/Dev Auth Required]</span>
-            </span>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method delete">DELETE</span>
-              <code>/api/v1/sections/:id</code> - Delete section
-              <span class="auth-required">[Admin/Dev Auth Required]</span>
-            </span>
-          </li>
-          <li class="endpoint-item">
-            <span class="endpoint-description">
-              <span class="method delete">DELETE</span>
-              <code>/api/v1/sections/delete-all</code> - Delete all sections
-              <span class="auth-required">[Dev Auth Required]</span>
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <p>
-        For detailed API documentation and authentication information, please refer to the API documentation.
-      </p>
     </div>
 
     <script>
-      function tryGetById(baseUrl) {
-        const id = prompt('Please enter the ID:');
-        if (id) {
-          window.open(`${baseUrl}/${id}`, '_blank');
+      // ── State ──
+      let authToken = localStorage.getItem('api_token') || '';
+      updateAuthUI();
+
+      // ── Resource definitions for auto-generating CRUD sections ──
+      const resources = [
+        {
+          id: 'projects', name: 'Projects', base: '/api/v1/projects',
+          hasImages: true, hasDeleteAll: true,
+          createFields: [
+            { name: 'title', type: 'text', required: true, info: '2-100 chars, unique' },
+            { name: 'tag', type: 'text', required: true, info: '2-50 chars' },
+            { name: 'url', type: 'url', required: true, info: 'Valid URL' },
+            { name: 'altText', type: 'text', required: true, info: '2-200 chars' },
+            { name: 'image', type: 'file', required: true },
+            { name: 'tagIds', type: 'text', required: true, info: 'Comma-separated Skill IDs (min 3)' },
+          ],
+          updateFields: [
+            { name: 'title', type: 'text', info: '2-100 chars' },
+            { name: 'tag', type: 'text', info: '2-50 chars' },
+            { name: 'url', type: 'url', info: 'Valid URL' },
+            { name: 'altText', type: 'text', info: '2-200 chars' },
+            { name: 'image', type: 'file' },
+          ],
+        },
+        {
+          id: 'blogs', name: 'Blogs', base: '/api/v1/blogs',
+          hasImages: true, hasDeleteAll: true, hasSlug: true,
+          createFields: [
+            { name: 'title', type: 'text', required: true, info: '2-200 chars, unique' },
+            { name: 'description', type: 'textarea', required: true, info: '10-500 chars' },
+            { name: 'content', type: 'textarea', required: true, info: 'Min 10 chars (HTML)' },
+            { name: 'tags', type: 'text', required: true, info: '2-100 chars' },
+            { name: 'keywords', type: 'text', required: true, info: '2-200 chars' },
+            { name: 'altText', type: 'text', info: '2-200 chars' },
+            { name: 'image', type: 'file', required: true },
+          ],
+          updateFields: [
+            { name: 'title', type: 'text', info: '2-200 chars' },
+            { name: 'description', type: 'textarea', info: '10-500 chars' },
+            { name: 'content', type: 'textarea', info: 'HTML content' },
+            { name: 'tags', type: 'text', info: '2-100 chars' },
+            { name: 'keywords', type: 'text', info: '2-200 chars' },
+            { name: 'image', type: 'file' },
+            { name: 'status', type: 'select', options: ['draft', 'published', 'archived'] },
+          ],
+        },
+        {
+          id: 'services', name: 'Services', base: '/api/v1/services',
+          hasImages: true, hasDeleteAll: true,
+          createFields: [
+            { name: 'title', type: 'text', required: true, info: '2-100 chars, unique' },
+            { name: 'description', type: 'textarea', required: true, info: '10-1000 chars' },
+            { name: 'altText', type: 'text', required: true, info: '2-200 chars' },
+            { name: 'image', type: 'file', required: true },
+          ],
+          updateFields: [
+            { name: 'title', type: 'text', info: '2-100 chars' },
+            { name: 'description', type: 'textarea', info: '10-1000 chars' },
+            { name: 'altText', type: 'text', info: '2-200 chars' },
+            { name: 'image', type: 'file' },
+          ],
+        },
+        {
+          id: 'skills', name: 'Skills', base: '/api/v1/skills',
+          hasImages: false, hasDeleteAll: true,
+          createFields: [
+            { name: 'title', type: 'text', required: true, info: '2-50 chars, unique' },
+            { name: 'icon', type: 'text', required: true, info: 'Icon identifier' },
+          ],
+          updateFields: [
+            { name: 'title', type: 'text', info: '2-50 chars' },
+            { name: 'icon', type: 'text', info: 'Icon identifier' },
+          ],
+        },
+        {
+          id: 'clients', name: 'Clients', base: '/api/v1/clients',
+          hasImages: true, hasDeleteAll: true,
+          createFields: [
+            { name: 'name', type: 'text', required: true, info: '2-100 chars, unique' },
+            { name: 'website', type: 'url', info: 'Client website URL' },
+            { name: 'altText', type: 'text', info: '2-200 chars' },
+            { name: 'image', type: 'file', required: true },
+          ],
+          updateFields: [
+            { name: 'name', type: 'text', info: '2-100 chars' },
+            { name: 'website', type: 'url', info: 'Client website URL' },
+            { name: 'altText', type: 'text', info: '2-200 chars' },
+            { name: 'image', type: 'file' },
+          ],
+        },
+        {
+          id: 'contacts', name: 'Contacts', base: '/api/v1/contacts',
+          hasImages: false, hasDeleteAll: false, publicCreate: true,
+          createFields: [
+            { name: 'name', type: 'text', required: true, info: '2-100 chars' },
+            { name: 'phone', type: 'text', required: true, info: '7-20 chars' },
+            { name: 'email', type: 'email', info: 'Optional' },
+            { name: 'description', type: 'textarea', required: true, info: '10-1000 chars' },
+          ],
+          updateFields: [
+            { name: 'description', type: 'textarea', info: '10-1000 chars' },
+          ],
+        },
+        {
+          id: 'testimonials', name: 'Testimonials', base: '/api/v1/testimonials',
+          hasImages: true, hasDeleteAll: false, publicCreate: true, hasConfirmed: true,
+          getAllAuth: 'admin',
+          createFields: [
+            { name: 'name', type: 'text', required: true, info: '2-100 chars' },
+            { name: 'email', type: 'email', required: true },
+            { name: 'description', type: 'textarea', required: true, info: '10-1000 chars' },
+            { name: 'image', type: 'file' },
+          ],
+          updateFields: [
+            { name: 'description', type: 'textarea', info: '10-1000 chars' },
+            { name: 'isConfirmed', type: 'select', options: ['true', 'false'] },
+          ],
+        },
+        {
+          id: 'resources', name: 'Resources', base: '/api/v1/resources',
+          hasImages: false, hasDeleteAll: true,
+          createFields: [
+            { name: 'title', type: 'text', required: true, info: '2-100 chars, unique' },
+            { name: 'url', type: 'url', required: true, info: 'Valid URL' },
+          ],
+          updateFields: [
+            { name: 'title', type: 'text', info: '2-100 chars' },
+            { name: 'url', type: 'url', info: 'Valid URL' },
+          ],
+        },
+        {
+          id: 'infos', name: 'Info', base: '/api/v1/infos',
+          hasImages: false, hasDeleteAll: true,
+          createFields: [
+            { name: 'resumeUrl', type: 'url', required: true, info: 'Valid URL to resume' },
+          ],
+          updateFields: [
+            { name: 'resumeUrl', type: 'url', info: 'Valid URL' },
+          ],
+        },
+      ];
+
+      // ── Generate resource sections ──
+      const container = document.getElementById('resourceSections');
+      resources.forEach(r => {
+        let html = `<div class="api-section" id="${r.id}">
+          <div class="section-header">
+            <h2>${r.name}</h2>
+            <span class="base-url">${r.base}</span>
+          </div>`;
+
+        const getAllAuth = r.getAllAuth === 'admin' ? 'admin' : 'public';
+        const getAllBadge = getAllAuth === 'admin'
+          ? '<span class="auth-badge admin">Admin</span>'
+          : '<span class="auth-badge public">Public</span>';
+
+        // GET all (paginated)
+        html += buildEndpoint('GET', r.base, `Get all ${r.name.toLowerCase()} (paginated)`, getAllBadge, `
+          <div class="query-params">
+            <h4>Query Parameters</h4>
+            <div class="query-param-row"><label>page</label><input data-query="page" placeholder="1" /></div>
+            <div class="query-param-row"><label>limit</label><input data-query="limit" placeholder="10" /></div>
+            <div class="query-param-row"><label>sort</label><input data-query="sort" placeholder="-createdAt" /></div>
+            <div class="query-param-row"><label>fields</label><input data-query="fields" placeholder="title,slug" /></div>
+            <div class="query-param-row"><label>search</label><input data-query="search" placeholder="keyword" /></div>
+          </div>
+          <div class="try-section">
+            <button class="btn btn-primary btn-sm" onclick="sendRequestWithQuery('GET', '${r.base}', this)">Send Request</button>
+            <div class="response-container"></div>
+          </div>`);
+
+        // GET all (no pagination)
+        html += buildEndpoint('GET', r.base + '/all', `Get all ${r.name.toLowerCase()} without pagination`, getAllBadge, `
+          <div class="try-section">
+            <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '${r.base}/all', this)">Send Request</button>
+            <div class="response-container"></div>
+          </div>`);
+
+        // GET confirmed (testimonials)
+        if (r.hasConfirmed) {
+          html += buildEndpoint('GET', r.base + '/confirmed', 'Get all confirmed testimonials', '<span class="auth-badge public">Public</span>', `
+            <div class="try-section">
+              <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '${r.base}/confirmed', this)">Send Request</button>
+              <div class="response-container"></div>
+            </div>`);
+        }
+
+        // GET by slug (blogs)
+        if (r.hasSlug) {
+          html += buildEndpoint('GET', r.base + '/slug/:slug', 'Get blog by slug (tracks views)', '<span class="auth-badge public">Public</span>', `
+            <div class="try-section">
+              <h4>Path Parameters</h4>
+              <div class="param-input">
+                <div class="form-group"><label>slug *</label><input data-param="slug" placeholder="my-blog-post" /></div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="sendWithParams('GET', '${r.base}/slug/:slug', this)">Send Request</button>
+              <div class="response-container"></div>
+            </div>`);
+        }
+
+        // POST create
+        const createAuth = r.publicCreate
+          ? '<span class="auth-badge public">Public</span>'
+          : '<span class="auth-badge admin">Admin</span>';
+        const hasFile = r.createFields.some(f => f.type === 'file');
+        const createFn = hasFile ? 'sendFormDataRequest' : 'sendJsonRequest';
+        html += buildEndpoint('POST', r.base, `Create a new ${r.name.toLowerCase().replace(/s$/, '')}`, createAuth, `
+          <div class="try-section">
+            <h4>Request Body${hasFile ? ' (multipart/form-data)' : ''}</h4>
+            ${buildFormFields(r.createFields)}
+            <button class="btn btn-primary btn-sm" onclick="${createFn}('POST', '${r.base}', this)">Send Request</button>
+            <div class="response-container"></div>
+          </div>`);
+
+        // GET by ID
+        html += buildEndpoint('GET', r.base + '/:id', `Get ${r.name.toLowerCase().replace(/s$/, '')} by ID`, '<span class="auth-badge public">Public</span>', `
+          <div class="try-section">
+            <h4>Path Parameters</h4>
+            <div class="param-input">
+              <div class="form-group"><label>id *</label><input data-param="id" placeholder="MongoDB ObjectId" /></div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="sendWithParams('GET', '${r.base}/:id', this)">Send Request</button>
+            <div class="response-container"></div>
+          </div>`);
+
+        // PATCH update
+        const hasUpdateFile = r.updateFields.some(f => f.type === 'file');
+        const updateFn = hasUpdateFile ? 'sendFormDataRequestWithParams' : 'sendJsonRequestWithParams';
+        html += buildEndpoint('PATCH', r.base + '/:id', `Update ${r.name.toLowerCase().replace(/s$/, '')}`, '<span class="auth-badge admin">Admin</span>', `
+          <div class="try-section">
+            <h4>Path Parameters</h4>
+            <div class="param-input">
+              <div class="form-group"><label>id *</label><input data-param="id" placeholder="MongoDB ObjectId" /></div>
+            </div>
+            <h4>Request Body${hasUpdateFile ? ' (multipart/form-data)' : ''}</h4>
+            ${buildFormFields(r.updateFields)}
+            <button class="btn btn-primary btn-sm" onclick="${updateFn}('PATCH', '${r.base}/:id', this)">Send Request</button>
+            <div class="response-container"></div>
+          </div>`);
+
+        // DELETE by ID
+        html += buildEndpoint('DELETE', r.base + '/:id', `Delete ${r.name.toLowerCase().replace(/s$/, '')}`, '<span class="auth-badge admin">Admin</span>', `
+          <div class="try-section">
+            <h4>Path Parameters</h4>
+            <div class="param-input">
+              <div class="form-group"><label>id *</label><input data-param="id" placeholder="MongoDB ObjectId" /></div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="if(confirm('Delete this item?')) sendWithParams('DELETE', '${r.base}/:id', this)">Send Request</button>
+            <div class="response-container"></div>
+          </div>`);
+
+        // DELETE all
+        if (r.hasDeleteAll) {
+          html += buildEndpoint('DELETE', r.base + '/delete-all', `Delete all ${r.name.toLowerCase()}`, '<span class="auth-badge dev">Dev</span>', `
+            <div class="try-section">
+              <button class="btn btn-danger btn-sm" onclick="if(confirm('DELETE ALL ${r.name.toUpperCase()}? This cannot be undone!')) sendRequest('DELETE', '${r.base}/delete-all', this)">Send Request</button>
+              <div class="response-container"></div>
+            </div>`);
+        }
+
+        html += '</div>';
+        container.insertAdjacentHTML('beforeend', html);
+      });
+
+      // ── Helpers ──
+      function buildEndpoint(method, path, desc, authBadge, body) {
+        return `<div class="endpoint-card" data-method="${method}" data-path="${path}">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-badge method-${method}">${method}</span>
+            <span class="endpoint-path">${path}</span>
+            <span class="endpoint-desc">${desc}</span>
+            ${authBadge}
+            <span class="expand-icon">&#9654;</span>
+          </div>
+          <div class="endpoint-body">${body}</div>
+        </div>`;
+      }
+
+      function buildFormFields(fields) {
+        let html = '';
+        for (let i = 0; i < fields.length; i += 2) {
+          html += '<div class="form-row">';
+          for (let j = i; j < Math.min(i + 2, fields.length); j++) {
+            const f = fields[j];
+            const req = f.required ? ' *' : '';
+            const info = f.info ? ` <span class="field-info">(${f.info})</span>` : '';
+            if (f.type === 'textarea') {
+              html += `<div class="form-group"><label>${f.name}${req}${info}</label><textarea data-field="${f.name}" placeholder="${f.name}"></textarea></div>`;
+            } else if (f.type === 'select') {
+              const opts = f.options.map(o => `<option value="${o}">${o}</option>`).join('');
+              html += `<div class="form-group"><label>${f.name}${req}${info}</label><select data-field="${f.name}"><option value="">-- select --</option>${opts}</select></div>`;
+            } else if (f.type === 'file') {
+              html += `<div class="form-group"><label>${f.name}${req}${info}</label><input data-field="${f.name}" type="file" accept="image/*" /></div>`;
+            } else {
+              html += `<div class="form-group"><label>${f.name}${req}${info}</label><input data-field="${f.name}" type="${f.type}" placeholder="${f.name}" /></div>`;
+            }
+          }
+          html += '</div>';
+        }
+        return html;
+      }
+
+      // ── UI Functions ──
+      function toggleEndpoint(header) {
+        header.closest('.endpoint-card').classList.toggle('open');
+      }
+
+      function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('open');
+      }
+
+      document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
+
+      // Active nav highlighting
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          document.getElementById('sidebar').classList.remove('open');
+          document.getElementById('sidebarOverlay').classList.remove('open');
+        });
+      });
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            const link = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+            if (link) link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-100px 0px -70% 0px' });
+
+      document.querySelectorAll('.api-section').forEach(s => observer.observe(s));
+
+      // ── Auth Functions ──
+      function switchAuthTab(tab) {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('authForm' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+      }
+
+      async function doLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const el = document.getElementById('loginResponse');
+        el.innerHTML = '<span class="loading"></span>';
+        try {
+          const res = await fetch('/api/v1/users/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+          if (data.token) {
+            authToken = data.token;
+            localStorage.setItem('api_token', authToken);
+            updateAuthUI();
+            el.innerHTML = '<span style="color:var(--green)">Login successful!</span>';
+          } else {
+            el.innerHTML = `<span style="color:var(--red)">${data.message || 'Login failed'}</span>`;
+          }
+        } catch (err) {
+          el.innerHTML = `<span style="color:var(--red)">Error: ${err.message}</span>`;
+        }
+      }
+
+      async function doSignup() {
+        const body = {
+          name: document.getElementById('signupName').value,
+          email: document.getElementById('signupEmail').value,
+          phone: document.getElementById('signupPhone').value,
+          password: document.getElementById('signupPassword').value,
+          passwordConfirm: document.getElementById('signupPasswordConfirm').value,
+        };
+        const el = document.getElementById('signupResponse');
+        el.innerHTML = '<span class="loading"></span>';
+        try {
+          const res = await fetch('/api/v1/users/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+          if (data.token) {
+            authToken = data.token;
+            localStorage.setItem('api_token', authToken);
+            updateAuthUI();
+            el.innerHTML = '<span style="color:var(--green)">Signup successful!</span>';
+          } else {
+            el.innerHTML = `<span style="color:var(--red)">${data.message || 'Signup failed'}</span>`;
+          }
+        } catch (err) {
+          el.innerHTML = `<span style="color:var(--red)">Error: ${err.message}</span>`;
+        }
+      }
+
+      function setManualToken() {
+        authToken = document.getElementById('manualToken').value.trim();
+        localStorage.setItem('api_token', authToken);
+        updateAuthUI();
+      }
+
+      function doLogout() {
+        authToken = '';
+        localStorage.removeItem('api_token');
+        updateAuthUI();
+        fetch('/api/v1/users/logout', { method: 'POST' });
+      }
+
+      function updateAuthUI() {
+        const indicator = document.getElementById('authIndicator');
+        const text = document.getElementById('authStatusText');
+        const btn = document.getElementById('logoutBtn');
+        if (authToken) {
+          indicator.classList.add('authenticated');
+          text.textContent = 'Authenticated';
+          btn.style.display = '';
+        } else {
+          indicator.classList.remove('authenticated');
+          text.textContent = 'Not Authenticated';
+          btn.style.display = 'none';
+        }
+      }
+
+      // ── Request Functions ──
+      function getHeaders(isJson) {
+        const h = {};
+        if (authToken) h['Authorization'] = 'Bearer ' + authToken;
+        if (isJson) h['Content-Type'] = 'application/json';
+        return h;
+      }
+
+      function renderResponse(container, status, data, duration) {
+        const isSuccess = status >= 200 && status < 300;
+        container.innerHTML = `<div class="response-area">
+          <div class="response-header">
+            <span>Status: <span class="status-code ${isSuccess ? 'success' : 'error'}">${status}</span></span>
+            <span>${duration}ms</span>
+          </div>
+          <div class="response-body">${syntaxHighlight(JSON.stringify(data, null, 2))}</div>
+        </div>`;
+      }
+
+      function syntaxHighlight(json) {
+        return json
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?/g, match => {
+            let cls = 'color:#22c55e'; // string
+            if (/:$/.test(match)) cls = 'color:#93c5fd'; // key
+            else if (/true|false/.test(match)) cls = 'color:#eab308'; // bool
+            else if (/null/.test(match)) cls = 'color:#ef4444'; // null
+            return `<span style="${cls}">${match}</span>`;
+          })
+          .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#eab308">$1</span>');
+      }
+
+      function getResponseContainer(btn) {
+        return btn.closest('.try-section').querySelector('.response-container');
+      }
+
+      async function sendRequest(method, path, btn) {
+        const rc = getResponseContainer(btn);
+        rc.innerHTML = '<span class="loading"></span>';
+        const start = Date.now();
+        try {
+          const res = await fetch(path, { method, headers: getHeaders(false) });
+          const data = await res.json();
+          renderResponse(rc, res.status, data, Date.now() - start);
+        } catch (err) {
+          renderResponse(rc, 0, { error: err.message }, Date.now() - start);
+        }
+      }
+
+      async function sendRequestWithQuery(method, basePath, btn) {
+        const body = btn.closest('.endpoint-body');
+        const params = new URLSearchParams();
+        body.querySelectorAll('[data-query]').forEach(el => {
+          if (el.value.trim()) params.set(el.dataset.query, el.value.trim());
+        });
+        const qs = params.toString();
+        const path = qs ? basePath + '?' + qs : basePath;
+        const rc = getResponseContainer(btn);
+        rc.innerHTML = '<span class="loading"></span>';
+        const start = Date.now();
+        try {
+          const res = await fetch(path, { method, headers: getHeaders(false) });
+          const data = await res.json();
+          renderResponse(rc, res.status, data, Date.now() - start);
+        } catch (err) {
+          renderResponse(rc, 0, { error: err.message }, Date.now() - start);
+        }
+      }
+
+      function collectJsonFields(btn) {
+        const body = btn.closest('.endpoint-body');
+        const obj = {};
+        body.querySelectorAll('[data-field]').forEach(el => {
+          if (el.type === 'file') return;
+          const val = el.value.trim();
+          if (val) obj[el.dataset.field] = val;
+        });
+        return obj;
+      }
+
+      function collectFormData(btn) {
+        const body = btn.closest('.endpoint-body');
+        const fd = new FormData();
+        body.querySelectorAll('[data-field]').forEach(el => {
+          if (el.type === 'file') {
+            if (el.files[0]) fd.append(el.dataset.field, el.files[0]);
+          } else {
+            const val = el.value.trim();
+            if (val) fd.append(el.dataset.field, val);
+          }
+        });
+        return fd;
+      }
+
+      function resolvePath(template, btn) {
+        const body = btn.closest('.endpoint-body');
+        let path = template;
+        body.querySelectorAll('[data-param]').forEach(el => {
+          path = path.replace(':' + el.dataset.param, encodeURIComponent(el.value.trim()));
+        });
+        return path;
+      }
+
+      async function sendJsonRequest(method, path, btn) {
+        const rc = getResponseContainer(btn);
+        rc.innerHTML = '<span class="loading"></span>';
+        const start = Date.now();
+        try {
+          const res = await fetch(path, {
+            method,
+            headers: getHeaders(true),
+            body: JSON.stringify(collectJsonFields(btn)),
+          });
+          const data = await res.json();
+          renderResponse(rc, res.status, data, Date.now() - start);
+        } catch (err) {
+          renderResponse(rc, 0, { error: err.message }, Date.now() - start);
+        }
+      }
+
+      async function sendFormDataRequest(method, path, btn) {
+        const rc = getResponseContainer(btn);
+        rc.innerHTML = '<span class="loading"></span>';
+        const h = {};
+        if (authToken) h['Authorization'] = 'Bearer ' + authToken;
+        const start = Date.now();
+        try {
+          const res = await fetch(path, { method, headers: h, body: collectFormData(btn) });
+          const data = await res.json();
+          renderResponse(rc, res.status, data, Date.now() - start);
+        } catch (err) {
+          renderResponse(rc, 0, { error: err.message }, Date.now() - start);
+        }
+      }
+
+      async function sendWithParams(method, template, btn) {
+        const path = resolvePath(template, btn);
+        const rc = getResponseContainer(btn);
+        rc.innerHTML = '<span class="loading"></span>';
+        const start = Date.now();
+        try {
+          const res = await fetch(path, { method, headers: getHeaders(false) });
+          const data = await res.json();
+          renderResponse(rc, res.status, data, Date.now() - start);
+        } catch (err) {
+          renderResponse(rc, 0, { error: err.message }, Date.now() - start);
+        }
+      }
+
+      async function sendJsonRequestWithParams(method, template, btn) {
+        const path = resolvePath(template, btn);
+        const rc = getResponseContainer(btn);
+        rc.innerHTML = '<span class="loading"></span>';
+        const start = Date.now();
+        try {
+          const res = await fetch(path, {
+            method,
+            headers: getHeaders(true),
+            body: JSON.stringify(collectJsonFields(btn)),
+          });
+          const data = await res.json();
+          renderResponse(rc, res.status, data, Date.now() - start);
+        } catch (err) {
+          renderResponse(rc, 0, { error: err.message }, Date.now() - start);
+        }
+      }
+
+      async function sendFormDataRequestWithParams(method, template, btn) {
+        const path = resolvePath(template, btn);
+        const rc = getResponseContainer(btn);
+        rc.innerHTML = '<span class="loading"></span>';
+        const h = {};
+        if (authToken) h['Authorization'] = 'Bearer ' + authToken;
+        const start = Date.now();
+        try {
+          const res = await fetch(path, { method, headers: h, body: collectFormData(btn) });
+          const data = await res.json();
+          renderResponse(rc, res.status, data, Date.now() - start);
+        } catch (err) {
+          renderResponse(rc, 0, { error: err.message }, Date.now() - start);
         }
       }
     </script>

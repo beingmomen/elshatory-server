@@ -14,7 +14,6 @@ router
     authController.protect,
     authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
     imageService.handleImages,
-    imageService.updateImages,
     v.createClientRules,
     v.validate,
     controller.createOne
