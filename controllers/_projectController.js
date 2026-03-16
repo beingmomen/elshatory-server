@@ -4,7 +4,7 @@ const factory = require('./handlerFactory');
 exports.getAllNoPagination = factory.getAllNoPagination(Model);
 
 exports.getAll = factory.getAll(Model, {
-  popOptions: ['tags']
+  popOptions: ['skills']
 });
 
 exports.getOne = factory.getOne(Model);

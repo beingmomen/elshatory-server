@@ -100,7 +100,7 @@ schema.pre('findOneAndUpdate', function (next) {
   next();
 });
 
-schema.virtual('tags', {
+schema.virtual('skills', {
   ref: 'Skill',
   localField: 'skillIds',
   foreignField: '_id',

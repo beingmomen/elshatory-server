@@ -25,10 +25,10 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
       .lean(),
 
     Project.find({ isActive: true })
-      .select('title tag tags skillIds url image altText -createdAt')
+      .select('title tag skills skillIds url image altText -createdAt')
       .limit(6)
       .populate({
-        path: 'tags',
+        path: 'skills',
         select: 'title -createdAt'
       })
       .lean(),
