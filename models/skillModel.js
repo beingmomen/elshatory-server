@@ -19,7 +19,14 @@ const schema = new mongoose.Schema(
     icon: {
       type: String,
       required: [true, 'Icon is required'],
-      trim: true
+      trim: true,
+      validate: {
+        validator(value) {
+          return /^i(-[a-z]+)+$/.test(value);
+        },
+        message:
+          'Icon must follow the format "i-logos-firebase" (start with "i-" followed by lowercase words separated by hyphens)'
+      }
     },
     user: {
       type: mongoose.Schema.ObjectId,
