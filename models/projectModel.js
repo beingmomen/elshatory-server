@@ -36,19 +36,19 @@ const schema = new mongoose.Schema(
         message: 'Please provide a valid URL'
       }
     },
-    tagIds: {
+    skillIds: {
       type: [
         {
           type: mongoose.Schema.ObjectId,
           ref: 'Skill'
         }
       ],
-      required: [true, 'Tags are required'],
+      required: [true, 'Skills are required'],
       validate: {
         validator(val) {
           return val.length >= 3;
         },
-        message: 'Project must have at least 3 skills as tags'
+        message: 'Project must have at least 3 skills'
       }
     },
     image: {
@@ -102,7 +102,7 @@ schema.pre('findOneAndUpdate', function (next) {
 
 schema.virtual('tags', {
   ref: 'Skill',
-  localField: 'tagIds',
+  localField: 'skillIds',
   foreignField: '_id',
   justOne: false,
   options: { select: 'title' }
