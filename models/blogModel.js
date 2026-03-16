@@ -14,6 +14,7 @@ const schema = new mongoose.Schema(
     },
     slug: {
       type: String,
+      unique: true,
       index: true
     },
     original_slug: String,
@@ -24,7 +25,7 @@ const schema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: [true, 'Content is required'],
+      required: [false, 'Content is required'],
       trim: true
     },
     tableOfContents: {
@@ -46,28 +47,39 @@ const schema = new mongoose.Schema(
       trim: true
     },
     tags: {
-      type: String,
-      required: [true, 'Tags is required'],
-      trim: true
+      type: [String],
+      required: [true, 'Tags are required'],
+      validate: {
+        validator: v => v.length >= 3,
+        message: 'At least 3 tags are required'
+      }
     },
     keywords: {
       type: String,
       required: [true, 'Keywords are required'],
       trim: true
     },
-    links: {
+    resources: {
       type: [
         {
           url: {
             type: String,
-            required: true
+            required: [true, 'Resource URL is required'],
+            validate: {
+              validator: v => URL.canParse(v),
+              message: 'Invalid URL'
+            }
           },
           title: {
             type: String
           }
         }
       ],
-      default: []
+      required: [true, 'Resources are required'],
+      validate: {
+        validator: v => v.length >= 1,
+        message: 'At least 1 resource is required'
+      }
     },
     uniqueViews: {
       type: Number,
