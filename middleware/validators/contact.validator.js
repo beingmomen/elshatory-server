@@ -29,6 +29,18 @@ exports.createContactRules = [
 ];
 
 exports.updateContactRules = [
+  body().custom((_, { req }) => {
+    const allowedFields = ['isViewed'];
+    const extraFields = Object.keys(req.body).filter(
+      key => !allowedFields.includes(key)
+    );
+    if (extraFields.length > 0) {
+      throw new Error(
+        `Only isViewed can be updated. Invalid fields: ${extraFields.join(', ')}`
+      );
+    }
+    return true;
+  }),
   body('isViewed')
     .optional()
     .isBoolean()

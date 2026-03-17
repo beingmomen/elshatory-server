@@ -25,8 +25,9 @@ exports.createOne = catchAsync(async (req, res, next) => {
     to: process.env.MANAGER || 'abdelmomenelshatory@gmail.com'
   }).catch(err => logger.error('Contact email failed', err));
 });
-
+exports.getAllNoPagination = factory.getAllNoPagination(Model);
 exports.getAll = factory.getAll(Model);
 exports.getOne = factory.getOne(Model);
 exports.updateOne = factory.updateOne(Model);
 exports.deleteOne = factory.deleteOne(Model);
+exports.deleteAll = factory.deleteAll(Model);

@@ -11,6 +11,8 @@ router
   .get(controller.getAll)
   .post(v.createContactRules, v.validate, controller.createOne);
 
+router.route('/all').get(controller.getAllNoPagination);
+
 router
   .route('/:id')
   .get(controller.getOne)
