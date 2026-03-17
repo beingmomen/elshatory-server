@@ -38,6 +38,7 @@ const schema = new mongoose.Schema(
 );
 
 schema.index({ slug: 1, name: 1 });
+schema.index({ isConfirmed: 1, createdAt: -1 });
 
 schema.pre('save', function (next) {
   if (this.isModified('name')) {

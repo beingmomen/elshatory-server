@@ -16,28 +16,43 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
     clients,
     info
   ] = await Promise.all([
-    Skill.find().select('title icon -createdAt').lean(),
+    Skill.find()
+      .select('title icon -_id -createdAt')
+      .sort('-createdAt')
+      .limit(20)
+      .lean(),
 
-    Service.find().select('title description altText image -createdAt').lean(),
+    Service.find()
+      .select('title description altText image -_id -createdAt')
+      .sort('-createdAt')
+      .limit(20)
+      .lean(),
 
     Testimonial.find({ isConfirmed: true })
-      .select('name email description image -createdAt')
+      .select('name email description image -_id -createdAt')
+      .sort('-createdAt')
+      .limit(20)
       .lean(),
 
     Project.find({ isActive: true })
       .select('title tag skills skillIds url image altText -createdAt')
+      .sort('-createdAt')
       .limit(6)
       .populate({
         path: 'skills',
-        select: 'title -createdAt'
+        select: 'title -_id -createdAt'
       })
       .lean(),
 
-    Project.find({ isActive: true }).countDocuments(),
+    Project.countDocuments({ isActive: true }),
 
-    Client.find().select('image name -createdAt').lean(),
+    Client.find()
+      .select('image name -_id -createdAt')
+      .sort('-createdAt')
+      .limit(20)
+      .lean(),
 
-    Info.findOne().select('resumeUrl -createdAt').lean()
+    Info.findOne().select('resumeUrl -_id -createdAt').lean()
   ]);
 
   res.status(200).json({

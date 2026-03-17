@@ -76,6 +76,7 @@ const schema = new mongoose.Schema(
 
 schema.index({ slug: 1, user: 1 });
 schema.index({ createdAt: -1, title: 1 });
+schema.index({ isActive: 1, createdAt: -1 });
 
 schema.pre('save', function (next) {
   if (this.isModified('title')) {
