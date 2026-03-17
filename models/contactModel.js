@@ -11,6 +11,7 @@ const schema = new mongoose.Schema(
     },
     email: {
       type: String,
+      required: [true, 'Email is required.'],
       lowercase: true,
       validate: [validator.isEmail, 'Email is not valid.']
     },
@@ -27,7 +28,7 @@ const schema = new mongoose.Schema(
     isViewed: {
       type: Boolean,
       default: false
-    },
+    }
   },
   {
     timestamps: true,

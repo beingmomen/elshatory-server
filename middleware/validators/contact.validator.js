@@ -20,17 +20,17 @@ exports.createContactRules = [
     .isLength({ min: 10, max: 1000 })
     .withMessage('Description must be between 10 and 1000 characters.'),
   body('email')
-    .optional()
     .trim()
+    .notEmpty()
+    .withMessage('Email is required.')
     .isEmail()
     .withMessage('Please provide a valid email.')
     .normalizeEmail()
 ];
 
 exports.updateContactRules = [
-  body('description')
+  body('isViewed')
     .optional()
-    .trim()
-    .isLength({ min: 10, max: 1000 })
-    .withMessage('Description must be between 10 and 1000 characters.')
+    .isBoolean()
+    .withMessage('isViewed must be a boolean value.')
 ];
