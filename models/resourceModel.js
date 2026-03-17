@@ -21,7 +21,7 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, 'URL is required'],
       validate: {
-        validator: function (value) {
+        validator(value) {
           return validator.isURL(value);
         },
         message: 'Please provide a valid URL'
