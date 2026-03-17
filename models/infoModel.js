@@ -7,12 +7,12 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, 'Resume URL is required'],
       validate: {
-        validator: function (value) {
+        validator(value) {
           return validator.isURL(value);
         },
         message: 'Please provide a valid URL for the resume'
       }
-    },
+    }
   },
   {
     timestamps: true,
