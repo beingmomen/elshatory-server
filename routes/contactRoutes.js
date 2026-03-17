@@ -14,6 +14,14 @@ router
 router.route('/all').get(controller.getAllNoPagination);
 
 router
+  .route('/delete-all')
+  .delete(
+    authController.protect,
+    authController.restrictTo([ROLES.DEV]),
+    controller.deleteAll
+  );
+
+router
   .route('/:id')
   .get(controller.getOne)
   .patch(

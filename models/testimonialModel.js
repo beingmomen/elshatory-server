@@ -28,7 +28,7 @@ const schema = new mongoose.Schema(
     isConfirmed: {
       type: Boolean,
       default: false
-    },
+    }
   },
   {
     timestamps: true,

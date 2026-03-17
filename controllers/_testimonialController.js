@@ -34,8 +34,9 @@ exports.getAllConfirmed = catchAsync(async (req, res, next) => {
     data: doc
   });
 });
-
+exports.getAllNoPagination = factory.getAllNoPagination(Model);
 exports.getAll = factory.getAll(Model);
 exports.getOne = factory.getOne(Model);
 exports.updateOne = factory.updateOne(Model);
 exports.deleteOne = factory.deleteOne(Model, true);
+exports.deleteAll = factory.deleteAll(Model);

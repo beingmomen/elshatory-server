@@ -22,7 +22,17 @@ router
     controller.createOne
   );
 
+router.route('/all').get(controller.getAllNoPagination);
+
 router.route('/confirmed').get(controller.getAllConfirmed);
+
+router
+  .route('/delete-all')
+  .delete(
+    authController.protect,
+    authController.restrictTo([ROLES.DEV]),
+    controller.deleteAll
+  );
 
 router
   .route('/:id')
