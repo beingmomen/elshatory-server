@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const logger = require('./logger');
 
+// Note: BlogView has a TTL index that auto-deletes records after 90 days.
+// This function serves as a manual fallback for on-demand cleanup.
 const cleanupOldViews = async () => {
   const BlogView = mongoose.model('BlogView');
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);

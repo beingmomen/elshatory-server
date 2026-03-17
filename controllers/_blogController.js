@@ -26,36 +26,43 @@ exports.getOneBySlug = catchAsync(async (req, res, next) => {
     allowedDomain && referer.startsWith(allowedDomain);
 
   if (isFromAllowedDomain) {
-    const clientIP =
-      req.ip || req.connection.remoteAddress || req.socket.remoteAddress || '';
+    const clientIP = req.ip || req.socket.remoteAddress || '';
     const userAgent = req.get('User-Agent') || '';
     const sessionId = req.headers['x-session-id'] || '';
 
-    // Check 30-minute cooldown using indexed query on BlogView collection
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-    const recentView = await BlogView.findOne({
-      blog: doc._id,
-      ip: clientIP,
-      timestamp: { $gt: thirtyMinutesAgo }
-    });
 
-    if (!recentView) {
-      // Check if this IP has ever viewed this blog
-      const existingView = await BlogView.findOne({
-        blog: doc._id,
-        ip: clientIP
-      });
-
-      // Create view record
-      await BlogView.create({
+    // Single atomic query: upsert a view record only if no recent view exists
+    // This prevents race conditions from concurrent requests
+    const result = await BlogView.findOneAndUpdate(
+      {
         blog: doc._id,
         ip: clientIP,
-        userAgent,
-        sessionId
+        timestamp: { $gt: thirtyMinutesAgo }
+      },
+      {
+        $setOnInsert: {
+          blog: doc._id,
+          ip: clientIP,
+          userAgent,
+          sessionId,
+          timestamp: new Date()
+        }
+      },
+      { upsert: true, new: true, rawResult: true }
+    );
+
+    // If a new record was created (not just found an existing one)
+    if (result.lastErrorObject?.upserted) {
+      // Check if this IP has ever viewed this blog before (excluding the one just created)
+      const previousView = await BlogView.findOne({
+        blog: doc._id,
+        ip: clientIP,
+        _id: { $ne: result.value._id }
       });
 
-      // Increment uniqueViews only for first-time viewers
-      if (!existingView) {
+      if (!previousView) {
+        doc.uniqueViews += 1;
         await Model.findByIdAndUpdate(doc._id, { $inc: { uniqueViews: 1 } });
       }
     }
