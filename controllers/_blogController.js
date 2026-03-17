@@ -4,7 +4,9 @@ const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-exports.getAllNoPagination = factory.getAllNoPagination(Model);
+exports.getAllNoPagination = factory.getAllNoPagination(Model, {
+  selectFields: 'title slug'
+});
 exports.getAll = factory.getAll(Model);
 exports.getOne = factory.getOne(Model);
 exports.createOne = factory.createOne(Model);

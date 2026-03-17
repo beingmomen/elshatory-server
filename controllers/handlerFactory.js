@@ -155,7 +155,11 @@ exports.getAll = (Model, options = {}) =>
 
 exports.getAllNoPagination = (Model, options = {}) =>
   catchAsync(async (req, res, next) => {
-    const { optFilter = {}, popOptions = [], selectFields = '' } = options;
+    const {
+      optFilter = {},
+      popOptions = [],
+      selectFields = 'name title'
+    } = options;
 
     const query = Model.find({ ...optFilter }).select(selectFields);
 

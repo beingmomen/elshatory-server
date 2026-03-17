@@ -1,7 +1,9 @@
 const Model = require('../models/skillModel');
 const factory = require('./handlerFactory');
 
-exports.getAllNoPagination = factory.getAllNoPagination(Model);
+exports.getAllNoPagination = factory.getAllNoPagination(Model, {
+  selectFields: 'title icon'
+});
 exports.getAll = factory.getAll(Model);
 exports.getOne = factory.getOne(Model);
 exports.createOne = factory.createOne(Model);
