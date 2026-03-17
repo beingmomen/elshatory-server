@@ -14,6 +14,7 @@ router
     authController.protect,
     authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
     imageService.handleImages,
+    v.parseFormFields,
     v.createBlogRules,
     v.validate,
     controller.createOne
@@ -39,6 +40,7 @@ router
     authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
     imageService.handleImages,
     imageService.updateImages,
+    v.parseFormFields,
     v.updateBlogRules,
     v.validate,
     controller.updateOne

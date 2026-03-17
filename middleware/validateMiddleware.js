@@ -1,5 +1,28 @@
 const { body, validationResult } = require('express-validator');
 
+// ─── Parse bracket-notation form fields (e.g. resources[0].url) ──────────────
+
+exports.parseFormFields = (req, res, next) => {
+  const flat = {};
+  Object.keys(req.body).forEach(key => {
+    const keys = key.match(/[^[\].]+/g);
+    if (!keys) return;
+    let current = flat;
+    keys.forEach((k, i) => {
+      if (i === keys.length - 1) {
+        current[k] = req.body[key];
+      } else {
+        const nextKey = keys[i + 1];
+        const isArray = /^\d+$/.test(nextKey);
+        if (!current[k]) current[k] = isArray ? [] : {};
+        current = current[k];
+      }
+    });
+  });
+  req.body = flat;
+  next();
+};
+
 // ─── Response helper ──────────────────────────────────────────────────────────
 
 exports.validate = (req, res, next) => {
