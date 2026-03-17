@@ -16,7 +16,6 @@ router
   )
   .post(
     imageService.handleImages,
-    imageService.updateImages,
     v.createTestimonialRules,
     v.validate,
     controller.createOne
@@ -40,6 +39,8 @@ router
   .patch(
     authController.protect,
     authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
+    imageService.handleImages,
+    imageService.updateImages,
     v.updateTestimonialRules,
     v.validate,
     controller.updateOne
