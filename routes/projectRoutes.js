@@ -2,7 +2,7 @@ const express = require('express');
 const controller = require('../controllers/_projectController');
 const imageService = require('../imageServices/project.image');
 const authController = require('../controllers/authController');
-const v = require('../middleware/validateMiddleware');
+const v = require('../middleware/validators');
 const { ROLES } = require('../utils/constants');
 
 const router = express.Router();
