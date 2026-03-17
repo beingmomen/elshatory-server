@@ -48,9 +48,7 @@ exports.updateOne = (Model, nextStep = false) =>
     res.status(200).json({
       status: 'success',
       message: 'Updated successfully',
-      data: {
-        data: doc
-      }
+      data: doc
     });
 
     if (nextStep) {
@@ -71,9 +69,7 @@ exports.createOne = (Model, options = {}) =>
     res.status(201).json({
       status: 'success',
       message: 'Created successfully',
-      data: {
-        data: doc
-      }
+      data: doc
     });
 
     if (nextStep) {
@@ -95,9 +91,7 @@ exports.getOne = (Model, popOptions) =>
 
     res.status(200).json({
       status: 'success',
-      data: {
-        data: doc
-      }
+      data: doc
     });
   });
 

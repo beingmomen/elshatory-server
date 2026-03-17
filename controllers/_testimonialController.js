@@ -10,9 +10,7 @@ exports.createOne = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: 'success',
     message: 'Created successfully',
-    data: {
-      data: doc
-    }
+    data: doc
   });
 
   // Fire-and-forget email

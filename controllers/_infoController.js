@@ -15,9 +15,7 @@ exports.createOne = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'Updated successfully',
-    data: {
-      data: doc
-    }
+    data: doc
   });
 });
 
@@ -40,8 +38,6 @@ exports.updateOne = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'Updated successfully',
-    data: {
-      data: doc
-    }
+    data: doc
   });
 });
