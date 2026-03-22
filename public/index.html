@@ -399,6 +399,24 @@
       .auth-badge.admin { background: var(--red-bg); color: var(--red); }
       .auth-badge.dev { background: var(--purple-bg); color: var(--purple); }
 
+      .copy-btn {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.15s;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+      .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
       .expand-icon {
         color: var(--text-muted);
         transition: transform 0.2s;
@@ -540,6 +558,81 @@
         font-size: 13px;
         margin-top: 8px;
       }
+
+      .example-section {
+        margin-top: 16px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .example-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--surface-2);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .example-header h4 {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .example-header .example-toggle {
+        font-size: 10px;
+        color: var(--text-muted);
+        transition: transform 0.2s;
+      }
+
+      .example-section.open .example-toggle { transform: rotate(90deg); }
+
+      .example-body {
+        display: none;
+        position: relative;
+        background: var(--bg);
+      }
+
+      .example-section.open .example-body { display: block; }
+
+      .example-body pre {
+        padding: 12px;
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.5;
+        max-height: 350px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin: 0;
+        color: var(--text);
+      }
+
+      .example-copy-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        transition: all 0.15s;
+        z-index: 1;
+      }
+
+      .example-copy-btn:hover { color: var(--text); border-color: var(--text-muted); }
+      .example-copy-btn.copied { color: var(--green); border-color: var(--green); }
 
       /* Mobile */
       .sidebar-overlay {
@@ -1316,6 +1409,188 @@
         },
       ];
 
+      // ── Example response data for each resource ──
+      const exampleDocs = {
+        projects: {
+          _id: '507f1f77bcf86cd799439011',
+          num: 1,
+          title: 'Portfolio Website',
+          slug: 'portfolio-website',
+          tag: 'Web Development',
+          isActive: true,
+          url: 'https://example.com/portfolio',
+          skillIds: ['507f1f77bcf86cd799439012', '507f1f77bcf86cd799439013', '507f1f77bcf86cd799439014'],
+          image: 'project-1.webp',
+          altText: 'Portfolio website screenshot',
+          user: '507f1f77bcf86cd799439015',
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        blogs: {
+          _id: '507f1f77bcf86cd799439020',
+          num: 1,
+          title: 'Getting Started with Node.js',
+          slug: 'getting-started-with-nodejs',
+          description: 'A comprehensive guide to getting started with Node.js and Express',
+          content: '<p>Blog content here...</p>',
+          tableOfContents: [{ id: 'intro', text: 'Introduction', level: 2 }],
+          image: 'blog-1.webp',
+          altText: 'Node.js tutorial cover',
+          tags: ['nodejs', 'express', 'backend'],
+          keywords: 'nodejs, express, tutorial',
+          resources: [{ url: 'https://nodejs.org', title: 'Node.js Official' }],
+          uniqueViews: 150,
+          status: 'published',
+          isArabicArticle: true,
+          user: '507f1f77bcf86cd799439015',
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        services: {
+          _id: '507f1f77bcf86cd799439030',
+          num: 1,
+          title: 'Web Development',
+          slug: 'web-development',
+          description: 'Full-stack web development services using modern technologies',
+          image: 'service-1.webp',
+          altText: 'Web development service',
+          user: '507f1f77bcf86cd799439015',
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        skills: {
+          _id: '507f1f77bcf86cd799439040',
+          num: 1,
+          title: 'JavaScript',
+          slug: 'javascript',
+          icon: 'i-logos-javascript',
+          user: '507f1f77bcf86cd799439015',
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        clients: {
+          _id: '507f1f77bcf86cd799439050',
+          num: 1,
+          name: 'Acme Corp',
+          slug: 'acme-corp',
+          image: 'client-1.webp',
+          altText: 'Acme Corp logo',
+          website: 'https://acme.example.com',
+          user: '507f1f77bcf86cd799439015',
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        contacts: {
+          _id: '507f1f77bcf86cd799439060',
+          num: 1,
+          name: 'John Doe',
+          slug: 'john-doe',
+          email: 'john@example.com',
+          phone: '+1234567890',
+          description: 'I would like to discuss a project collaboration opportunity',
+          isViewed: false,
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        testimonials: {
+          _id: '507f1f77bcf86cd799439070',
+          num: 1,
+          name: 'Jane Smith',
+          slug: 'jane-smith',
+          email: 'jane@example.com',
+          description: 'Excellent work! Delivered the project on time with great quality.',
+          image: 'testimonial-1.webp',
+          isConfirmed: false,
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        resources: {
+          _id: '507f1f77bcf86cd799439080',
+          num: 1,
+          title: 'MDN Web Docs',
+          slug: 'mdn-web-docs',
+          url: 'https://developer.mozilla.org',
+          user: '507f1f77bcf86cd799439015',
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        infos: {
+          _id: '507f1f77bcf86cd799439090',
+          num: 1,
+          resumeUrl: 'https://example.com/resume.pdf',
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+        users: {
+          _id: '507f1f77bcf86cd799439015',
+          num: 1,
+          name: 'John Doe',
+          slug: 'john-doe',
+          email: 'john@example.com',
+          phone: '+1234567890',
+          photo: '/images/users/default.jpg',
+          role: 'user',
+          active: true,
+          createdAt: '2025-01-15T10:30:00.000Z',
+          updatedAt: '2025-01-15T10:30:00.000Z',
+        },
+      };
+
+      // Build example responses for different operations
+      function getExampleResponse(resourceId, method, path) {
+        const doc = exampleDocs[resourceId];
+        if (!doc) return null;
+
+        // DELETE
+        if (method === 'DELETE') {
+          return { status: 'success', message: 'Deleted successfully', data: null };
+        }
+
+        // GET all (paginated)
+        if (method === 'GET' && !path.includes(':id') && !path.includes(':slug') && !path.includes(':blogId') && !path.includes('/all') && !path.includes('/confirmed') && !path.includes('/me') && !path.includes('/admins')) {
+          return { status: 'success', total: 1, results: 1, data: [doc] };
+        }
+
+        // GET all (no pagination)
+        if (method === 'GET' && path.endsWith('/all')) {
+          return [doc];
+        }
+
+        // GET confirmed
+        if (method === 'GET' && path.includes('/confirmed')) {
+          return [doc];
+        }
+
+        // POST create
+        if (method === 'POST') {
+          return { status: 'success', message: 'Created successfully', data: doc };
+        }
+
+        // PATCH update
+        if (method === 'PATCH') {
+          return { status: 'success', message: 'Updated successfully', data: doc };
+        }
+
+        // GET one (by ID or slug)
+        return { status: 'success', data: doc };
+      }
+
+      function buildExampleBlock(resourceId, method, path) {
+        const example = getExampleResponse(resourceId, method, path);
+        if (!example) return '';
+        const json = JSON.stringify(example, null, 2);
+        const highlighted = syntaxHighlight(json);
+        return `<div class="example-section">
+          <div class="example-header" onclick="this.parentElement.classList.toggle('open')">
+            <h4><span class="example-toggle">&#9654;</span> Example Response</h4>
+          </div>
+          <div class="example-body">
+            <button class="example-copy-btn" onclick="copyExample(this)">&#128203; Copy</button>
+            <pre>${highlighted}</pre>
+          </div>
+        </div>`;
+      }
+
       // ── Generate resource sections ──
       const container = document.getElementById('resourceSections');
       resources.forEach(r => {
@@ -1343,14 +1618,14 @@
           <div class="try-section">
             <button class="btn btn-primary btn-sm" onclick="sendRequestWithQuery('GET', '${r.base}', this)">Send Request</button>
             <div class="response-container"></div>
-          </div>`);
+          </div>`, r.id);
 
         // GET all (no pagination)
         html += buildEndpoint('GET', r.base + '/all', `Get all ${r.name.toLowerCase()} without pagination`, getAllBadge, `
           <div class="try-section">
             <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '${r.base}/all', this)">Send Request</button>
             <div class="response-container"></div>
-          </div>`);
+          </div>`, r.id);
 
         // GET confirmed (testimonials)
         if (r.hasConfirmed) {
@@ -1358,7 +1633,7 @@
             <div class="try-section">
               <button class="btn btn-primary btn-sm" onclick="sendRequest('GET', '${r.base}/confirmed', this)">Send Request</button>
               <div class="response-container"></div>
-            </div>`);
+            </div>`, r.id);
         }
 
         // GET by slug (blogs)
@@ -1371,7 +1646,7 @@
               </div>
               <button class="btn btn-primary btn-sm" onclick="sendWithParams('GET', '${r.base}/slug/:slug', this)">Send Request</button>
               <div class="response-container"></div>
-            </div>`);
+            </div>`, r.id);
         }
 
         // POST create
@@ -1386,7 +1661,7 @@
             ${buildFormFields(r.createFields)}
             <button class="btn btn-primary btn-sm" onclick="${createFn}('POST', '${r.base}', this)">Send Request</button>
             <div class="response-container"></div>
-          </div>`);
+          </div>`, r.id);
 
         // GET by ID
         html += buildEndpoint('GET', r.base + '/:id', `Get ${r.name.toLowerCase().replace(/s$/, '')} by ID`, '<span class="auth-badge public">Public</span>', `
@@ -1397,7 +1672,7 @@
             </div>
             <button class="btn btn-primary btn-sm" onclick="sendWithParams('GET', '${r.base}/:id', this)">Send Request</button>
             <div class="response-container"></div>
-          </div>`);
+          </div>`, r.id);
 
         // PATCH update
         const hasUpdateFile = r.updateFields.some(f => f.type === 'file');
@@ -1412,7 +1687,7 @@
             ${buildFormFields(r.updateFields)}
             <button class="btn btn-primary btn-sm" onclick="${updateFn}('PATCH', '${r.base}/:id', this)">Send Request</button>
             <div class="response-container"></div>
-          </div>`);
+          </div>`, r.id);
 
         // DELETE by ID
         html += buildEndpoint('DELETE', r.base + '/:id', `Delete ${r.name.toLowerCase().replace(/s$/, '')}`, '<span class="auth-badge admin">Admin</span>', `
@@ -1423,7 +1698,7 @@
             </div>
             <button class="btn btn-danger btn-sm" onclick="if(confirm('Delete this item?')) sendWithParams('DELETE', '${r.base}/:id', this)">Send Request</button>
             <div class="response-container"></div>
-          </div>`);
+          </div>`, r.id);
 
         // DELETE all
         if (r.hasDeleteAll) {
@@ -1431,7 +1706,7 @@
             <div class="try-section">
               <button class="btn btn-danger btn-sm" onclick="if(confirm('DELETE ALL ${r.name.toUpperCase()}? This cannot be undone!')) sendRequest('DELETE', '${r.base}/delete-all', this)">Send Request</button>
               <div class="response-container"></div>
-            </div>`);
+            </div>`, r.id);
         }
 
         html += '</div>';
@@ -1439,16 +1714,18 @@
       });
 
       // ── Helpers ──
-      function buildEndpoint(method, path, desc, authBadge, body) {
+      function buildEndpoint(method, path, desc, authBadge, body, resourceId) {
+        const example = resourceId ? buildExampleBlock(resourceId, method, path) : '';
         return `<div class="endpoint-card" data-method="${method}" data-path="${path}">
           <div class="endpoint-header" onclick="toggleEndpoint(this)">
             <span class="method-badge method-${method}">${method}</span>
             <span class="endpoint-path">${path}</span>
             <span class="endpoint-desc">${desc}</span>
             ${authBadge}
+            <button class="copy-btn" onclick="event.stopPropagation(); copyEndpoint(this, '${method}', '${path}')">&#128203; Copy</button>
             <span class="expand-icon">&#9654;</span>
           </div>
-          <div class="endpoint-body">${body}</div>
+          <div class="endpoint-body">${body}${example}</div>
         </div>`;
       }
 
@@ -1507,6 +1784,69 @@
       }, { rootMargin: '-100px 0px -70% 0px' });
 
       document.querySelectorAll('.api-section').forEach(s => observer.observe(s));
+
+      // Inject copy buttons into all manually-defined endpoint headers
+      document.querySelectorAll('.endpoint-card').forEach(card => {
+        const header = card.querySelector('.endpoint-header');
+        const expandIcon = header.querySelector('.expand-icon');
+        if (!header.querySelector('.copy-btn') && expandIcon) {
+          const method = card.dataset.method || header.querySelector('.method-badge')?.textContent.trim();
+          const path = card.dataset.path || header.querySelector('.endpoint-path')?.textContent.trim();
+          const btn = document.createElement('button');
+          btn.className = 'copy-btn';
+          btn.innerHTML = '&#128203; Copy';
+          btn.onclick = function(e) { e.stopPropagation(); copyEndpoint(this, method, path); };
+          header.insertBefore(btn, expandIcon);
+        }
+      });
+
+      // Inject example responses into manually-defined endpoints
+      const manualExamples = {
+        'GET /health': { status: 'success', data: { status: 'healthy', database: 'connected', cloudinary: 'connected', uptime: '2h 15m', timestamp: '2025-01-15T10:30:00.000Z' } },
+        'GET /health/ready': { status: 'success', data: { ready: true } },
+        'GET /health/live': { status: 'success', data: { live: true } },
+        'GET /api/v1/landing': { status: 'success', data: { skills: [exampleDocs.skills], services: [exampleDocs.services], testimonials: [exampleDocs.testimonials], projects: [exampleDocs.projects], clients: [exampleDocs.clients], info: [exampleDocs.infos] } },
+        'POST /api/v1/users/signup': { status: 'success', token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', data: exampleDocs.users },
+        'POST /api/v1/users/login': { status: 'success', token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', data: exampleDocs.users },
+        'POST /api/v1/users/logout': { status: 'success' },
+        'POST /api/v1/users/forgotPassword': { status: 'success', message: 'Token sent to email!' },
+        'GET /api/v1/users/me': { status: 'success', data: exampleDocs.users },
+        'PATCH /api/v1/users/updateMe': { status: 'success', message: 'Updated successfully', data: exampleDocs.users },
+        'PATCH /api/v1/users/updateMyPassword': { status: 'success', token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', data: exampleDocs.users },
+        'DELETE /api/v1/users/deleteMe': { status: 'success', data: null },
+        'GET /api/v1/users': { status: 'success', total: 1, results: 1, data: [exampleDocs.users] },
+        'GET /api/v1/users/all': [exampleDocs.users],
+        'GET /api/v1/users/admins': { status: 'success', total: 1, results: 1, data: [{ ...exampleDocs.users, role: 'admin' }] },
+        'GET /api/v1/users/:id': { status: 'success', data: exampleDocs.users },
+        'DELETE /api/v1/users/:id': { status: 'success', message: 'Deleted successfully', data: null },
+        'POST /api/v1/users/admin': { status: 'success', token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', data: { ...exampleDocs.users, role: 'admin' } },
+        'GET /api/v1/views/stats/:blogId': { status: 'success', data: { blogId: '507f1f77bcf86cd799439020', totalViews: 150, uniqueViews: 95 } },
+        'POST /api/v1/views/cleanup': { status: 'success', message: 'Old view records deleted', data: { deletedCount: 42 } },
+        'POST /api/v1/views/reset': { status: 'success', message: 'All view data has been reset', data: null },
+      };
+
+      document.querySelectorAll('.endpoint-card').forEach(card => {
+        const body = card.querySelector('.endpoint-body');
+        if (body && !body.querySelector('.example-section')) {
+          const method = card.dataset.method;
+          const path = card.dataset.path;
+          const key = method + ' ' + path;
+          const example = manualExamples[key];
+          if (example) {
+            const json = JSON.stringify(example, null, 2);
+            const highlighted = syntaxHighlight(json);
+            body.insertAdjacentHTML('beforeend', `<div class="example-section">
+              <div class="example-header" onclick="this.parentElement.classList.toggle('open')">
+                <h4><span class="example-toggle">&#9654;</span> Example Response</h4>
+              </div>
+              <div class="example-body">
+                <button class="example-copy-btn" onclick="copyExample(this)">&#128203; Copy</button>
+                <pre>${highlighted}</pre>
+              </div>
+            </div>`);
+          }
+        }
+      });
 
       // ── Auth Functions ──
       function switchAuthTab(tab) {
@@ -1597,6 +1937,32 @@
           text.textContent = 'Not Authenticated';
           btn.style.display = 'none';
         }
+      }
+
+      // ── Copy Functions ──
+      function copyEndpoint(btn, method, path) {
+        const text = path;
+        navigator.clipboard.writeText(text).then(() => {
+          btn.innerHTML = '&#10003; Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = '&#128203; Copy';
+            btn.classList.remove('copied');
+          }, 1500);
+        });
+      }
+
+      function copyExample(btn) {
+        const pre = btn.parentElement.querySelector('pre');
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = '\u2713 Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = '&#128203; Copy';
+            btn.classList.remove('copied');
+          }, 1500);
+        });
       }
 
       // ── Request Functions ──
