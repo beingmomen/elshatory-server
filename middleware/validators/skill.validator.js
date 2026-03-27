@@ -8,15 +8,30 @@ exports.createSkillRules = [
     .isLength({ min: 2, max: 50 })
     .withMessage('Title must be between 2 and 50 characters.')
     .escape(),
-  body('icon').trim().notEmpty().withMessage('Icon is required.')
+  body('icon')
+    .trim()
+    .notEmpty()
+    .withMessage('Icon is required.')
+    .matches(/^i(-[a-z]+)+$/)
+    .withMessage(
+      'Icon must follow the format "i-logos-firebase" (start with "i-" followed by lowercase words separated by hyphens)'
+    )
 ];
 
 exports.updateSkillRules = [
   body('title')
-    .optional()
     .trim()
+    .notEmpty()
+    .withMessage('Title is required.')
     .isLength({ min: 2, max: 50 })
     .withMessage('Title must be between 2 and 50 characters.')
     .escape(),
-  body('icon').optional().trim()
+  body('icon')
+    .trim()
+    .notEmpty()
+    .withMessage('Icon is required.')
+    .matches(/^i(-[a-z]+)+$/)
+    .withMessage(
+      'Icon must follow the format "i-logos-firebase" (start with "i-" followed by lowercase words separated by hyphens)'
+    )
 ];
