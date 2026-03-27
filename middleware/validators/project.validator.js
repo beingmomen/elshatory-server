@@ -15,6 +15,12 @@ exports.createProjectRules = [
     .isLength({ min: 2, max: 50 })
     .withMessage('Tag must be between 2 and 50 characters.')
     .escape(),
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('Description is required.')
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.'),
   body('url')
     .trim()
     .notEmpty()
@@ -47,6 +53,11 @@ exports.updateProjectRules = [
     .isLength({ min: 2, max: 50 })
     .withMessage('Tag must be between 2 and 50 characters.')
     .escape(),
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Description must be between 10 and 1000 characters.'),
   body('url')
     .optional()
     .trim()

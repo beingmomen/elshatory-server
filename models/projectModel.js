@@ -16,6 +16,11 @@ const schema = new mongoose.Schema(
       index: true
     },
     original_slug: String,
+    description: {
+      type: String,
+      required: [true, 'Description is required'],
+      trim: true
+    },
     tag: {
       type: String,
       required: [true, 'Tag is required'],
