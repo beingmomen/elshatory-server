@@ -21,6 +21,10 @@ exports.createProjectRules = [
     .withMessage('URL is required.')
     .isURL()
     .withMessage('Please provide a valid URL.'),
+  body('skillIds')
+    .isArray({ min: 3 })
+    .withMessage('Project must have at least 3 skills.'),
+  body('skillIds.*').isMongoId().withMessage('Each skill must be a valid ID.'),
   body('altText')
     .trim()
     .notEmpty()
@@ -48,6 +52,14 @@ exports.updateProjectRules = [
     .trim()
     .isURL()
     .withMessage('Please provide a valid URL.'),
+  body('skillIds')
+    .optional()
+    .isArray({ min: 3 })
+    .withMessage('Project must have at least 3 skills.'),
+  body('skillIds.*')
+    .optional()
+    .isMongoId()
+    .withMessage('Each skill must be a valid ID.'),
   body('altText')
     .optional()
     .trim()

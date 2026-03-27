@@ -21,10 +21,6 @@ const schema = new mongoose.Schema(
       required: [true, 'Tag is required'],
       trim: true
     },
-    isActive: {
-      type: Boolean,
-      default: true
-    },
     url: {
       type: String,
       required: [true, 'Url is required'],
@@ -51,14 +47,18 @@ const schema = new mongoose.Schema(
         message: 'Project must have at least 3 skills'
       }
     },
-    image: {
-      type: String,
-      required: [true, 'Image is required']
+    isActive: {
+      type: Boolean,
+      default: true
     },
     altText: {
       type: String,
       required: [true, 'Alt text is required'],
       trim: true
+    },
+    image: {
+      type: String,
+      required: [true, 'Image is required']
     },
     user: {
       type: mongoose.Schema.ObjectId,

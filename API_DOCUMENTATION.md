@@ -41,14 +41,14 @@ Roles: `user`, `admin`, `dev`
 
 All paginated `GET /` (getAll) endpoints support:
 
-| Parameter | Type     | Default | Description                                                              |
-| --------- | -------- | ------- | ------------------------------------------------------------------------ |
-| `page`    | Number   | `1`     | Page number                                                              |
-| `limit`   | Number   | `10`    | Items per page (max: 100)                                                |
-| `sort`    | String   | `-createdAt` | Sort fields, comma-separated. Prefix `-` for descending. Example: `-createdAt,title` |
-| `fields`  | String   | all (except `__v`) | Fields to include, comma-separated. Example: `title,slug,image`     |
-| `search`  | String   | —       | Search across: `name`, `email`, `title`, `number`, `documentNumber`      |
-| Filter operators | — | —       | Any schema field with `[gte]`, `[gt]`, `[lte]`, `[lt]`. Example: `?createdAt[gte]=2024-01-01` |
+| Parameter        | Type   | Default            | Description                                                                                   |
+| ---------------- | ------ | ------------------ | --------------------------------------------------------------------------------------------- |
+| `page`           | Number | `1`                | Page number                                                                                   |
+| `limit`          | Number | `10`               | Items per page (max: 100)                                                                     |
+| `sort`           | String | `-createdAt`       | Sort fields, comma-separated. Prefix `-` for descending. Example: `-createdAt,title`          |
+| `fields`         | String | all (except `__v`) | Fields to include, comma-separated. Example: `title,slug,image`                               |
+| `search`         | String | —                  | Search across: `name`, `email`, `title`, `number`, `documentNumber`                           |
+| Filter operators | —      | —                  | Any schema field with `[gte]`, `[gt]`, `[lte]`, `[lt]`. Example: `?createdAt[gte]=2024-01-01` |
 
 ---
 
@@ -126,14 +126,22 @@ Public endpoint that returns all data needed for the landing page in a single re
 {
   "status": "success",
   "data": {
-    "skills": [
-      { "title": "Firebase", "icon": "i-logos-firebase" }
-    ],
+    "skills": [{ "title": "Firebase", "icon": "i-logos-firebase" }],
     "services": [
-      { "title": "Web Development", "description": "...", "altText": "...", "image": "https://..." }
+      {
+        "title": "Web Development",
+        "description": "...",
+        "altText": "...",
+        "image": "https://..."
+      }
     ],
     "testimonials": [
-      { "name": "John", "email": "john@example.com", "description": "...", "image": "https://..." }
+      {
+        "name": "John",
+        "email": "john@example.com",
+        "description": "...",
+        "image": "https://..."
+      }
     ],
     "projects": [
       {
@@ -146,9 +154,7 @@ Public endpoint that returns all data needed for the landing page in a single re
       }
     ],
     "projectsTotal": 15,
-    "clients": [
-      { "name": "Company X", "image": "https://..." }
-    ],
+    "clients": [{ "name": "Company X", "image": "https://..." }],
     "info": { "resumeUrl": "https://..." }
   }
 }
@@ -162,13 +168,13 @@ Public endpoint that returns all data needed for the landing page in a single re
 
 - **Auth:** None (public)
 
-| Field             | Type   | Required | Validation             |
-| ----------------- | ------ | -------- | ---------------------- |
-| `name`            | String | Yes      | 3-50 characters        |
-| `email`           | String | Yes      | Valid email            |
-| `phone`           | String | Yes      | 7-20 characters        |
-| `password`        | String | Yes      | Min 8 characters       |
-| `passwordConfirm` | String | Yes     | Must match `password`  |
+| Field             | Type   | Required | Validation            |
+| ----------------- | ------ | -------- | --------------------- |
+| `name`            | String | Yes      | 3-50 characters       |
+| `email`           | String | Yes      | Valid email           |
+| `phone`           | String | Yes      | 7-20 characters       |
+| `password`        | String | Yes      | Min 8 characters      |
+| `passwordConfirm` | String | Yes      | Must match `password` |
 
 **Response:** `201` — Returns user data + JWT token (also set as cookie)
 
@@ -219,10 +225,10 @@ Public endpoint that returns all data needed for the landing page in a single re
 - **Auth:** None (public)
 - **Rate Limit:** Stricter auth rate limiter
 
-| Field         | Type   | Required | Description                         |
-| ------------- | ------ | -------- | ----------------------------------- |
-| `email`       | String | Yes      | User's email                        |
-| `redirectUrl` | String | No       | Custom frontend URL for reset link  |
+| Field         | Type   | Required | Description                        |
+| ------------- | ------ | -------- | ---------------------------------- |
+| `email`       | String | Yes      | User's email                       |
+| `redirectUrl` | String | No       | Custom frontend URL for reset link |
 
 **Response:** `200` — Always returns success (prevents email enumeration)
 
@@ -243,7 +249,7 @@ Public endpoint that returns all data needed for the landing page in a single re
 | Field             | Type   | Required |
 | ----------------- | ------ | -------- |
 | `password`        | String | Yes      |
-| `passwordConfirm` | String | Yes     |
+| `passwordConfirm` | String | Yes      |
 
 **Response:** `200` — Returns user data + new JWT token
 
@@ -253,11 +259,11 @@ Public endpoint that returns all data needed for the landing page in a single re
 
 - **Auth:** Protected (logged in)
 
-| Field              | Type   | Required |
-| ------------------ | ------ | -------- |
-| `passwordCurrent`  | String | Yes      |
-| `password`         | String | Yes      |
-| `passwordConfirm`  | String | Yes      |
+| Field             | Type   | Required |
+| ----------------- | ------ | -------- |
+| `passwordCurrent` | String | Yes      |
+| `password`        | String | Yes      |
+| `passwordConfirm` | String | Yes      |
 
 **Response:** `200` — Returns user data + new JWT token
 
@@ -344,7 +350,7 @@ Disabled. Returns error redirecting to `/signup`.
 | `email`           | String | Yes      |
 | `phone`           | String | Yes      |
 | `password`        | String | Yes      |
-| `passwordConfirm` | String | Yes     |
+| `passwordConfirm` | String | Yes      |
 
 **Response:** `201` — Creates user with `admin` role
 
@@ -354,13 +360,13 @@ Disabled. Returns error redirecting to `/signup`.
 
 - **Content-Type:** `multipart/form-data` (if uploading photo)
 
-| Field    | Type    | Required | Description     |
-| -------- | ------- | -------- | --------------- |
-| `name`   | String  | No       |                 |
-| `email`  | String  | No       |                 |
-| `phone`  | String  | No       |                 |
-| `active` | Boolean | No       | Enable/disable  |
-| `photo`  | File    | No       | Image file      |
+| Field    | Type    | Required | Description    |
+| -------- | ------- | -------- | -------------- |
+| `name`   | String  | No       |                |
+| `email`  | String  | No       |                |
+| `phone`  | String  | No       |                |
+| `active` | Boolean | No       | Enable/disable |
+| `photo`  | File    | No       | Image file     |
 
 ---
 
@@ -423,15 +429,15 @@ Deletes user. Returns 404 if target is `dev` and requester is not `dev`.
 - **Auth:** Protected (admin/dev)
 - **Content-Type:** `multipart/form-data`
 
-| Field      | Type     | Required | Validation                    |
-| ---------- | -------- | -------- | ----------------------------- |
-| `title`    | String   | Yes      | 2-100 chars, unique           |
-| `tag`      | String   | Yes      | 2-50 chars                    |
-| `url`      | String   | Yes      | Valid URL                     |
-| `altText`  | String   | Yes      | 2-200 chars                   |
-| `skillIds` | String[] | Yes      | Array of Skill IDs, min 3     |
-| `isActive` | Boolean  | No       | Default: `true`               |
-| `image`    | File     | Yes      | Image file                    |
+| Field      | Type     | Required | Validation                |
+| ---------- | -------- | -------- | ------------------------- |
+| `title`    | String   | Yes      | 2-100 chars, unique       |
+| `tag`      | String   | Yes      | 2-50 chars                |
+| `url`      | String   | Yes      | Valid URL                 |
+| `altText`  | String   | Yes      | 2-200 chars               |
+| `skillIds` | String[] | Yes      | Array of Skill IDs, min 3 |
+| `isActive` | Boolean  | No       | Default: `true`           |
+| `image`    | File     | Yes      | Image file                |
 
 **Response:** `201`
 
@@ -483,9 +489,7 @@ Deletes user. Returns 404 if target is `dev` and requester is not `dev`.
   "altText": "Blog cover",
   "tags": ["javascript", "vue", "tutorial"],
   "keywords": "javascript, vue tutorial",
-  "resources": [
-    { "url": "https://vuejs.org", "title": "Vue.js Docs" }
-  ],
+  "resources": [{ "url": "https://vuejs.org", "title": "Vue.js Docs" }],
   "uniqueViews": 42,
   "status": "published",
   "isArabicArticle": true,
@@ -522,18 +526,18 @@ Deletes user. Returns 404 if target is `dev` and requester is not `dev`.
 - **Auth:** Protected (admin/dev)
 - **Content-Type:** `multipart/form-data`
 
-| Field            | Type     | Required | Validation                       |
-| ---------------- | -------- | -------- | -------------------------------- |
-| `title`          | String   | Yes      | 2-200 chars, unique              |
-| `description`    | String   | Yes      | 10-500 chars                     |
-| `content`        | String   | No       | HTML content                     |
-| `tags`           | String[] | Yes      | Array of strings, min 3 items, each 2-50 chars |
-| `keywords`       | String   | Yes      | 2-200 chars                      |
-| `resources`      | Object[] | Yes      | Min 1 item: `{ url: String (valid URL), title: String }` |
-| `status`         | String   | No       | `draft`, `published`, `archived`. Default: `draft` |
-| `isArabicArticle`| Boolean  | No       | Default: `true`                  |
-| `image`          | File     | Yes      | Image file                       |
-| `altText`        | String   | No       | 2-200 chars                      |
+| Field             | Type     | Required | Validation                                               |
+| ----------------- | -------- | -------- | -------------------------------------------------------- |
+| `title`           | String   | Yes      | 2-200 chars, unique                                      |
+| `description`     | String   | Yes      | 10-500 chars                                             |
+| `content`         | String   | No       | HTML content                                             |
+| `tags`            | String[] | Yes      | Array of strings, min 3 items, each 2-50 chars           |
+| `keywords`        | String   | Yes      | 2-200 chars                                              |
+| `resources`       | Object[] | Yes      | Min 1 item: `{ url: String (valid URL), title: String }` |
+| `status`          | String   | No       | `draft`, `published`, `archived`. Default: `draft`       |
+| `isArabicArticle` | Boolean  | No       | Default: `true`                                          |
+| `image`           | File     | Yes      | Image file                                               |
+| `altText`         | String   | No       | 2-200 chars                                              |
 
 > **Note:** `resources` and `tags` are sent as bracket notation in form-data: `resources[0].url`, `resources[0].title`, `tags[0]`, `tags[1]`, etc.
 
@@ -603,12 +607,12 @@ Deletes user. Returns 404 if target is `dev` and requester is not `dev`.
 - **Auth:** Protected (admin/dev)
 - **Content-Type:** `multipart/form-data`
 
-| Field         | Type   | Required | Validation      |
-| ------------- | ------ | -------- | --------------- |
+| Field         | Type   | Required | Validation          |
+| ------------- | ------ | -------- | ------------------- |
 | `title`       | String | Yes      | 2-100 chars, unique |
-| `description` | String | Yes      | 10-1000 chars   |
-| `altText`     | String | Yes      | 2-200 chars     |
-| `image`       | File   | Yes      | Image file      |
+| `description` | String | Yes      | 10-1000 chars       |
+| `altText`     | String | Yes      | 2-200 chars         |
+| `image`       | File   | Yes      | Image file          |
 
 ---
 
@@ -674,9 +678,9 @@ Deletes user. Returns 404 if target is `dev` and requester is not `dev`.
 
 - **Auth:** Protected (admin/dev)
 
-| Field   | Type   | Required | Validation                                   |
-| ------- | ------ | -------- | -------------------------------------------- |
-| `title` | String | Yes      | 2-50 chars, unique                           |
+| Field   | Type   | Required | Validation                                                    |
+| ------- | ------ | -------- | ------------------------------------------------------------- |
+| `title` | String | Yes      | 2-50 chars, unique                                            |
 | `icon`  | String | Yes      | Must match format `i-{category}-{name}` (e.g., `i-logos-vue`) |
 
 **Response:** `201`
@@ -746,10 +750,10 @@ Deletes user. Returns 404 if target is `dev` and requester is not `dev`.
 - **Auth:** Protected (admin/dev)
 - **Content-Type:** `multipart/form-data`
 
-| Field   | Type   | Required | Validation  |
-| ------- | ------ | -------- | ----------- |
+| Field   | Type   | Required | Validation          |
+| ------- | ------ | -------- | ------------------- |
 | `name`  | String | Yes      | 2-100 chars, unique |
-| `image` | File   | Yes      | Image file  |
+| `image` | File   | Yes      | Image file          |
 
 ---
 
@@ -827,10 +831,10 @@ Deletes user. Returns 404 if target is `dev` and requester is not `dev`.
 
 - **Auth:** Protected (admin/dev)
 
-| Field         | Type    | Required | Description           |
-| ------------- | ------- | -------- | --------------------- |
-| `description` | String  | No       | 10-1000 chars         |
-| `isConfirmed` | Boolean | No       | Approve/reject        |
+| Field         | Type    | Required | Description    |
+| ------------- | ------- | -------- | -------------- |
+| `description` | String  | No       | 10-1000 chars  |
+| `isConfirmed` | Boolean | No       | Approve/reject |
 
 ---
 
@@ -1104,12 +1108,12 @@ Resources with images (`projects`, `blogs`, `services`, `clients`, `testimonials
 
 These fields are automatically managed by the server:
 
-| Field            | Description                              |
-| ---------------- | ---------------------------------------- |
-| `_id`            | MongoDB ObjectId                         |
-| `documentNumber` | Auto-incrementing sequential number      |
-| `slug`           | Generated from `title` or `name`         |
-| `original_slug`  | First slug (never changes after creation)|
-| `createdAt`      | Timestamp (auto)                         |
-| `updatedAt`      | Timestamp (auto)                         |
-| `user`           | Set to authenticated user's ID on create |
+| Field            | Description                               |
+| ---------------- | ----------------------------------------- |
+| `_id`            | MongoDB ObjectId                          |
+| `documentNumber` | Auto-incrementing sequential number       |
+| `slug`           | Generated from `title` or `name`          |
+| `original_slug`  | First slug (never changes after creation) |
+| `createdAt`      | Timestamp (auto)                          |
+| `updatedAt`      | Timestamp (auto)                          |
+| `user`           | Set to authenticated user's ID on create  |
