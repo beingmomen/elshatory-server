@@ -9,6 +9,8 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, 'Name is required.']
     },
+    slug: String,
+    original_slug: String,
     email: {
       type: String,
       required: [true, 'Email is required.'],
@@ -17,10 +19,14 @@ const schema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, 'Phone number is required.']
+      required: [true, 'Phone number is required.'],
+      validate: {
+        validator(v) {
+          return /^\+?[\d\s\-().]{7,20}$/.test(v);
+        },
+        message: 'Phone number is not valid.'
+      }
     },
-    slug: String,
-    original_slug: String,
     description: {
       type: String,
       required: [true, 'Description is required.']
