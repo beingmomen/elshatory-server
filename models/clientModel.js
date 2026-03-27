@@ -16,16 +16,23 @@ const schema = new mongoose.Schema(
       index: true
     },
     original_slug: String,
-    image: {
+    website: {
       type: String,
-      required: [true, 'Image is required']
+      validate: {
+        validator(v) {
+          return /^https?:\/\/.+/.test(v);
+        },
+        message: 'Website must be a valid URL.'
+      }
     },
     altText: {
       type: String,
+      required: [true, 'Alt text is required'],
       trim: true
     },
-    website: {
-      type: String
+    image: {
+      type: String,
+      required: [true, 'Image is required']
     },
     user: {
       type: mongoose.Schema.ObjectId,
