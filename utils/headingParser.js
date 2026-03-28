@@ -36,9 +36,12 @@ const parseHeadings = content => {
       if (isNonLatin) {
         const simpleHash = str => {
           let hash = 0;
+          // eslint-disable-next-line no-plusplus
           for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);
+            // eslint-disable-next-line no-bitwise
             hash = (hash << 5) - hash + char;
+            // eslint-disable-next-line no-bitwise, operator-assignment
             hash = hash & hash;
           }
           return Math.abs(hash).toString(36);

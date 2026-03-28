@@ -29,3 +29,4 @@ config.env
 # Local Netlify folder
 .netlify
 netlify/functions/config.env
+.mcp.json
