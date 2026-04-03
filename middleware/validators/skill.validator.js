@@ -12,7 +12,7 @@ exports.createSkillRules = [
     .trim()
     .notEmpty()
     .withMessage('Icon is required.')
-    .matches(/^i(-[a-z]+)+$/)
+    .matches(/^i(-[a-z0-9]+)+$/)
     .withMessage(
       'Icon must follow the format "i-logos-firebase" (start with "i-" followed by lowercase words separated by hyphens)'
     )
@@ -30,7 +30,7 @@ exports.updateSkillRules = [
     .trim()
     .notEmpty()
     .withMessage('Icon is required.')
-    .matches(/^i(-[a-z]+)+$/)
+    .matches(/^i(-[a-z0-9]+)+$/)
     .withMessage(
       'Icon must follow the format "i-logos-firebase" (start with "i-" followed by lowercase words separated by hyphens)'
     )

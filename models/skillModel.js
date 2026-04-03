@@ -22,7 +22,7 @@ const schema = new mongoose.Schema(
       trim: true,
       validate: {
         validator(value) {
-          return /^i(-[a-z]+)+$/.test(value);
+          return /^i(-[a-z0-9]+)+$/.test(value);
         },
         message:
           'Icon must follow the format "i-logos-firebase" (start with "i-" followed by lowercase words separated by hyphens)'

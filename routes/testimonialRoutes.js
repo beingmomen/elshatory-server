@@ -21,7 +21,13 @@ router
     controller.createOne
   );
 
-router.route('/all').get(controller.getAllNoPagination);
+router
+  .route('/all')
+  .get(
+    authController.protect,
+    authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
+    controller.getAllNoPagination
+  );
 
 router.route('/confirmed').get(controller.getAllConfirmed);
 
