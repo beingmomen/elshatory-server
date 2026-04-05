@@ -31,9 +31,9 @@ jobs:
           # 🟡 إنشاء ملف .env حسب الفرع
       - name: Create .env file for Demo
         if: github.ref == 'refs/heads/demo'
-        run: echo "${{ vars.ENV_DEMO }}" > config.env
+        run: echo "${{ vars.ENV_DEMO }}" > .env
 
-      - run: pm2 start server.js | pm2 restart server.js
+      - run: pm2 restart server.js || pm2 start server.js
 
   deploy-prod:
     runs-on: [self-hosted, prod]
@@ -59,6 +59,6 @@ jobs:
           # 🟡 إنشاء ملف .env حسب الفرع
       - name: Create .env file for Production
         if: github.ref == 'refs/heads/prod'
-        run: echo "${{ vars.ENV_PROD }}" > config.env
+        run: echo "${{ vars.ENV_PROD }}" > .env
 
-      - run: pm2 start server.js | pm2 restart server.js
+      - run: pm2 restart server.js || pm2 start server.js
