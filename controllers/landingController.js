@@ -20,11 +20,7 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
     experiences,
     faqs
   ] = await Promise.all([
-    Skill.find()
-      .select('title icon -_id')
-      .sort('-createdAt')
-      .limit(20)
-      .lean(),
+    Skill.find().select('title icon -_id').sort('-createdAt').limit(20).lean(),
 
     Service.find()
       .select('title description altText image -_id')
@@ -50,15 +46,9 @@ exports.getLandingData = catchAsync(async (req, res, next) => {
 
     Project.countDocuments({ isActive: true }),
 
-    Client.find()
-      .select('image name -_id')
-      .sort('-createdAt')
-      .limit(20)
-      .lean(),
+    Client.find().select('image name -_id').sort('-createdAt').limit(20).lean(),
 
-    Info.findOne()
-      .select('resumeUrl bio stats skills images -_id')
-      .lean(),
+    Info.findOne().select('resumeUrl bio stats skills images -_id').lean(),
 
     Experience.find()
       .select(
