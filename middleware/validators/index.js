@@ -32,6 +32,11 @@ const {
   updateResourceRules
 } = require('./resource.validator');
 const { createInfoRules, updateInfoRules } = require('./info.validator');
+const {
+  createExperienceRules,
+  updateExperienceRules
+} = require('./experience.validator');
+const { createFaqRules, updateFaqRules } = require('./faq.validator');
 
 module.exports = {
   validate,
@@ -60,5 +65,9 @@ module.exports = {
   createResourceRules,
   updateResourceRules,
   createInfoRules,
-  updateInfoRules
+  updateInfoRules,
+  createExperienceRules,
+  updateExperienceRules,
+  createFaqRules,
+  updateFaqRules
 };

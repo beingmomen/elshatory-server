@@ -29,6 +29,8 @@ const infoRouter = require('./routes/infoRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const landingRouter = require('./routes/landingRoutes');
 const buildProjectRouter = require('./routes/buildProjectRoutes');
+const experienceRouter = require('./routes/experienceRoutes');
+const faqRouter = require('./routes/faqRoutes');
 
 const app = express();
 
@@ -153,6 +155,8 @@ app.use('/api/v1/infos', infoRouter);
 app.use('/api/v1/views', viewRouter);
 app.use('/api/v1/landing', landingRouter);
 app.use('/api/v1/build-project', buildProjectRouter);
+app.use('/api/v1/experiences', experienceRouter);
+app.use('/api/v1/faqs', faqRouter);
 
 // Handle 404 for API routes
 app.all('/api/*', (req, res, next) => {
