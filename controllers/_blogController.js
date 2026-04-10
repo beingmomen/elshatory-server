@@ -5,7 +5,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllNoPagination = factory.getAllNoPagination(Model, {
-  selectFields: 'title slug'
+  selectFields: 'title slug description image altText tags'
 });
 exports.getAll = factory.getAll(Model);
 exports.getOne = factory.getOne(Model);
