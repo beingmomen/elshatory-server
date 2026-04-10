@@ -1,5 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/_infoController');
+const infoImage = require('../imageServices/info.image');
 const authController = require('../controllers/authController');
 const v = require('../middleware/validators');
 const { ROLES } = require('../utils/constants');
@@ -12,6 +13,8 @@ router
   .post(
     authController.protect,
     authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
+    infoImage.handleImages,
+    v.parseFormFields,
     v.createInfoRules,
     v.validate,
     controller.createOne
@@ -19,6 +22,8 @@ router
   .patch(
     authController.protect,
     authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
+    infoImage.handleImages,
+    v.parseFormFields,
     v.updateInfoRules,
     v.validate,
     controller.updateOne
