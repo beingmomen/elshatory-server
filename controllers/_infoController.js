@@ -22,7 +22,10 @@ exports.createOne = catchAsync(async (req, res, next) => {
 exports.getAll = catchAsync(async (req, res, next) => {
   const doc = await Model.findOne();
 
-  res.status(200).json(doc);
+  res.status(200).json({
+    status: 'success',
+    data: [doc]
+  });
 });
 
 exports.updateOne = catchAsync(async (req, res, next) => {
