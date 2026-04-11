@@ -1,14 +1,13 @@
 const CareerProfileSettings = require('../models/careerProfileSettingsModel');
 const catchAsync = require('../utils/catchAsync');
+const { buildSnapshot } = require('../services/careerProfile/snapshot');
 
 exports.getProfile = catchAsync(async (req, res) => {
-  const settings = await CareerProfileSettings.findOne({
-    user: req.user.id
-  });
+  const snapshot = await buildSnapshot(req.user.id);
 
   res.status(200).json({
     status: 'success',
-    data: { settings: settings || {} }
+    data: { profile: snapshot }
   });
 });
 
@@ -23,7 +22,7 @@ exports.updateSettings = catchAsync(async (req, res) => {
   ];
 
   const updateData = {};
-  allowedFields.forEach(field => {
+  allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
       updateData[field] = req.body[field];
     }
