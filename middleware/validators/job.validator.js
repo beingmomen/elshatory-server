@@ -26,6 +26,10 @@ exports.updateJobRules = [
 ];
 
 exports.importJobRules = [
+  body('source')
+    .optional()
+    .isIn(['linkedin', 'manual'])
+    .withMessage('Source must be one of: linkedin, manual.'),
   body('jobUrl')
     .optional()
     .isURL()
