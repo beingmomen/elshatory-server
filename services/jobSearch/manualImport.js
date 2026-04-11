@@ -267,4 +267,10 @@ async function importJob({ source, jobUrl, rawText, userId }) {
   return { job, isDuplicate: false };
 }
 
+module.exports = {
+  importJob,
+  extractJobFromRawText,
+  fetchJobPage
+};
+
 module.exports = { importJob };
