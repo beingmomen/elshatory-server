@@ -31,6 +31,12 @@ const landingRouter = require('./routes/landingRoutes');
 const buildProjectRouter = require('./routes/buildProjectRoutes');
 const experienceRouter = require('./routes/experienceRoutes');
 const faqRouter = require('./routes/faqRoutes');
+const jobSourceRouter = require('./routes/jobSourceRoutes');
+const jobSearchRunRouter = require('./routes/jobSearchRunRoutes');
+const jobRouter = require('./routes/jobRoutes');
+const manualJobRouter = require('./routes/manualJobRoutes');
+const careerProfileRouter = require('./routes/careerProfileRoutes');
+const resumeDraftRouter = require('./routes/resumeDraftRoutes');
 
 const app = express();
 
@@ -157,6 +163,12 @@ app.use('/api/v1/landing', landingRouter);
 app.use('/api/v1/build-project', buildProjectRouter);
 app.use('/api/v1/experiences', experienceRouter);
 app.use('/api/v1/faqs', faqRouter);
+app.use('/api/v1/job-sources', jobSourceRouter);
+app.use('/api/v1/job-search-runs', jobSearchRunRouter);
+app.use('/api/v1/jobs', jobRouter);
+app.use('/api/v1/manual-jobs', manualJobRouter);
+app.use('/api/v1/career-profile', careerProfileRouter);
+app.use('/api/v1/resume-drafts', resumeDraftRouter);
 
 // Handle 404 for API routes
 app.all('/api/*', (req, res, next) => {

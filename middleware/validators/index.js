@@ -37,6 +37,12 @@ const {
   updateExperienceRules
 } = require('./experience.validator');
 const { createFaqRules, updateFaqRules } = require('./faq.validator');
+const {
+  createJobSearchRunRules,
+  updateJobRules,
+  importJobRules,
+  updateCareerProfileSettingsRules
+} = require('./job.validator');
 
 module.exports = {
   validate,
@@ -69,5 +75,9 @@ module.exports = {
   createExperienceRules,
   updateExperienceRules,
   createFaqRules,
-  updateFaqRules
+  updateFaqRules,
+  createJobSearchRunRules,
+  updateJobRules,
+  importJobRules,
+  updateCareerProfileSettingsRules
 };
