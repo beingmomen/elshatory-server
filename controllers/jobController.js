@@ -5,6 +5,8 @@ const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { matchJob } = require('../services/matching/matchJob');
+const { buildSnapshot, computeProfileVersion } = require('../services/careerProfile/snapshot');
+const { generateAtsDraft } = require('../services/resume/atsDraftGenerator');
 
 exports.getAll = factory.getAll(Job);
 
@@ -57,9 +59,27 @@ exports.getResumeDrafts = catchAsync(async (req, res) => {
   });
 });
 
-exports.createResumeDraft = catchAsync(async (req, res) => {
-  res.status(501).json({
-    status: 'error',
-    message: 'Not implemented yet'
+exports.createResumeDraft = catchAsync(async (req, res, next) => {
+  const job = await Job.findOne({ _id: req.params.id, user: req.user.id }).lean();
+  if (!job) return next(new AppError('لم يتم العثور على الوظيفة', 404));
+
+  const snapshot = await buildSnapshot(req.user.id);
+  const profileVersion = computeProfileVersion(snapshot);
+
+  const match = await JobMatch.findOne({ job: job._id, user: req.user.id })
+    .select('missingSkills level')
+    .lean();
+
+  const { content, warnings, format } = generateAtsDraft(job, snapshot, match);
+
+  const draft = await ResumeDraft.create({
+    job: job._id,
+    user: req.user.id,
+    profileVersion,
+    format,
+    content,
+    warnings
   });
+
+  res.status(201).json({ status: 'success', data: { draft } });
 });

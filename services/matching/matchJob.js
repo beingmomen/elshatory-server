@@ -3,27 +3,12 @@
  * Combines rules scorer with optional LLM enhancement and persists the result.
  */
 
-const crypto = require('crypto');
 const Job = require('../../models/jobModel');
 const JobMatch = require('../../models/jobMatchModel');
 const AppError = require('../../utils/appError');
-const { buildSnapshot } = require('../careerProfile/snapshot');
+const { buildSnapshot, computeProfileVersion } = require('../careerProfile/snapshot');
 const { rulesScorer } = require('./rulesScorer');
 const llmMatcher = require('./llmMatcher');
-
-/**
- * Compute a short version hash for the profile snapshot.
- * Changes when skills, target roles, or seniority change.
- */
-const computeProfileVersion = (snapshot) => {
-  const key = JSON.stringify({
-    allSkills: (snapshot.allSkills || []).sort(),
-    targetRoles: (snapshot.settings?.targetRoles || []).sort(),
-    targetSeniority: (snapshot.settings?.targetSeniority || []).sort(),
-    defaultStacks: (snapshot.settings?.defaultStacks || []).sort()
-  });
-  return crypto.createHash('sha256').update(key).digest('hex').substring(0, 12);
-};
 
 /**
  * Analyze a job and persist the match result.

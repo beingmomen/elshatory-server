@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const Info = require('../../models/infoModel');
 const Skill = require('../../models/skillModel');
 const Experience = require('../../models/experienceModel');
@@ -88,4 +89,21 @@ const buildSnapshot = async (userId) => {
   };
 };
 
-module.exports = { buildSnapshot };
+/**
+ * Compute a short version hash for the profile snapshot.
+ * Changes when skills, target roles, or seniority change.
+ *
+ * @param {Object} snapshot - Result of buildSnapshot()
+ * @returns {string} 12-character hex hash
+ */
+const computeProfileVersion = (snapshot) => {
+  const key = JSON.stringify({
+    allSkills: (snapshot.allSkills || []).slice().sort(),
+    targetRoles: (snapshot.settings?.targetRoles || []).slice().sort(),
+    targetSeniority: (snapshot.settings?.targetSeniority || []).slice().sort(),
+    defaultStacks: (snapshot.settings?.defaultStacks || []).slice().sort()
+  });
+  return crypto.createHash('sha256').update(key).digest('hex').substring(0, 12);
+};
+
+module.exports = { buildSnapshot, computeProfileVersion };
