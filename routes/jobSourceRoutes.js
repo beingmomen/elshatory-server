@@ -6,8 +6,6 @@ const router = express.Router();
 
 router.route('/').get(authController.protect, controller.getAll);
 
-router
-  .route('/:key/health')
-  .get(authController.protect, controller.getHealth);
+router.route('/:key/health').get(authController.protect, controller.getHealth);
 
 module.exports = router;

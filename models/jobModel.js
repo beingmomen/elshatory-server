@@ -62,7 +62,7 @@ const schema = new mongoose.Schema(
     salary: salarySchema,
     status: {
       type: String,
-      enum: ['new', 'reviewed', 'saved', 'applied', 'rejected', 'expired'],
+      enum: ['new', 'shortlisted', 'ignored', 'cv_ready', 'applied'],
       default: 'new',
       index: true
     },

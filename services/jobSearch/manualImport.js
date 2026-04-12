@@ -11,8 +11,6 @@
  *      asking the user to paste the job description instead.
  */
 
-'use strict';
-
 const cheerio = require('cheerio');
 const Job = require('../../models/jobModel');
 const AppError = require('../../utils/appError');
@@ -20,7 +18,7 @@ const { findExistingJob } = require('./dedupe');
 const {
   extractSeniority,
   extractWorkplace,
-  mergeSkills,
+  mergeSkills
 } = require('./normalizer');
 
 // ---------------------------------------------------------------------------
@@ -69,7 +67,7 @@ function extractLabelled(text, ...labels) {
 function parseRawText(rawText, jobUrl) {
   const lines = rawText
     .split('\n')
-    .map((l) => l.trim())
+    .map(l => l.trim())
     .filter(Boolean);
 
   // --- Try labelled extraction first ---
@@ -110,7 +108,7 @@ function parseRawText(rawText, jobUrl) {
     sourceJobId,
     description: descriptionText,
     rawText,
-    jobUrl,
+    jobUrl
   };
 }
 
@@ -137,10 +135,10 @@ async function tryFetchPublicPage(jobUrl) {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (compatible; JobImporter/1.0; +https://example.com)',
-        Accept: 'text/html',
+        Accept: 'text/html'
       },
       signal: AbortSignal.timeout(8000),
-      redirect: 'follow',
+      redirect: 'follow'
     });
   } catch (err) {
     // Network error or timeout
@@ -197,7 +195,7 @@ function buildNormalizedJob(parsed, source) {
     firstSeenAt: now,
     lastSeenAt: now,
     skills: parsed.skills || [],
-    tags: [],
+    tags: []
   };
 
   if (parsed.sourceJobId) normalized.sourceJobId = parsed.sourceJobId;
@@ -241,7 +239,7 @@ async function importJob({ source, jobUrl, rawText, userId }) {
       company: fetched.company,
       jobUrl,
       sourceJobId: extractLinkedInJobId(jobUrl),
-      skills: [],
+      skills: []
     };
   }
 
@@ -257,7 +255,7 @@ async function importJob({ source, jobUrl, rawText, userId }) {
     return {
       job: found.existing,
       isDuplicate: true,
-      duplicateReason: found.reason,
+      duplicateReason: found.reason
     };
   }
 

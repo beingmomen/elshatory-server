@@ -52,7 +52,11 @@ const SKILL_DICTIONARY = {
   nginx: ['nginx', 'apache'],
   ci_cd: ['ci/cd', 'cicd', 'github actions', 'gitlab ci', 'jenkins', 'devops'],
   agile: ['agile', 'scrum', 'kanban'],
-  microservices: ['microservices', 'micro services', 'microservice architecture'],
+  microservices: [
+    'microservices',
+    'micro services',
+    'microservice architecture'
+  ],
   websockets: ['websockets', 'websocket', 'socket.io', 'real-time', 'realtime']
 };
 
@@ -61,7 +65,7 @@ const SKILL_DICTIONARY = {
  * @param {string} name
  * @returns {string|null} canonical name or null if not found
  */
-const normalizeSkillName = (name) => {
+const normalizeSkillName = name => {
   if (!name) return null;
   const lower = name.toLowerCase().trim();
   for (const [canonical, aliases] of Object.entries(SKILL_DICTIONARY)) {
@@ -77,7 +81,7 @@ const normalizeSkillName = (name) => {
  * @param {string} text
  * @returns {string[]} unique canonical skill names found
  */
-const detectSkillsInText = (text) => {
+const detectSkillsInText = text => {
   if (!text) return [];
   const lower = text.toLowerCase();
   const found = new Set();
@@ -85,7 +89,10 @@ const detectSkillsInText = (text) => {
   for (const [canonical, aliases] of Object.entries(SKILL_DICTIONARY)) {
     for (const alias of aliases) {
       // Word-boundary-safe check: alias must not be surrounded by letters/digits
-      const regex = new RegExp(`(?<![a-z0-9])${alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-z0-9])`, 'i');
+      const regex = new RegExp(
+        `(?<![a-z0-9])${alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-z0-9])`,
+        'i'
+      );
       if (regex.test(lower)) {
         found.add(canonical);
         break;
@@ -111,4 +118,9 @@ const userSkillsToCanonical = (skills = []) => {
   return Array.from(result).filter(Boolean);
 };
 
-module.exports = { SKILL_DICTIONARY, normalizeSkillName, detectSkillsInText, userSkillsToCanonical };
+module.exports = {
+  SKILL_DICTIONARY,
+  normalizeSkillName,
+  detectSkillsInText,
+  userSkillsToCanonical
+};

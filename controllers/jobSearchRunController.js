@@ -1,6 +1,7 @@
 const JobSearchRun = require('../models/jobSearchRunModel');
 const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 const {
   runWuzzufSearch,
   runLinkedInSearch,
@@ -8,9 +9,15 @@ const {
 } = require('../services/jobSearch/index');
 
 exports.getAll = factory.getAll(JobSearchRun);
-exports.getOne = factory.getOne(JobSearchRun);
 
-const AppError = require('../utils/appError');
+exports.getOne = catchAsync(async (req, res, next) => {
+  const doc = await JobSearchRun.findOne({
+    _id: req.params.id,
+    user: req.user.id
+  });
+  if (!doc) return next(new AppError('لم يتم العثور على عملية البحث', 404));
+  res.status(200).json({ status: 'success', data: { run: doc } });
+});
 
 exports.createOne = catchAsync(async (req, res, next) => {
   // Separate source from the rest of the request body so query contains

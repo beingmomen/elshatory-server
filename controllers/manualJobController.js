@@ -18,7 +18,7 @@ exports.importJob = catchAsync(async (req, res, next) => {
     source,
     jobUrl,
     rawText,
-    userId: req.user._id,
+    userId: req.user._id
   });
 
   const statusCode = result.isDuplicate ? 200 : 201;
@@ -27,6 +27,6 @@ exports.importJob = catchAsync(async (req, res, next) => {
     status: 'success',
     isDuplicate: result.isDuplicate,
     ...(result.duplicateReason && { duplicateReason: result.duplicateReason }),
-    data: { job: result.job },
+    data: { job: result.job }
   });
 });

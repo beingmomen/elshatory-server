@@ -5,26 +5,45 @@ const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { matchJob } = require('../services/matching/matchJob');
-const { buildSnapshot, computeProfileVersion } = require('../services/careerProfile/snapshot');
+const {
+  buildSnapshot,
+  computeProfileVersion
+} = require('../services/careerProfile/snapshot');
 const { generateAtsDraft } = require('../services/resume/atsDraftGenerator');
 
 exports.getAll = factory.getAll(Job);
 
-exports.updateOne = factory.updateOne(Job);
+exports.updateOne = catchAsync(async (req, res, next) => {
+  const doc = await Job.findOneAndUpdate(
+    { _id: req.params.id, user: req.user.id },
+    req.body,
+    { new: true, runValidators: true }
+  );
+  if (!doc) return next(new AppError('لم يتم العثور على الوظيفة', 404));
+  res.status(200).json({ status: 'success', data: doc });
+});
 
 /**
  * GET /api/v1/jobs/:id
  * Returns the job with its latest match analysis embedded.
  */
 exports.getOne = catchAsync(async (req, res, next) => {
-  const job = await Job.findOne({ _id: req.params.id, user: req.user.id }).lean();
+  const job = await Job.findOne({
+    _id: req.params.id,
+    user: req.user.id
+  }).lean();
 
   if (!job) {
     return next(new AppError('لم يتم العثور على الوظيفة', 404));
   }
 
-  const latestMatch = await JobMatch.findOne({ job: job._id, user: req.user.id })
-    .select('score level matchedSkills missingSkills reasons risks recommendations generatedBy updatedAt profileVersion')
+  const latestMatch = await JobMatch.findOne({
+    job: job._id,
+    user: req.user.id
+  })
+    .select(
+      'score level matchedSkills missingSkills reasons risks recommendations generatedBy updatedAt profileVersion'
+    )
     .lean();
 
   res.status(200).json({
@@ -60,7 +79,10 @@ exports.getResumeDrafts = catchAsync(async (req, res) => {
 });
 
 exports.createResumeDraft = catchAsync(async (req, res, next) => {
-  const job = await Job.findOne({ _id: req.params.id, user: req.user.id }).lean();
+  const job = await Job.findOne({
+    _id: req.params.id,
+    user: req.user.id
+  }).lean();
   if (!job) return next(new AppError('لم يتم العثور على الوظيفة', 404));
 
   const snapshot = await buildSnapshot(req.user.id);

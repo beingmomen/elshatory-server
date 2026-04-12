@@ -6,9 +6,14 @@ const { ROLES } = require('../utils/constants');
 
 const router = express.Router();
 
+const scopeToUser = (req, res, next) => {
+  req.mergeFilter = { user: req.user.id };
+  next();
+};
+
 router
   .route('/')
-  .get(authController.protect, controller.getAll)
+  .get(authController.protect, scopeToUser, controller.getAll)
   .post(
     authController.protect,
     authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),

@@ -26,9 +26,6 @@ const schema = new mongoose.Schema(
   }
 );
 
-const CareerProfileSettings = mongoose.model(
-  'CareerProfileSettings',
-  schema
-);
+const CareerProfileSettings = mongoose.model('CareerProfileSettings', schema);
 
 module.exports = CareerProfileSettings;

@@ -6,7 +6,10 @@
 const Job = require('../../models/jobModel');
 const JobMatch = require('../../models/jobMatchModel');
 const AppError = require('../../utils/appError');
-const { buildSnapshot, computeProfileVersion } = require('../careerProfile/snapshot');
+const {
+  buildSnapshot,
+  computeProfileVersion
+} = require('../careerProfile/snapshot');
 const { rulesScorer } = require('./rulesScorer');
 const llmMatcher = require('./llmMatcher');
 
@@ -42,10 +45,16 @@ const matchJob = async (jobId, userId) => {
     score: rulesResult.score,
     level: rulesResult.level,
     matchedSkills: rulesResult.matchedSkills,
-    missingSkills: llmResult?.missingSkills?.length ? llmResult.missingSkills : rulesResult.missingSkills,
-    reasons: llmResult?.reasons?.length ? llmResult.reasons : rulesResult.reasons,
+    missingSkills: llmResult?.missingSkills?.length
+      ? llmResult.missingSkills
+      : rulesResult.missingSkills,
+    reasons: llmResult?.reasons?.length
+      ? llmResult.reasons
+      : rulesResult.reasons,
     risks: llmResult?.risks?.length ? llmResult.risks : rulesResult.risks,
-    recommendations: llmResult?.recommendations?.length ? llmResult.recommendations : rulesResult.recommendations,
+    recommendations: llmResult?.recommendations?.length
+      ? llmResult.recommendations
+      : rulesResult.recommendations,
     generatedBy,
     profileVersion
   };

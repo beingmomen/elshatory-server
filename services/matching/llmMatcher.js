@@ -54,7 +54,9 @@ Rules:
 const enhance = async (job, snapshot, rulesResult) => {
   const apiKey = process.env.LLM_API_KEY;
   const model = process.env.LLM_MODEL;
-  const baseUrl = (process.env.LLM_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
+  const baseUrl = (
+    process.env.LLM_BASE_URL || 'https://api.openai.com/v1'
+  ).replace(/\/$/, '');
 
   if (!apiKey || !model) return null;
 
@@ -83,7 +85,9 @@ const enhance = async (job, snapshot, rulesResult) => {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      console.warn(`[LLM] Request failed: ${response.status} ${response.statusText}`);
+      console.warn(
+        `[LLM] Request failed: ${response.status} ${response.statusText}`
+      );
       return null;
     }
 
@@ -97,13 +101,17 @@ const enhance = async (job, snapshot, rulesResult) => {
     if (!parsed || typeof parsed !== 'object') return null;
 
     return {
-      reasons: Array.isArray(parsed.reasons) ? parsed.reasons.filter((r) => typeof r === 'string').slice(0, 3) : undefined,
-      risks: Array.isArray(parsed.risks) ? parsed.risks.filter((r) => typeof r === 'string').slice(0, 2) : undefined,
+      reasons: Array.isArray(parsed.reasons)
+        ? parsed.reasons.filter(r => typeof r === 'string').slice(0, 3)
+        : undefined,
+      risks: Array.isArray(parsed.risks)
+        ? parsed.risks.filter(r => typeof r === 'string').slice(0, 2)
+        : undefined,
       recommendations: Array.isArray(parsed.recommendations)
-        ? parsed.recommendations.filter((r) => typeof r === 'string').slice(0, 3)
+        ? parsed.recommendations.filter(r => typeof r === 'string').slice(0, 3)
         : undefined,
       missingSkills: Array.isArray(parsed.missingSkills)
-        ? parsed.missingSkills.filter((s) => typeof s === 'string').slice(0, 10)
+        ? parsed.missingSkills.filter(s => typeof s === 'string').slice(0, 10)
         : undefined
     };
   } catch (err) {

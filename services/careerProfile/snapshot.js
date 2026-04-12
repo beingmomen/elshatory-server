@@ -12,7 +12,7 @@ const CareerProfileSettings = require('../../models/careerProfileSettingsModel')
  * @param {string} userId - MongoDB ObjectId of the user
  * @returns {Object} snapshot
  */
-const buildSnapshot = async (userId) => {
+const buildSnapshot = async userId => {
   const [info, skills, experiences, projects, settings] = await Promise.all([
     Info.findOne().select('resumeUrl bio stats skills').lean(),
     Skill.find({ user: userId })
@@ -33,11 +33,11 @@ const buildSnapshot = async (userId) => {
   ]);
 
   // Flat list of skill titles from the Skill collection
-  const skillTitles = skills.map((s) => s.title);
+  const skillTitles = skills.map(s => s.title);
 
   // Skill titles extracted from info.skills groups (grouped category items)
-  const infoSkillNames = (info?.skills || []).flatMap((group) =>
-    (group.items || []).map((item) => item.name).filter(Boolean)
+  const infoSkillNames = (info?.skills || []).flatMap(group =>
+    (group.items || []).map(item => item.name).filter(Boolean)
   );
 
   // Deduplicated union of all skill signals
@@ -52,11 +52,11 @@ const buildSnapshot = async (userId) => {
     stats: info?.stats || [],
 
     // Skills
-    skills: skills.map((s) => ({ title: s.title, icon: s.icon })),
+    skills: skills.map(s => ({ title: s.title, icon: s.icon })),
     allSkills,
 
     // Work history
-    experiences: experiences.map((e) => ({
+    experiences: experiences.map(e => ({
       company: e.company,
       position: e.position,
       employmentType: e.employmentType,
@@ -67,12 +67,12 @@ const buildSnapshot = async (userId) => {
     })),
 
     // Portfolio
-    projects: projects.map((p) => ({
+    projects: projects.map(p => ({
       title: p.title,
       description: p.description,
       tag: p.tag,
       url: p.url,
-      skills: (p.skillIds || []).map((s) => s.title)
+      skills: (p.skillIds || []).map(s => s.title)
     })),
 
     // Career preferences / settings
@@ -96,7 +96,7 @@ const buildSnapshot = async (userId) => {
  * @param {Object} snapshot - Result of buildSnapshot()
  * @returns {string} 12-character hex hash
  */
-const computeProfileVersion = (snapshot) => {
+const computeProfileVersion = snapshot => {
   const key = JSON.stringify({
     allSkills: (snapshot.allSkills || []).slice().sort(),
     targetRoles: (snapshot.settings?.targetRoles || []).slice().sort(),

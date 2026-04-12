@@ -59,9 +59,13 @@ const renderAtsText = ({
     lines.push('EXPERIENCE');
     lines.push(sep());
     for (const exp of experienceBullets) {
-      const dateRange = [exp.startDate, exp.endDate].filter(Boolean).join(' - ');
-      lines.push(`${exp.company} — ${exp.role}${dateRange ? ` (${dateRange})` : ''}`);
-      for (const bullet of (exp.bullets || [])) {
+      const dateRange = [exp.startDate, exp.endDate]
+        .filter(Boolean)
+        .join(' - ');
+      lines.push(
+        `${exp.company} — ${exp.role}${dateRange ? ` (${dateRange})` : ''}`
+      );
+      for (const bullet of exp.bullets || []) {
         lines.push(`  - ${bullet}`);
       }
       lines.push('');
@@ -73,11 +77,12 @@ const renderAtsText = ({
     lines.push('PROJECTS');
     lines.push(sep());
     for (const project of projects) {
-      const stackStr = project.stack && project.stack.length > 0
-        ? ` | ${project.stack.join(', ')}`
-        : '';
+      const stackStr =
+        project.stack && project.stack.length > 0
+          ? ` | ${project.stack.join(', ')}`
+          : '';
       lines.push(`${project.title}${stackStr}`);
-      for (const bullet of (project.bullets || [])) {
+      for (const bullet of project.bullets || []) {
         lines.push(`  - ${bullet}`);
       }
       lines.push('');

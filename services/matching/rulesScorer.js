@@ -3,14 +3,24 @@
  * Calculates a 0-100 match score between a job and a career profile snapshot.
  */
 
-const { detectSkillsInText, userSkillsToCanonical } = require('./skillDictionary');
+const {
+  detectSkillsInText,
+  userSkillsToCanonical
+} = require('./skillDictionary');
 
-const SENIORITY_ORDER = { junior: 0, mid: 1, senior: 2, lead: 3, manager: 4, any: -1 };
+const SENIORITY_ORDER = {
+  junior: 0,
+  mid: 1,
+  senior: 2,
+  lead: 3,
+  manager: 4,
+  any: -1
+};
 
 /**
  * Get all text from a job for skill detection.
  */
-const getJobText = (job) => {
+const getJobText = job => {
   const parts = [
     job.title || '',
     job.description || '',
@@ -32,7 +42,10 @@ const scoreRoleMatch = (job, settings) => {
 
   for (const role of targetRoles) {
     const roleLower = role.toLowerCase();
-    if (titleLower.includes(roleLower) || roleLower.includes(titleLower.split(' ')[0])) {
+    if (
+      titleLower.includes(roleLower) ||
+      roleLower.includes(titleLower.split(' ')[0])
+    ) {
       return {
         pts: 25,
         reason: `العنوان الوظيفي "${job.title}" يتطابق مع الأدوار المستهدفة (${role})`
@@ -42,8 +55,8 @@ const scoreRoleMatch = (job, settings) => {
 
   // Partial: check word overlap
   const titleWords = titleLower.split(/\s+/);
-  const roleWords = targetRoles.flatMap((r) => r.toLowerCase().split(/\s+/));
-  const overlap = titleWords.filter((w) => w.length > 3 && roleWords.includes(w));
+  const roleWords = targetRoles.flatMap(r => r.toLowerCase().split(/\s+/));
+  const overlap = titleWords.filter(w => w.length > 3 && roleWords.includes(w));
 
   if (overlap.length > 0) {
     return {
@@ -52,7 +65,10 @@ const scoreRoleMatch = (job, settings) => {
     };
   }
 
-  return { pts: 0, reason: `العنوان الوظيفي "${job.title}" لا يتطابق مع الأدوار المستهدفة` };
+  return {
+    pts: 0,
+    reason: `العنوان الوظيفي "${job.title}" لا يتطابق مع الأدوار المستهدفة`
+  };
 };
 
 /**
@@ -61,14 +77,17 @@ const scoreRoleMatch = (job, settings) => {
 const scoreCoreStack = (job, snapshot) => {
   const jobText = getJobText(job);
   const jobSkillsCanonical = detectSkillsInText(jobText);
-  const userCore = userSkillsToCanonical(snapshot.settings?.defaultStacks || []);
+  const userCore = userSkillsToCanonical(
+    snapshot.settings?.defaultStacks || []
+  );
   const userAll = userSkillsToCanonical(snapshot.allSkills || []);
 
   if (!userCore.length) {
     // Fallback to allSkills
-    if (!userAll.length) return { pts: 0, matched: [], missing: jobSkillsCanonical, reason: null };
-    const matched = jobSkillsCanonical.filter((s) => userAll.includes(s));
-    const missing = jobSkillsCanonical.filter((s) => !userAll.includes(s));
+    if (!userAll.length)
+      return { pts: 0, matched: [], missing: jobSkillsCanonical, reason: null };
+    const matched = jobSkillsCanonical.filter(s => userAll.includes(s));
+    const missing = jobSkillsCanonical.filter(s => !userAll.includes(s));
     const ratio = matched.length / Math.max(jobSkillsCanonical.length, 1);
     return {
       pts: Math.round(Math.min(30, ratio * 30)),
@@ -80,9 +99,11 @@ const scoreCoreStack = (job, snapshot) => {
     };
   }
 
-  const matched = jobSkillsCanonical.filter((s) => userCore.includes(s) || userAll.includes(s));
-  const coreMatched = jobSkillsCanonical.filter((s) => userCore.includes(s));
-  const missing = jobSkillsCanonical.filter((s) => !userAll.includes(s));
+  const matched = jobSkillsCanonical.filter(
+    s => userCore.includes(s) || userAll.includes(s)
+  );
+  const coreMatched = jobSkillsCanonical.filter(s => userCore.includes(s));
+  const missing = jobSkillsCanonical.filter(s => !userAll.includes(s));
 
   const ratio = coreMatched.length / Math.max(userCore.length, 1);
   const pts = Math.round(Math.min(30, ratio * 30));
@@ -101,11 +122,13 @@ const scoreCoreStack = (job, snapshot) => {
 const scoreSecondaryStack = (job, snapshot) => {
   const jobText = getJobText(job);
   const jobSkillsCanonical = detectSkillsInText(jobText);
-  const userOptional = userSkillsToCanonical(snapshot.settings?.optionalStacks || []);
+  const userOptional = userSkillsToCanonical(
+    snapshot.settings?.optionalStacks || []
+  );
 
   if (!userOptional.length) return { pts: 5, reason: null }; // benefit of doubt
 
-  const matched = jobSkillsCanonical.filter((s) => userOptional.includes(s));
+  const matched = jobSkillsCanonical.filter(s => userOptional.includes(s));
   const ratio = matched.length / Math.max(userOptional.length, 1);
   const pts = Math.round(Math.min(10, ratio * 10));
 
@@ -125,7 +148,11 @@ const scoreSeniority = (job, settings) => {
   const targetSeniority = settings?.targetSeniority || [];
 
   if (jobSeniority === 'any') {
-    return { pts: 15, seniorityDelta: 0, reason: `الوظيفة مفتوحة لجميع المستويات` };
+    return {
+      pts: 15,
+      seniorityDelta: 0,
+      reason: `الوظيفة مفتوحة لجميع المستويات`
+    };
   }
 
   if (!targetSeniority.length) {
@@ -133,7 +160,7 @@ const scoreSeniority = (job, settings) => {
   }
 
   const jobIdx = SENIORITY_ORDER[jobSeniority] ?? 1;
-  const targetIndices = targetSeniority.map((s) => SENIORITY_ORDER[s] ?? 1);
+  const targetIndices = targetSeniority.map(s => SENIORITY_ORDER[s] ?? 1);
   const userMaxIdx = Math.max(...targetIndices);
   const distance = Math.abs(jobIdx - userMaxIdx);
 
@@ -164,17 +191,20 @@ const scoreDomain = (job, snapshot) => {
   if (!jobSkillsCanonical.length) return { pts: 5, reason: null };
 
   // Skills from projects
-  const projectSkills = (snapshot.projects || []).flatMap((p) => p.skills || []);
+  const projectSkills = (snapshot.projects || []).flatMap(p => p.skills || []);
   const projectSkillsCanonical = userSkillsToCanonical(projectSkills);
 
   // Skills from experience responsibilities
   const expText = (snapshot.experiences || [])
-    .flatMap((e) => e.responsibilities || [])
+    .flatMap(e => e.responsibilities || [])
     .join(' ');
   const expSkillsCanonical = detectSkillsInText(expText);
 
-  const userDomainSkills = new Set([...projectSkillsCanonical, ...expSkillsCanonical]);
-  const domainMatched = jobSkillsCanonical.filter((s) => userDomainSkills.has(s));
+  const userDomainSkills = new Set([
+    ...projectSkillsCanonical,
+    ...expSkillsCanonical
+  ]);
+  const domainMatched = jobSkillsCanonical.filter(s => userDomainSkills.has(s));
 
   const ratio = domainMatched.length / Math.max(jobSkillsCanonical.length, 1);
   const pts = Math.round(Math.min(10, ratio * 10));
@@ -210,7 +240,9 @@ const scoreLocationWorkplace = (job, settings) => {
     pts += 5;
   } else if (job.location) {
     const locationLower = job.location.toLowerCase();
-    const matches = locationPrefs.some((loc) => locationLower.includes(loc.toLowerCase()));
+    const matches = locationPrefs.some(loc =>
+      locationLower.includes(loc.toLowerCase())
+    );
     if (matches) {
       pts += 5;
       reasons.push(`الموقع يطابق تفضيلاتك`);
@@ -235,7 +267,7 @@ const determineLevel = (score, job, settings) => {
     targetSeniority.length > 0 &&
     score >= 40
   ) {
-    const targetIndices = targetSeniority.map((s) => SENIORITY_ORDER[s] ?? 1);
+    const targetIndices = targetSeniority.map(s => SENIORITY_ORDER[s] ?? 1);
     const userMaxIdx = Math.max(...targetIndices);
     const jobIdx = SENIORITY_ORDER[jobSeniority] ?? 2;
     if (userMaxIdx <= 1 && jobIdx >= 2) {
@@ -290,13 +322,19 @@ const rulesScorer = (job, snapshot) => {
   // Build risks
   const risks = [];
   if (seniorityResult.seniorityDelta >= 2) {
-    risks.push(`فجوة كبيرة في مستوى الخبرة: الوظيفة تطلب ${job.seniority} وأنت تستهدف مستوى أقل`);
+    risks.push(
+      `فجوة كبيرة في مستوى الخبرة: الوظيفة تطلب ${job.seniority} وأنت تستهدف مستوى أقل`
+    );
   }
   if (coreResult.missing?.length > 3) {
-    risks.push(`${coreResult.missing.length} مهارات مطلوبة غير موجودة في ملفك: ${coreResult.missing.slice(0, 3).join(', ')}...`);
+    risks.push(
+      `${coreResult.missing.length} مهارات مطلوبة غير موجودة في ملفك: ${coreResult.missing.slice(0, 3).join(', ')}...`
+    );
   }
   if (level === 'stretch') {
-    risks.push(`هذه وظيفة stretch - تحتاج إبراز مشاريع قيادية أو ownership في CV`);
+    risks.push(
+      `هذه وظيفة stretch - تحتاج إبراز مشاريع قيادية أو ownership في CV`
+    );
   }
   if (level === 'poor') {
     risks.push(`التطابق منخفض - راجع المتطلبات مع مهاراتك الحالية`);
@@ -305,13 +343,19 @@ const rulesScorer = (job, snapshot) => {
   // Build basic recommendations
   const recommendations = [];
   if (coreResult.matched?.length > 0) {
-    recommendations.push(`أبرز ${coreResult.matched.slice(0, 3).join(', ')} في أعلى CV`);
+    recommendations.push(
+      `أبرز ${coreResult.matched.slice(0, 3).join(', ')} في أعلى CV`
+    );
   }
   if (coreResult.missing?.length > 0) {
-    recommendations.push(`ادرس ${coreResult.missing.slice(0, 2).join(', ')} إذا كنت ستتقدم`);
+    recommendations.push(
+      `ادرس ${coreResult.missing.slice(0, 2).join(', ')} إذا كنت ستتقدم`
+    );
   }
   if (level === 'stretch') {
-    recommendations.push(`ركز في CV على مشاريع أثبتت فيها ownership ومسؤولية تقنية`);
+    recommendations.push(
+      `ركز في CV على مشاريع أثبتت فيها ownership ومسؤولية تقنية`
+    );
   }
   if (roleResult.pts === 0) {
     recommendations.push(`تحقق من عنوان الوظيفة - قد تكون خارج نطاق تخصصك`);

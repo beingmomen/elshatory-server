@@ -12,11 +12,19 @@
 const SENIORITY_PATTERNS = [
   // Order matters – more specific patterns first
   { regex: /\b(intern|internship|trainee|student)\b/i, value: 'junior' },
-  { regex: /\b(junior|entry[\s-]?level|entry level|fresh|fresher|graduate|jr\.?)\b/i, value: 'junior' },
+  {
+    regex:
+      /\b(junior|entry[\s-]?level|entry level|fresh|fresher|graduate|jr\.?)\b/i,
+    value: 'junior'
+  },
   { regex: /\b(mid[\s-]?level|mid level|intermediate|mid)\b/i, value: 'mid' },
   { regex: /\b(senior|sr\.?|experienced)\b/i, value: 'senior' },
   { regex: /\b(lead|principal|staff engineer|staff dev)\b/i, value: 'lead' },
-  { regex: /\b(manager|director|head of|vp |vice president|engineering manager)\b/i, value: 'manager' },
+  {
+    regex:
+      /\b(manager|director|head of|vp |vice president|engineering manager)\b/i,
+    value: 'manager'
+  }
 ];
 
 function extractSeniority(title = '', description = '') {
@@ -51,45 +59,108 @@ function extractWorkplace(title = '', description = '', tags = []) {
 // Intentionally conservative – only clear, widely-used names.
 const TECH_SKILL_PATTERNS = [
   // Frontend frameworks
-  'Vue', 'Nuxt', 'React', 'Next.js', 'Angular', 'Svelte', 'Ember',
+  'Vue',
+  'Nuxt',
+  'React',
+  'Next.js',
+  'Angular',
+  'Svelte',
+  'Ember',
   // JS / TS
-  'JavaScript', 'TypeScript', 'ES6', 'ES2020',
+  'JavaScript',
+  'TypeScript',
+  'ES6',
+  'ES2020',
   // Backend JS
-  'Node.js', 'Express', 'Fastify', 'NestJS', 'Koa',
+  'Node.js',
+  'Express',
+  'Fastify',
+  'NestJS',
+  'Koa',
   // Python
-  'Python', 'Django', 'FastAPI', 'Flask',
+  'Python',
+  'Django',
+  'FastAPI',
+  'Flask',
   // PHP
-  'PHP', 'Laravel', 'Symfony',
+  'PHP',
+  'Laravel',
+  'Symfony',
   // Java / Kotlin
-  'Java', 'Spring', 'Spring Boot', 'Kotlin',
+  'Java',
+  'Spring',
+  'Spring Boot',
+  'Kotlin',
   // .NET
-  'C#', '.NET', 'ASP.NET',
+  'C#',
+  '.NET',
+  'ASP.NET',
   // Styling
-  'CSS', 'SCSS', 'SASS', 'Tailwind', 'Bootstrap', 'Material UI',
+  'CSS',
+  'SCSS',
+  'SASS',
+  'Tailwind',
+  'Bootstrap',
+  'Material UI',
   // State management
-  'Vuex', 'Pinia', 'Redux', 'MobX',
+  'Vuex',
+  'Pinia',
+  'Redux',
+  'MobX',
   // API
-  'REST', 'GraphQL', 'tRPC', 'WebSockets',
+  'REST',
+  'GraphQL',
+  'tRPC',
+  'WebSockets',
   // Tooling
-  'Vite', 'Webpack', 'Rollup', 'Babel', 'ESLint', 'Prettier',
+  'Vite',
+  'Webpack',
+  'Rollup',
+  'Babel',
+  'ESLint',
+  'Prettier',
   // Testing
-  'Jest', 'Vitest', 'Cypress', 'Playwright',
+  'Jest',
+  'Vitest',
+  'Cypress',
+  'Playwright',
   // DB
-  'MongoDB', 'MySQL', 'PostgreSQL', 'SQLite', 'Redis', 'Elasticsearch',
+  'MongoDB',
+  'MySQL',
+  'PostgreSQL',
+  'SQLite',
+  'Redis',
+  'Elasticsearch',
   // Cloud / DevOps
-  'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'CI/CD', 'GitHub Actions',
+  'Docker',
+  'Kubernetes',
+  'AWS',
+  'Azure',
+  'GCP',
+  'CI/CD',
+  'GitHub Actions',
   // Version control
-  'Git', 'GitHub', 'GitLab', 'Bitbucket',
+  'Git',
+  'GitHub',
+  'GitLab',
+  'Bitbucket',
   // Design
-  'Figma', 'Adobe XD', 'Sketch',
+  'Figma',
+  'Adobe XD',
+  'Sketch',
   // Mobile
-  'React Native', 'Flutter', 'Swift', 'Dart',
+  'React Native',
+  'Flutter',
+  'Swift',
+  'Dart',
   // Other
-  'Nuxt UI', 'Quasar', 'Ionic',
+  'Nuxt UI',
+  'Quasar',
+  'Ionic'
 ];
 
 // Build a lookup map of lowercased skill → canonical casing
-const SKILL_MAP = new Map(TECH_SKILL_PATTERNS.map((s) => [s.toLowerCase(), s]));
+const SKILL_MAP = new Map(TECH_SKILL_PATTERNS.map(s => [s.toLowerCase(), s]));
 
 function extractSkillsFromText(text = '') {
   const found = new Set();
@@ -169,7 +240,7 @@ function normalizeWuzzufJob(rawJob) {
     firstSeenAt: now,
     lastSeenAt: now,
     skills,
-    tags: rawSkills,
+    tags: rawSkills
   };
 
   if (sourceJobId) normalized.sourceJobId = sourceJobId;
@@ -186,4 +257,9 @@ function normalizeWuzzufJob(rawJob) {
   return normalized;
 }
 
-module.exports = { normalizeWuzzufJob, extractSeniority, extractWorkplace, mergeSkills };
+module.exports = {
+  normalizeWuzzufJob,
+  extractSeniority,
+  extractWorkplace,
+  mergeSkills
+};

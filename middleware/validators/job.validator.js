@@ -6,23 +6,17 @@ exports.createJobSearchRunRules = [
     .withMessage('Source is required.')
     .isIn(['wuzzuf', 'linkedin', 'all'])
     .withMessage('Source must be one of: wuzzuf, linkedin, all.'),
-  body('query')
-    .optional()
-    .isObject()
-    .withMessage('Query must be an object.')
+  body('query').optional().isObject().withMessage('Query must be an object.')
 ];
 
 exports.updateJobRules = [
   body('status')
     .optional()
-    .isIn(['new', 'reviewed', 'saved', 'applied', 'rejected', 'expired'])
+    .isIn(['new', 'shortlisted', 'ignored', 'cv_ready', 'applied'])
     .withMessage(
-      'Status must be one of: new, reviewed, saved, applied, rejected, expired.'
+      'Status must be one of: new, shortlisted, ignored, cv_ready, applied.'
     ),
-  body('tags')
-    .optional()
-    .isArray()
-    .withMessage('Tags must be an array.')
+  body('tags').optional().isArray().withMessage('Tags must be an array.')
 ];
 
 exports.importJobRules = [
@@ -30,10 +24,7 @@ exports.importJobRules = [
     .optional()
     .isIn(['linkedin', 'manual'])
     .withMessage('Source must be one of: linkedin, manual.'),
-  body('jobUrl')
-    .optional()
-    .isURL()
-    .withMessage('Job URL must be a valid URL.'),
+  body('jobUrl').optional().isURL().withMessage('Job URL must be a valid URL.'),
   body('rawText')
     .optional()
     .isString()

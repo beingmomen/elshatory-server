@@ -17,21 +17,21 @@
  * to keep `source=all` runs alive when LinkedIn fails.
  */
 
-'use strict';
-
 const cheerio = require('cheerio');
 const JobSource = require('../../models/jobSourceModel');
 const {
   extractSeniority,
   extractWorkplace,
-  mergeSkills,
+  mergeSkills
 } = require('./normalizer');
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
-const LINKEDIN_MODE = (process.env.LINKEDIN_SOURCE_MODE || 'manual_import').trim();
+const LINKEDIN_MODE = (
+  process.env.LINKEDIN_SOURCE_MODE || 'manual_import'
+).trim();
 const LINKEDIN_GUEST_API =
   'https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search';
 const REQUEST_TIMEOUT_MS = 10_000;
@@ -49,7 +49,7 @@ async function updateLinkedInSourceStatus(status, error) {
       {
         lastHealthStatus: status,
         lastCheckedAt: new Date(),
-        lastError: error || null,
+        lastError: error || null
       },
       {
         upsert: true,
@@ -57,8 +57,8 @@ async function updateLinkedInSourceStatus(status, error) {
         setDefaultsOnInsert: {
           name: 'LinkedIn',
           enabled: true,
-          mode: LINKEDIN_MODE === 'disabled' ? 'disabled' : 'manual_import',
-        },
+          mode: LINKEDIN_MODE === 'disabled' ? 'disabled' : 'manual_import'
+        }
       }
     );
   } catch (err) {
@@ -87,10 +87,10 @@ async function fetchHtml(url) {
       'User-Agent':
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       Accept: 'text/html,application/xhtml+xml',
-      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept-Language': 'en-US,en;q=0.9'
     },
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    redirect: 'follow',
+    redirect: 'follow'
   });
 
   if (!response.ok) {
@@ -124,7 +124,11 @@ function parseJobCards(html, term) {
 
     const company =
       $el.find('.base-search-card__subtitle').first().text().trim() ||
-      $el.find('[class*="job-search-card__company-name"]').first().text().trim();
+      $el
+        .find('[class*="job-search-card__company-name"]')
+        .first()
+        .text()
+        .trim();
 
     const location =
       $el.find('.job-search-card__location').first().text().trim() ||
@@ -164,7 +168,7 @@ function parseJobCards(html, term) {
       jobUrl,
       sourceJobId,
       postedAt,
-      _term: term,
+      _term: term
     });
   }
 
@@ -202,7 +206,8 @@ async function fetchLinkedInJobs(query) {
         // Page returned no cards — possible soft block or empty results
         errors.push({
           term,
-          error: 'No job cards found — possible soft block or genuinely empty results',
+          error:
+            'No job cards found — possible soft block or genuinely empty results'
         });
       }
     } catch (err) {
@@ -211,7 +216,7 @@ async function fetchLinkedInJobs(query) {
 
     // Polite inter-term delay
     if (terms.indexOf(term) < terms.length - 1) {
-      await new Promise((r) => setTimeout(r, INTER_TERM_DELAY_MS));
+      await new Promise(r => setTimeout(r, INTER_TERM_DELAY_MS));
     }
   }
 
@@ -244,7 +249,7 @@ function normalizeLinkedInJob(rawJob) {
     firstSeenAt: now,
     lastSeenAt: now,
     skills,
-    tags: [],
+    tags: []
   };
 
   if (rawJob.sourceJobId) normalized.sourceJobId = rawJob.sourceJobId;
@@ -288,10 +293,10 @@ async function checkLinkedInHealth() {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        Accept: 'text/html',
+        Accept: 'text/html'
       },
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      redirect: 'follow',
+      redirect: 'follow'
     });
 
     if (!response.ok) {
@@ -308,7 +313,7 @@ async function checkLinkedInHealth() {
     if (!hasCards) {
       return {
         status: 'degraded',
-        reason: 'Response received but no job cards found — possible soft block',
+        reason: 'Response received but no job cards found — possible soft block'
       };
     }
 
@@ -344,7 +349,7 @@ async function executeLinkedInSearch(query, userId) {
       jobs: [],
       stats: { ...emptyStats },
       degraded: true,
-      degradedReason: 'disabled_by_config',
+      degradedReason: 'disabled_by_config'
     };
   }
 
@@ -353,7 +358,7 @@ async function executeLinkedInSearch(query, userId) {
       jobs: [],
       stats: { ...emptyStats },
       degraded: true,
-      degradedReason: 'manual_import_only',
+      degradedReason: 'manual_import_only'
     };
   }
 
@@ -366,9 +371,7 @@ async function executeLinkedInSearch(query, userId) {
 
     if (!gotJobs) {
       const reason =
-        errors.length > 0
-          ? errors[0].error
-          : 'No jobs returned by LinkedIn';
+        errors.length > 0 ? errors[0].error : 'No jobs returned by LinkedIn';
 
       await updateLinkedInSourceStatus('degraded', reason);
 
@@ -376,24 +379,27 @@ async function executeLinkedInSearch(query, userId) {
         jobs: [],
         stats: { ...emptyStats, errors: errors.length },
         degraded: true,
-        degradedReason: reason,
+        degradedReason: reason
       };
     }
 
     // Partial success — some terms failed but we have jobs
     const status = hasFetchErrors ? 'degraded' : 'healthy';
-    await updateLinkedInSourceStatus(status, hasFetchErrors ? errors[0]?.error : null);
+    await updateLinkedInSourceStatus(
+      status,
+      hasFetchErrors ? errors[0]?.error : null
+    );
 
     return {
       jobs: rawJobs,
       stats: {
         fetched: rawJobs.length,
-        saved: 0,   // caller updates this after dedup/save
+        saved: 0, // caller updates this after dedup/save
         skipped: 0,
-        errors: errors.length,
+        errors: errors.length
       },
       degraded: hasFetchErrors && !gotJobs,
-      degradedReason: hasFetchErrors ? errors[0]?.error : null,
+      degradedReason: hasFetchErrors ? errors[0]?.error : null
     };
   } catch (err) {
     // Catastrophic fetch failure — still never throw
@@ -405,7 +411,7 @@ async function executeLinkedInSearch(query, userId) {
       jobs: [],
       stats: { ...emptyStats, errors: 1 },
       degraded: true,
-      degradedReason: reason,
+      degradedReason: reason
     };
   }
 }
@@ -418,5 +424,5 @@ module.exports = {
   executeLinkedInSearch,
   normalizeLinkedInJob,
   checkLinkedInHealth,
-  updateLinkedInSourceStatus,
+  updateLinkedInSourceStatus
 };

@@ -19,7 +19,10 @@ const cheerio = require('cheerio');
 const { sleep } = require('./rateLimit');
 
 const BASE_URL = 'https://wuzzuf.net';
-const DELAY_MS = parseInt(process.env.JOB_SEARCH_REQUEST_DELAY_MS || '3000', 10);
+const DELAY_MS = parseInt(
+  process.env.JOB_SEARCH_REQUEST_DELAY_MS || '3000',
+  10
+);
 const RETRY_DELAY_MS = 2000;
 
 // Identify the bot clearly while staying respectful
@@ -30,7 +33,7 @@ const REQUEST_HEADERS = {
   'Accept-Language': 'en-US,en;q=0.5',
   'Accept-Encoding': 'gzip, deflate, br',
   Connection: 'keep-alive',
-  'Cache-Control': 'no-cache',
+  'Cache-Control': 'no-cache'
 };
 
 // ---------------------------------------------------------------------------
@@ -148,7 +151,7 @@ function parseDetailPage(html, jobUrl) {
     workplace: null,
     applyUrl: null,
     skills: [],
-    rawText,
+    rawText
   };
 
   // --- 1. JSON-LD (preferred) ---
@@ -203,7 +206,7 @@ function parseDetailPage(html, jobUrl) {
     const companySelectors = [
       'a[href*="/company/"]',
       '[class*="company"] a',
-      'h3 a',
+      'h3 a'
     ];
     for (const sel of companySelectors) {
       const text = $(sel).first().text().trim();
@@ -225,7 +228,7 @@ function parseDetailPage(html, jobUrl) {
   // Final fallback: extract "Company - City, Country" pattern from page text.
   // Wuzzuf renders "[Company] - [City, Country]Apply For Job" (no space before "Apply").
   // Use non-greedy capture so the greedy .{2,60} prefix doesn't swallow the location.
-  const textForLocation = result.rawText || (result.description || '');
+  const textForLocation = result.rawText || result.description || '';
   if (!result.location && textForLocation) {
     const locMatch = textForLocation.match(/ - (.{3,60}?)Apply For Job/);
     if (locMatch) result.location = locMatch[1].trim() || null;
@@ -241,7 +244,7 @@ function parseDetailPage(html, jobUrl) {
       'article',
       'section',
       '[class*="description"]',
-      '[class*="details"]',
+      '[class*="details"]'
     ];
     $(candidates.join(', ')).each((_, el) => {
       // Skip tiny containers and navigation-like elements
@@ -263,7 +266,7 @@ function parseDetailPage(html, jobUrl) {
     '[class*="tag"] span',
     '[class*="skill"] span',
     '[class*="chips"] span',
-    '[class*="requirement"] li',
+    '[class*="requirement"] li'
   ];
   for (const sel of tagSelectors) {
     const tags = [];
@@ -313,7 +316,7 @@ async function extractJobs(query = {}, options = {}) {
     terms = ['Frontend Developer'],
     location = 'Egypt',
     maxPages = 3,
-    maxJobs = parseInt(process.env.JOB_SEARCH_MAX_JOBS_PER_RUN || '60', 10),
+    maxJobs = parseInt(process.env.JOB_SEARCH_MAX_JOBS_PER_RUN || '60', 10)
   } = query;
 
   const { onFetch, onError } = options;
@@ -349,7 +352,8 @@ async function extractJobs(query = {}, options = {}) {
         console.error(
           `[Wuzzuf] Search error — term="${term}" page=${page}: ${err.message}`
         );
-        if (onError) onError({ phase: 'search', term, page, error: err.message });
+        if (onError)
+          onError({ phase: 'search', term, page, error: err.message });
       }
     }
   }
@@ -367,7 +371,7 @@ async function extractJobs(query = {}, options = {}) {
         ...card,
         ...detail,
         // Prefer card title if detail page title is empty
-        title: card.title || detail.title,
+        title: card.title || detail.title
       });
 
       if (onFetch) onFetch(card.jobUrl);
@@ -375,7 +379,8 @@ async function extractJobs(query = {}, options = {}) {
       console.error(
         `[Wuzzuf] Detail fetch error — url=${card.jobUrl}: ${err.message}`
       );
-      if (onError) onError({ phase: 'detail', url: card.jobUrl, error: err.message });
+      if (onError)
+        onError({ phase: 'detail', url: card.jobUrl, error: err.message });
 
       // Still include the job with partial (card-only) data
       detailedJobs.push({ ...card, _partialFetch: true });
@@ -385,4 +390,9 @@ async function extractJobs(query = {}, options = {}) {
   return detailedJobs;
 }
 
-module.exports = { extractJobs, buildSearchUrl, parseJobsFromSearchPage, parseDetailPage };
+module.exports = {
+  extractJobs,
+  buildSearchUrl,
+  parseJobsFromSearchPage,
+  parseDetailPage
+};

@@ -6,7 +6,12 @@ const { ROLES } = require('../utils/constants');
 
 const router = express.Router();
 
-router.route('/').get(authController.protect, controller.getAll);
+const scopeToUser = (req, res, next) => {
+  req.mergeFilter = { user: req.user.id };
+  next();
+};
+
+router.route('/').get(authController.protect, scopeToUser, controller.getAll);
 
 router
   .route('/:id')

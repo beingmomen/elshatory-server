@@ -43,7 +43,7 @@ async function findExistingJob(normalizedJob, userId) {
       source,
       company: { $regex: new RegExp(`^${escapeRegex(company)}$`, 'i') },
       title: { $regex: new RegExp(`^${escapeRegex(title)}$`, 'i') },
-      user: userId,
+      user: userId
     });
     if (existing) return { existing, reason: 'company+title' };
   }
