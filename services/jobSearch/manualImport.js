@@ -267,8 +267,5 @@ async function importJob({ source, jobUrl, rawText, userId }) {
 
 module.exports = {
   importJob,
-  extractJobFromRawText,
-  fetchJobPage
+  parseRawText, // Export parseRawText instead of missing extractJobFromRawText
 };
-
-module.exports = { importJob };
