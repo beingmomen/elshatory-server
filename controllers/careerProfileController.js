@@ -18,7 +18,10 @@ exports.updateSettings = catchAsync(async (req, res) => {
     'defaultStacks',
     'optionalStacks',
     'locationPreferences',
-    'workplacePreferences'
+    'workplacePreferences',
+    'requiredKeywords',
+    'excludedKeywords',
+    'maxJobAgeDays'
   ];
 
   const updateData = {};

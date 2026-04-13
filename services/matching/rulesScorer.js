@@ -82,8 +82,12 @@ const scoreCoreStack = (job, snapshot) => {
   );
   const userAll = userSkillsToCanonical(snapshot.allSkills || []);
 
+  const userOptional = userSkillsToCanonical(
+    snapshot.settings?.optionalStacks || []
+  );
+
   if (!userCore.length) {
-    // Fallback to allSkills
+    // Fallback to allSkills when no career profile stacks defined
     if (!userAll.length)
       return { pts: 0, matched: [], missing: jobSkillsCanonical, reason: null };
     const matched = jobSkillsCanonical.filter(s => userAll.includes(s));
@@ -99,11 +103,14 @@ const scoreCoreStack = (job, snapshot) => {
     };
   }
 
+  // When career profile stacks are defined, use ONLY those — not portfolio skills
   const matched = jobSkillsCanonical.filter(
-    s => userCore.includes(s) || userAll.includes(s)
+    s => userCore.includes(s) || userOptional.includes(s)
   );
   const coreMatched = jobSkillsCanonical.filter(s => userCore.includes(s));
-  const missing = jobSkillsCanonical.filter(s => !userAll.includes(s));
+  const missing = jobSkillsCanonical.filter(
+    s => !userCore.includes(s) && !userOptional.includes(s)
+  );
 
   const ratio = coreMatched.length / Math.max(userCore.length, 1);
   const pts = Math.round(Math.min(30, ratio * 30));

@@ -55,5 +55,17 @@ exports.updateCareerProfileSettingsRules = [
   body('workplacePreferences')
     .optional()
     .isArray()
-    .withMessage('Workplace preferences must be an array.')
+    .withMessage('Workplace preferences must be an array.'),
+  body('requiredKeywords')
+    .optional()
+    .isArray()
+    .withMessage('Required keywords must be an array.'),
+  body('excludedKeywords')
+    .optional()
+    .isArray()
+    .withMessage('Excluded keywords must be an array.'),
+  body('maxJobAgeDays')
+    .optional()
+    .isNumeric()
+    .withMessage('Max job age days must be a number.')
 ];
