@@ -11,7 +11,47 @@ const {
 } = require('../services/careerProfile/snapshot');
 const { generateAtsDraft } = require('../services/resume/atsDraftGenerator');
 
-exports.getAll = factory.getAll(Job);
+exports.getAll = catchAsync(async (req, res, next) => {
+  const CareerProfileSettings = require('../models/careerProfileSettingsModel');
+  const settings = await CareerProfileSettings.findOne({ user: req.user.id }).lean();
+
+  const extraConditions = [];
+
+  if (settings?.requiredKeywords?.length) {
+    const patterns = settings.requiredKeywords.map(
+      k => new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+    );
+    extraConditions.push({
+      $or: patterns.flatMap(p => [{ title: p }, { skills: p }])
+    });
+  }
+
+  if (settings?.excludedKeywords?.length) {
+    settings.excludedKeywords.forEach(k => {
+      const pattern = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      extraConditions.push({
+        title: { $not: pattern },
+        skills: { $not: pattern }
+      });
+    });
+  }
+
+  if (settings?.maxJobAgeDays > 0) {
+    const cutoff = new Date(Date.now() - settings.maxJobAgeDays * 24 * 60 * 60 * 1000);
+    extraConditions.push({
+      $or: [{ postedAt: { $gte: cutoff } }, { postedAt: null }]
+    });
+  }
+
+  if (extraConditions.length) {
+    req.mergeFilter = {
+      ...req.mergeFilter,
+      $and: [...(req.mergeFilter.$and || []), ...extraConditions]
+    };
+  }
+
+  return factory.getAll(Job)(req, res, next);
+});
 
 exports.updateOne = catchAsync(async (req, res, next) => {
   const doc = await Job.findOneAndUpdate(

@@ -11,6 +11,9 @@ const schema = new mongoose.Schema(
       type: [String],
       enum: ['onsite', 'remote', 'hybrid']
     },
+    requiredKeywords: [String],
+    excludedKeywords: [String],
+    maxJobAgeDays: { type: Number, default: 60 },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
