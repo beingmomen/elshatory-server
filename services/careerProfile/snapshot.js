@@ -83,7 +83,10 @@ const buildSnapshot = async userId => {
           defaultStacks: settings.defaultStacks || [],
           optionalStacks: settings.optionalStacks || [],
           locationPreferences: settings.locationPreferences || [],
-          workplacePreferences: settings.workplacePreferences || []
+          workplacePreferences: settings.workplacePreferences || [],
+          requiredKeywords: settings.requiredKeywords || [],
+          excludedKeywords: settings.excludedKeywords || [],
+          maxJobAgeDays: settings.maxJobAgeDays ?? 60
         }
       : null
   };
