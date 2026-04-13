@@ -11,7 +11,7 @@ const upload = multer({
       cb(new AppError('Not an image! Please upload only images.', 400), false);
     }
   },
-  limits: { fileSize: 5 * 1024 * 1024, files: 10 }
+  limits: { fileSize: 10 * 1024 * 1024, files: 10 }
 });
 
 const uploadToCloudinary = buffer =>
