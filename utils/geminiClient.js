@@ -68,6 +68,17 @@ const buildScorePrompt = ({ job, profile }) => `
 أنت محلل توظيف. حلّل مدى ملاءمة الوظيفة للملف المهني التالي.
 أجب بـ JSON فقط (بدون Markdown أو شرح).
 
+قواعد صارمة (إلزامية):
+1. إذا كانت الوظيفة في تخصص مختلف جوهرياً عن الـ profile:
+   - Frontend مقابل Backend / DevOps / Data / QA → score أقل من 20.
+   - Mobile Native (iOS/Android/Flutter/Kotlin/Swift) مقابل Web Frontend → score أقل من 25.
+2. إذا كانت الوظيفة غير تقنية بالكامل (Customer Service، Sales، Accountant، HR، Marketing، Admin):
+   - score أقل من 10.
+3. إذا كانت الوظيفة تقنية لكن stack مختلف تماماً (مثال: profile Vue/Nuxt لكن الوظيفة Angular فقط):
+   - score بين 30-50 حسب التقارب.
+4. لا تمنح score ≥ 70 إلا إذا كانت تتطابق بقوة مع stack الـ profile أو أدواره المستهدفة.
+5. استخدم العنوان الرسمي للوظيفة كمرساة: "Sales Engineer"، "Account Manager"، "Data Engineer" لا تُعامل Frontend أبداً.
+
 الصيغة المطلوبة:
 {
   "score": 0-100,

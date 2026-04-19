@@ -5,6 +5,7 @@ const sourceStatSchema = new mongoose.Schema(
     saved: { type: Number, default: 0 },
     skipped: { type: Number, default: 0 },
     errors: { type: Number, default: 0 },
+    rejectedByAI: { type: Number, default: 0 },
     degraded: { type: Boolean, default: false },
     degradedReason: {
       type: String,
@@ -19,7 +20,8 @@ const statsSchema = new mongoose.Schema(
   {
     saved: { type: Number, default: 0 },
     skipped: { type: Number, default: 0 },
-    errors: { type: Number, default: 0 }
+    errors: { type: Number, default: 0 },
+    rejectedByAI: { type: Number, default: 0 }
   },
   { _id: false, suppressReservedKeysWarning: true }
 );

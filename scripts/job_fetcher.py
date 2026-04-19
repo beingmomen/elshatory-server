@@ -4,7 +4,7 @@
 Usage:
     python3 job_fetcher.py --terms "Frontend Developer,Vue" \
         --location "Egypt" --sites linkedin \
-        --results-per-site 30 --hours-old 168
+        --results-per-site 15 --hours-old 72
 
 Output: JSON to stdout with shape:
     {
@@ -20,13 +20,18 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 import traceback
 from typing import Any, Dict, List
 
 
-DEFAULT_RESULTS_PER_SITE = 30
-DEFAULT_HOURS_OLD = 168  # 7 days
+DEFAULT_RESULTS_PER_SITE = 15
+DEFAULT_HOURS_OLD = 72
+DEFAULT_USER_AGENT = (
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+    '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+)
 
 
 def _is_nan(value: Any) -> bool:
@@ -101,6 +106,14 @@ def _normalize_job(row: Dict[str, Any], site: str) -> Dict[str, Any]:
     }
 
 
+def _resolve_proxies() -> List[str] | None:
+    raw = os.environ.get('JOBSPY_PROXIES', '').strip()
+    if not raw:
+        return None
+    items = [p.strip() for p in raw.split(',') if p.strip()]
+    return items or None
+
+
 def _scrape_site(
     site: str,
     terms: List[str],
@@ -117,10 +130,20 @@ def _scrape_site(
             'degraded': True
         }
 
+    proxies = _resolve_proxies()
+
+    # LinkedIn: merge all terms into a single query to reduce rate-limit hits.
+    # Other sites keep loop-per-term (broader coverage, separate fallbacks).
+    if site == 'linkedin':
+        merged = ' '.join(t.strip() for t in terms if t.strip())
+        terms_to_run: List[str] = [merged] if merged else []
+    else:
+        terms_to_run = terms
+
     aggregated: List[Dict[str, Any]] = []
     last_error: str = ''
 
-    for term in terms:
+    for term in terms_to_run:
         try:
             df = scrape_jobs(
                 site_name=[site],
@@ -128,7 +151,10 @@ def _scrape_site(
                 location=location or None,
                 results_wanted=results_per_site,
                 hours_old=hours_old,
+                country_indeed='egypt' if site == 'indeed' else None,
                 linkedin_fetch_description=site == 'linkedin',
+                user_agent=DEFAULT_USER_AGENT,
+                proxies=proxies,
                 verbose=0
             )
             if df is None or df.empty:
@@ -137,6 +163,10 @@ def _scrape_site(
                 aggregated.append(_normalize_job(row.to_dict(), site))
         except Exception as exc:  # noqa: BLE001
             last_error = f'{type(exc).__name__}: {exc}'
+            print(
+                f'[job_fetcher] {site} term="{term}" failed: {last_error}',
+                file=sys.stderr
+            )
             continue
 
     # Dedupe by jobUrl within this site
@@ -149,10 +179,17 @@ def _scrape_site(
         seen.add(url)
         deduped.append(job)
 
+    degraded = bool(last_error and not deduped)
+    if degraded:
+        print(
+            f'[job_fetcher] {site} degraded (no jobs, last_error={last_error})',
+            file=sys.stderr
+        )
+
     return {
         'jobs': deduped,
         'error': last_error if not deduped and last_error else None,
-        'degraded': bool(last_error and not deduped)
+        'degraded': degraded
     }
 
 
@@ -225,7 +262,8 @@ def main() -> int:
         'sources': sources
     }, ensure_ascii=False, default=str))
 
-    return 0
+    # Exit 0 whenever we have at least one successful source (partial included).
+    return 0 if any_ok else 1
 
 
 if __name__ == '__main__':
