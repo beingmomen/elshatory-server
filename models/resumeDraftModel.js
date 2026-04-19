@@ -1,41 +1,32 @@
 const mongoose = require('mongoose');
 
-const schema = new mongoose.Schema(
+const resumeDraftSchema = new mongoose.Schema(
   {
     job: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Job',
-      required: [true, 'Resume draft must reference a job'],
+      required: true,
       index: true
     },
-    profileVersion: {
-      type: String
-    },
-    format: {
-      type: String,
-      enum: ['text', 'html', 'markdown'],
-      default: 'text'
-    },
-    content: {
-      type: mongoose.Schema.Types.Mixed
-    },
-    warnings: [String],
     user: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'Resume draft must belong to a user'],
       index: true
+    },
+    summary: { type: String, default: '' },
+    highlightedSkills: { type: [String], default: [] },
+    experienceBullets: { type: [String], default: [] },
+    suggestedKeywords: { type: [String], default: [] },
+    rawOutput: { type: String, default: '' },
+    generatedBy: {
+      type: String,
+      enum: ['llm', 'template'],
+      default: 'llm'
     }
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-  }
+  { timestamps: true }
 );
 
-schema.index({ job: 1, user: 1 });
+resumeDraftSchema.index({ job: 1, createdAt: -1 });
 
-const ResumeDraft = mongoose.model('ResumeDraft', schema);
-
-module.exports = ResumeDraft;
+module.exports = mongoose.model('ResumeDraft', resumeDraftSchema);

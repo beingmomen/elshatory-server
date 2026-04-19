@@ -1,44 +1,20 @@
 const express = require('express');
 const controller = require('../controllers/jobController');
-const authController = require('../controllers/authController');
-const v = require('../middleware/validators');
-const { ROLES } = require('../utils/constants');
 
 const router = express.Router();
 
-const scopeToUser = (req, res, next) => {
-  req.mergeFilter = { user: req.user.id };
-  next();
-};
-
-router.route('/').get(authController.protect, scopeToUser, controller.getAll);
+router.route('/').get(controller.getAll);
 
 router
   .route('/:id')
-  .get(authController.protect, controller.getOne)
-  .patch(
-    authController.protect,
-    authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
-    v.updateJobRules,
-    v.validate,
-    controller.updateOne
-  );
+  .get(controller.getOne)
+  .patch(controller.updateOne);
 
-router
-  .route('/:id/analyze')
-  .post(
-    authController.protect,
-    authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
-    controller.analyzeJob
-  );
+router.route('/:id/analyze').post(controller.analyze);
 
 router
   .route('/:id/resume-drafts')
-  .get(authController.protect, controller.getResumeDrafts)
-  .post(
-    authController.protect,
-    authController.restrictTo([ROLES.ADMIN, ROLES.DEV]),
-    controller.createResumeDraft
-  );
+  .get(controller.getDrafts)
+  .post(controller.createDraft);
 
 module.exports = router;

@@ -1,147 +1,124 @@
 const Job = require('../models/jobModel');
-const JobMatch = require('../models/jobMatchModel');
+const CareerProfile = require('../models/careerProfileModel');
 const ResumeDraft = require('../models/resumeDraftModel');
 const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const { matchJob } = require('../services/matching/matchJob');
-const {
-  buildSnapshot,
-  computeProfileVersion
-} = require('../services/careerProfile/snapshot');
-const { generateAtsDraft } = require('../services/resume/atsDraftGenerator');
+const gemini = require('../utils/geminiClient');
 
 exports.getAll = catchAsync(async (req, res, next) => {
-  const CareerProfileSettings = require('../models/careerProfileSettingsModel');
-  const settings = await CareerProfileSettings.findOne({ user: req.user.id }).lean();
+  const { source, status, seniority, search, keyword } = req.query;
 
-  const extraConditions = [];
+  const optFilter = {};
+  if (source) optFilter.source = source;
+  if (status) optFilter.status = status;
+  if (seniority) optFilter.seniority = seniority;
 
-  if (settings?.requiredKeywords?.length) {
-    const patterns = settings.requiredKeywords.map(
-      k => new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
-    );
-    extraConditions.push({
-      $or: patterns.flatMap(p => [{ title: p }, { skills: p }])
-    });
+  if (search || keyword) {
+    const needle = String(search || keyword).trim();
+    if (needle) {
+      const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const rx = new RegExp(escaped, 'i');
+      optFilter.$or = [{ title: rx }, { company: rx }, { skills: rx }];
+    }
   }
 
-  if (settings?.excludedKeywords?.length) {
-    settings.excludedKeywords.forEach(k => {
-      const pattern = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-      extraConditions.push({
-        title: { $not: pattern },
-        skills: { $not: pattern }
-      });
-    });
-  }
+  // Strip our custom params from req.query so APIFeatures doesn't double-filter
+  req.query = { ...req.query };
+  delete req.query.source;
+  delete req.query.status;
+  delete req.query.seniority;
+  delete req.query.search;
+  delete req.query.keyword;
 
-  if (settings?.maxJobAgeDays > 0) {
-    const cutoff = new Date(Date.now() - settings.maxJobAgeDays * 24 * 60 * 60 * 1000);
-    extraConditions.push({
-      $or: [{ postedAt: { $gte: cutoff } }, { postedAt: null }]
-    });
-  }
-
-  if (extraConditions.length) {
-    req.mergeFilter = {
-      ...req.mergeFilter,
-      $and: [...(req.mergeFilter.$and || []), ...extraConditions]
-    };
-  }
-
-  return factory.getAll(Job)(req, res, next);
+  return factory.getAll(Job, { optFilter })(req, res, next);
 });
 
+exports.getOne = factory.getOne(Job);
+
 exports.updateOne = catchAsync(async (req, res, next) => {
-  const doc = await Job.findOneAndUpdate(
-    { _id: req.params.id, user: req.user.id },
-    req.body,
-    { new: true, runValidators: true }
-  );
-  if (!doc) return next(new AppError('لم يتم العثور على الوظيفة', 404));
+  const allowed = ['status'];
+  const update = {};
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) update[key] = req.body[key];
+  }
+
+  const doc = await Job.findByIdAndUpdate(req.params.id, update, {
+    new: true,
+    runValidators: true
+  });
+
+  if (!doc) return next(new AppError('Job not found', 404));
+
   res.status(200).json({ status: 'success', data: doc });
 });
 
-/**
- * GET /api/v1/jobs/:id
- * Returns the job with its latest match analysis embedded.
- */
-exports.getOne = catchAsync(async (req, res, next) => {
-  const job = await Job.findOne({
-    _id: req.params.id,
-    user: req.user.id
-  }).lean();
-
-  if (!job) {
-    return next(new AppError('لم يتم العثور على الوظيفة', 404));
+exports.analyze = catchAsync(async (req, res, next) => {
+  if (!gemini.isConfigured()) {
+    return next(new AppError('AI scoring is not configured (missing GEMINI_API_KEY)', 503));
   }
 
-  const latestMatch = await JobMatch.findOne({
+  const job = await Job.findById(req.params.id);
+  if (!job) return next(new AppError('Job not found', 404));
+
+  const profile = (await CareerProfile.findOne({})) || {
+    targetRoles: [],
+    targetSeniority: [],
+    defaultStacks: [],
+    optionalStacks: [],
+    locationPreferences: [],
+    workplacePreferences: [],
+    requiredKeywords: [],
+    excludedKeywords: []
+  };
+
+  const match = await gemini.scoreJob({
+    job: job.toObject(),
+    profile: profile.toObject ? profile.toObject() : profile
+  });
+
+  if (!match) {
+    return next(new AppError('AI analysis failed to return valid JSON', 502));
+  }
+
+  job.latestMatch = match;
+  await job.save();
+
+  res.status(200).json({ status: 'success', data: job });
+});
+
+exports.getDrafts = catchAsync(async (req, res) => {
+  const drafts = await ResumeDraft.find({ job: req.params.id })
+    .sort({ createdAt: -1 })
+    .limit(10);
+  res.status(200).json({ status: 'success', data: { drafts } });
+});
+
+exports.createDraft = catchAsync(async (req, res, next) => {
+  if (!gemini.isConfigured()) {
+    return next(new AppError('AI drafting is not configured (missing GEMINI_API_KEY)', 503));
+  }
+
+  const job = await Job.findById(req.params.id);
+  if (!job) return next(new AppError('Job not found', 404));
+
+  const profile = (await CareerProfile.findOne({})) || {};
+
+  const draft = await gemini.tailorResume({
+    job: job.toObject(),
+    profile: profile.toObject ? profile.toObject() : profile
+  });
+
+  const saved = await ResumeDraft.create({
     job: job._id,
-    user: req.user.id
-  })
-    .select(
-      'score level matchedSkills missingSkills reasons risks recommendations generatedBy updatedAt profileVersion'
-    )
-    .lean();
-
-  res.status(200).json({
-    status: 'success',
-    data: { ...job, latestMatch: latestMatch || null }
-  });
-});
-
-/**
- * POST /api/v1/jobs/:id/analyze
- * Runs matching analysis and persists the result.
- */
-exports.analyzeJob = catchAsync(async (req, res) => {
-  const match = await matchJob(req.params.id, req.user.id);
-
-  res.status(200).json({
-    status: 'success',
-    data: { match }
-  });
-});
-
-exports.getResumeDrafts = catchAsync(async (req, res) => {
-  const drafts = await ResumeDraft.find({
-    job: req.params.id,
-    user: req.user.id
-  }).sort({ createdAt: -1 });
-
-  res.status(200).json({
-    status: 'success',
-    results: drafts.length,
-    data: { drafts }
-  });
-});
-
-exports.createResumeDraft = catchAsync(async (req, res, next) => {
-  const job = await Job.findOne({
-    _id: req.params.id,
-    user: req.user.id
-  }).lean();
-  if (!job) return next(new AppError('لم يتم العثور على الوظيفة', 404));
-
-  const snapshot = await buildSnapshot(req.user.id);
-  const profileVersion = computeProfileVersion(snapshot);
-
-  const match = await JobMatch.findOne({ job: job._id, user: req.user.id })
-    .select('missingSkills level')
-    .lean();
-
-  const { content, warnings, format } = generateAtsDraft(job, snapshot, match);
-
-  const draft = await ResumeDraft.create({
-    job: job._id,
-    user: req.user.id,
-    profileVersion,
-    format,
-    content,
-    warnings
+    user: req.user?._id,
+    ...draft
   });
 
-  res.status(201).json({ status: 'success', data: { draft } });
+  if (job.status === 'new') {
+    job.status = 'cv_ready';
+    await job.save();
+  }
+
+  res.status(201).json({ status: 'success', data: saved });
 });

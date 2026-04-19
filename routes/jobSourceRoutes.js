@@ -1,11 +1,10 @@
 const express = require('express');
 const controller = require('../controllers/jobSourceController');
-const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.route('/').get(authController.protect, controller.getAll);
-
-router.route('/:key/health').get(authController.protect, controller.getHealth);
+router.route('/').get(controller.getAll);
+router.route('/wuzzuf/health').get(controller.getWuzzufHealth);
+router.route('/linkedin/health').get(controller.getLinkedinHealth);
 
 module.exports = router;

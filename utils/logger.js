@@ -14,6 +14,11 @@ class Logger {
     }
   }
 
+  warn(message, data = {}) {
+    // eslint-disable-next-line no-console
+    console.warn(`[WARN] ${message}`, data);
+  }
+
   error(message, error = {}) {
     // eslint-disable-next-line no-console
     console.error(`[ERROR] ${message}`, error);

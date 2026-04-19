@@ -1,56 +1,64 @@
 const mongoose = require('mongoose');
 
-const schema = new mongoose.Schema(
+const sourceStatSchema = new mongoose.Schema(
   {
+    saved: { type: Number, default: 0 },
+    skipped: { type: Number, default: 0 },
+    errors: { type: Number, default: 0 },
+    degraded: { type: Boolean, default: false },
+    degradedReason: {
+      type: String,
+      enum: ['manual_import_only', 'disabled_by_config', 'rate_limited', ''],
+      default: ''
+    }
+  },
+  { _id: false, suppressReservedKeysWarning: true }
+);
+
+const statsSchema = new mongoose.Schema(
+  {
+    saved: { type: Number, default: 0 },
+    skipped: { type: Number, default: 0 },
+    errors: { type: Number, default: 0 }
+  },
+  { _id: false, suppressReservedKeysWarning: true }
+);
+
+const jobSearchRunSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      index: true
+    },
+    terms: { type: [String], default: [] },
     source: {
       type: String,
       enum: ['wuzzuf', 'linkedin', 'all'],
-      required: [true, 'Search run source is required'],
-      index: true
+      required: true
     },
+    location: { type: String, default: '' },
+    maxPages: { type: Number, default: 3 },
+    maxJobs: { type: Number, default: 60 },
     status: {
       type: String,
-      enum: ['pending', 'running', 'completed', 'failed', 'partial'],
+      enum: ['pending', 'running', 'completed', 'partial', 'failed'],
       default: 'pending',
       index: true
     },
-    query: {
-      type: mongoose.Schema.Types.Mixed
-    },
+    stats: { type: statsSchema, default: () => ({}) },
     sourceStats: {
-      type: mongoose.Schema.Types.Mixed
+      wuzzuf: { type: sourceStatSchema, default: null },
+      linkedin: { type: sourceStatSchema, default: null }
     },
-    stats: {
-      fetched: { type: Number, default: 0 },
-      saved: { type: Number, default: 0 },
-      skipped: { type: Number, default: 0 },
-      errors: { type: Number, default: 0 }
-    },
-    errorMessage: {
-      type: String
-    },
-    startedAt: {
-      type: Date
-    },
-    completedAt: {
-      type: Date
-    },
-    user: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-      required: [true, 'Search run must belong to a user'],
-      index: true
-    }
+    errorMessage: { type: String, default: '' },
+    startedAt: { type: Date },
+    completedAt: { type: Date }
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-  }
+  { timestamps: true }
 );
 
-schema.index({ createdAt: -1 });
+jobSearchRunSchema.index({ createdAt: -1 });
+jobSearchRunSchema.index({ user: 1, createdAt: -1 });
 
-const JobSearchRun = mongoose.model('JobSearchRun', schema);
-
-module.exports = JobSearchRun;
+module.exports = mongoose.model('JobSearchRun', jobSearchRunSchema);

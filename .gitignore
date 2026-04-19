@@ -16,6 +16,12 @@ dist-ssr
 .env.prod
 config.env
 
+# Python virtual env for JobSpy
+.venv
+venv
+__pycache__
+*.pyc
+
 # Editor directories and files
 !.vscode/extensions.json
 .idea

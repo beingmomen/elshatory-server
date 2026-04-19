@@ -1,32 +1,42 @@
+const Job = require('../models/jobModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const { importJob } = require('../services/jobSearch/manualImport');
+
+const deriveTitleFromRaw = text => {
+  const firstLine = text.split('\n').find(l => l.trim());
+  return (firstLine || 'Imported Job').slice(0, 140);
+};
 
 exports.importJob = catchAsync(async (req, res, next) => {
-  const { source = 'linkedin', jobUrl, rawText } = req.body;
+  const { jobUrl, rawText, source = 'linkedin' } = req.body || {};
 
   if (!jobUrl && !rawText) {
-    return next(
-      new AppError(
-        'يجب توفير jobUrl أو rawText. الرجاء لصق وصف الوظيفة في حقل rawText.',
-        400
-      )
-    );
+    return next(new AppError('Provide jobUrl or rawText', 400));
   }
 
-  const result = await importJob({
+  const effectiveUrl = jobUrl || `manual://${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+  const existing = await Job.findOne({ jobUrl: effectiveUrl });
+  if (existing) {
+    existing.lastSeenAt = new Date();
+    await existing.save();
+    return res
+      .status(200)
+      .json({ status: 'success', isDuplicate: true, data: existing });
+  }
+
+  const description = rawText || '';
+  const title = rawText ? deriveTitleFromRaw(rawText) : 'Imported LinkedIn Job';
+
+  const doc = await Job.create({
+    title,
+    description,
+    jobUrl: effectiveUrl,
     source,
-    jobUrl,
-    rawText,
-    userId: req.user._id
+    status: 'new',
+    user: req.user?._id,
+    lastSeenAt: new Date()
   });
 
-  const statusCode = result.isDuplicate ? 200 : 201;
-
-  res.status(statusCode).json({
-    status: 'success',
-    isDuplicate: result.isDuplicate,
-    ...(result.duplicateReason && { duplicateReason: result.duplicateReason }),
-    data: { job: result.job }
-  });
+  res.status(201).json({ status: 'success', isDuplicate: false, data: doc });
 });
